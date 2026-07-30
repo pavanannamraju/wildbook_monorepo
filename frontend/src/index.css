@@ -1,0 +1,180 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+@import "leaflet.markercluster/dist/MarkerCluster.css";
+@import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+
+@theme {
+  --font-sans: "Nunito", system-ui, sans-serif;
+}
+
+/* Cocogoose Pro font family */
+@font-face {
+  font-family: "Cocogoose Pro";
+  src: url("./assets/fonts/cocogoose-pro/Cocogoose Pro Thin Trial.ttf") format("truetype");
+  font-weight: 100;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Cocogoose Pro";
+  src: url("./assets/fonts/cocogoose-pro/Cocogoose Pro Thin Italic Trial.ttf") format("truetype");
+  font-weight: 100;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Cocogoose Pro";
+  src: url("./assets/fonts/cocogoose-pro/Cocogoose Pro Ultralight Trial.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Cocogoose Pro";
+  src: url("./assets/fonts/cocogoose-pro/Cocogoose Pro Ultralight Italic Trial.ttf") format("truetype");
+  font-weight: 200;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Cocogoose Pro";
+  src: url("./assets/fonts/cocogoose-pro/Cocogoose Pro Light Trial.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Cocogoose Pro";
+  src: url("./assets/fonts/cocogoose-pro/Cocogoose Pro Light Italic Trial.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Cocogoose Pro";
+  src: url("./assets/fonts/cocogoose-pro/Cocogoose Pro Regular Trial.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Cocogoose Pro";
+  src: url("./assets/fonts/cocogoose-pro/Cocogoose Pro Regular Italic Trial.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Cocogoose Pro";
+  src: url("./assets/fonts/cocogoose-pro/Cocogoose Pro SemiLight Trial.ttf") format("truetype");
+  font-weight: 350;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Cocogoose Pro";
+  src: url("./assets/fonts/cocogoose-pro/Cocogoose Pro SemiLight Italic Trial.ttf") format("truetype");
+  font-weight: 350;
+  font-style: italic;
+}
+
+/* Cocogoose Pro display variants */
+@font-face {
+  font-family: "Cocogoose Pro Block";
+  src: url("./assets/fonts/cocogoose-pro/Cocogoose Pro Block Border Trial.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Cocogoose Pro Letterpress";
+  src: url("./assets/fonts/cocogoose-pro/Cocogoose Pro Letterpress Trial.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Cocogoose Pro Inline";
+  src: url("./assets/fonts/cocogoose-pro/Cocogoose Pro Inline Trial.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Cocogoose Pro Outlined";
+  src: url("./assets/fonts/cocogoose-pro/Cocogoose Pro Outlined Trial.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@layer base {
+  :root {
+    line-height: 1.5;
+    color: #2f2b28;
+    background-color: #f0ede9;
+    --color-wildbook-bg: #f0ede9;
+    --color-wildbook-cream: #e8e2dc;
+    --color-wildbook-teal: #0b6e66;
+    --color-wildbook-teal-dark: #002023;
+    --color-wildbook-accent: #ab863f;
+    --color-wildbook-text: #2f2b28;
+    --color-wildbook-muted: #73706c;
+    --color-wildbook-white: #edede8;
+
+
+    --color-wildbook-text-light: #EDE7E2;
+
+    /* Page horizontal padding: mobile → tablet → desktop */
+    --page-px-mobile: 1rem;
+    --page-px-tablet: 4rem;
+    --page-px-desktop: 6rem;
+    --page-px-desktop-narrow: 7.5rem;
+    --page-px-desktop-footer: 9rem;
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+}
+
+/* Page padding utilities – values in :root above */
+@layer utilities {
+  .page-px {
+    padding-left: var(--page-px-mobile);
+    padding-right: var(--page-px-mobile);
+  }
+  @media (min-width: 768px) {
+    .page-px {
+      padding-left: var(--page-px-tablet);
+      padding-right: var(--page-px-tablet);
+    }
+  }
+  @media (min-width: 1024px) {
+    .page-px {
+      padding-left: var(--page-px-desktop);
+      padding-right: var(--page-px-desktop);
+    }
+  }
+
+  .page-px-narrow {
+    padding-left: var(--page-px-mobile);
+    padding-right: var(--page-px-mobile);
+  }
+  @media (min-width: 768px) {
+    .page-px-narrow {
+      padding-left: var(--page-px-tablet);
+      padding-right: var(--page-px-tablet);
+    }
+  }
+  @media (min-width: 1024px) {
+    .page-px-narrow {
+      padding-left: var(--page-px-desktop-narrow);
+      padding-right: var(--page-px-desktop-narrow);
+    }
+  }
+
+  .page-px-footer {
+    padding-left: var(--page-px-mobile);
+    padding-right: var(--page-px-mobile);
+  }
+  @media (min-width: 768px) {
+    .page-px-footer {
+      padding-left: var(--page-px-tablet);
+      padding-right: var(--page-px-tablet);
+    }
+  }
+  @media (min-width: 1024px) {
+    .page-px-footer {
+      padding-left: var(--page-px-desktop-footer);
+      padding-right: var(--page-px-desktop-footer);
+    }
+  }
+}

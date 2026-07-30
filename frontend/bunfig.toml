@@ -1,0 +1,6 @@
+# Use Windows/macOS/Linux system certificate store (fixes UNABLE_TO_VERIFY_LEAF_SIGNATURE on corporate networks)
+CA = "system"
+
+[serve.static]
+env = "BUN_PUBLIC_*"
+plugins = ["bun-plugin-tailwind"]

@@ -1,0 +1,165 @@
+from __future__ import annotations
+
+import asyncio
+import logging
+from collections.abc import AsyncIterator
+from pathlib import Path
+
+import firebase_admin
+from fastapi import FastAPI
+from firebase_admin import credentials
+
+from app.core.config import get_settings
+from app.domain.guides.catalog_service import CatalogService
+from app.domain.guides.catalog_store import CatalogStore
+from app.domain.guides.local_catalog import LocalCatalog
+from app.domain.guides.local_search import LocalSearch
+from app.domain.guides.search_service import GuideSearchService
+from app.stores.indexes import (
+    ensure_accommodation_bookings_indexes,
+    ensure_accommodations_indexes,
+    ensure_bookmarks_indexes,
+    ensure_guide_applications_indexes,
+    ensure_inquiries_indexes,
+    ensure_users_indexes,
+)
+from app.stores.mongo_client import create_mongo_client
+
+logger = logging.getLogger("wildbook_v1.lifespan")
+
+
+def _try_create_index(create_fn, *, label: str) -> None:
+    """Indexes speed up queries; they are not required for the monolith to run."""
+    try:
+        create_fn()
+    except Exception as exc:
+        logger.warning("Skipping index %s: %s", label, exc)
+
+
+def _ensure_guide_indexes(store: CatalogStore) -> None:
+    # Best-effort only. Existing catalog data may have duplicate null slugs, so a
+    # unique (guide_id, slug) index must never block app startup.
+    _try_create_index(
+        lambda: store.guides.create_index([("email", 1)], unique=True, name="uniq_guide_email"),
+        label="uniq_guide_email",
+    )
+    _try_create_index(
+        lambda: store.guides.create_index(
+            [("status", 1), ("is_active", 1), ("is_deleted", 1), ("max_rating", -1)],
+            name="ix_guides_browse",
+        ),
+        label="ix_guides_browse",
+    )
+    _try_create_index(
+        lambda: store.guides.create_index(
+            [("primary_location_id", 1), ("max_rating", -1)],
+            name="ix_guides_location",
+        ),
+        label="ix_guides_location",
+    )
+    _try_create_index(
+        lambda: store.guides.create_index([("language_ids", 1)], name="ix_guides_languages"),
+        label="ix_guides_languages",
+    )
+    _try_create_index(
+        lambda: store.guides.create_index([("expertise_ids", 1)], name="ix_guides_expertise"),
+        label="ix_guides_expertise",
+    )
+    _try_create_index(
+        lambda: store.guides.create_index([("experience_types", 1)], name="ix_guides_experience_types"),
+        label="ix_guides_experience_types",
+    )
+    _try_create_index(
+        lambda: store.guides.create_index([("full_name_normalized", 1)], name="ix_guides_name"),
+        label="ix_guides_name",
+    )
+    _try_create_index(
+        lambda: store.offerings.create_index(
+            [("guide_id", 1), ("status", 1), ("is_deleted", 1)],
+            name="ix_offerings_guide",
+        ),
+        label="ix_offerings_guide",
+    )
+    _try_create_index(
+        lambda: store.guides.create_index(
+            [("search_text", "text")],
+            name="tx_guides_search_text",
+            default_language="english",
+        ),
+        label="tx_guides_search_text",
+    )
+
+
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    settings = get_settings()
+
+    if settings.auth_required:
+        if not settings.firebase_project_id:
+            logger.warning("AUTH_REQUIRED=true but FIREBASE_PROJECT_ID is not configured.")
+        try:
+            firebase_admin.get_app()
+        except ValueError:
+            firebase_admin.initialize_app(credentials.ApplicationDefault())
+
+    mongo_client = None
+    if settings.mongo_uri:
+
+        def _bootstrap() -> None:
+            client = create_mongo_client(mongo_uri=settings.mongo_uri)
+            db = client[settings.mongo_database_name]
+            # Wire domain services first so reads work even if indexes fail.
+            store = CatalogStore(db)
+            catalog = CatalogService(store)
+            search = GuideSearchService(store)
+            app.state.mongo_client = client
+            app.state.catalog_store = store
+            app.state.catalog_service = catalog
+            app.state.search_service = search
+            app.state.local_catalog = LocalCatalog(catalog)
+            app.state.local_search = LocalSearch(search)
+
+            _try_create_index(
+                lambda: ensure_users_indexes(users=db[settings.mongo_users_collection_name]),
+                label="users",
+            )
+            _try_create_index(
+                lambda: ensure_guide_applications_indexes(
+                    guide_applications=db[settings.mongo_guide_applications_collection_name],
+                ),
+                label="guide_applications",
+            )
+            _try_create_index(
+                lambda: ensure_bookmarks_indexes(bookmarks=db[settings.mongo_bookmarks_collection_name]),
+                label="bookmarks",
+            )
+            _try_create_index(
+                lambda: ensure_accommodations_indexes(
+                    accommodations=db[settings.mongo_accommodations_collection_name],
+                ),
+                label="accommodations",
+            )
+            _try_create_index(
+                lambda: ensure_accommodation_bookings_indexes(
+                    accommodation_bookings=db[settings.mongo_accommodation_bookings_collection_name],
+                ),
+                label="accommodation_bookings",
+            )
+            _try_create_index(
+                lambda: ensure_inquiries_indexes(inquiries=db[settings.mongo_inquiries_collection_name]),
+                label="inquiries",
+            )
+            _ensure_guide_indexes(store)
+
+        try:
+            await asyncio.to_thread(_bootstrap)
+            mongo_client = app.state.mongo_client
+        except Exception as exc:
+            logger.warning("Skipping Mongo bootstrap at startup: %s", exc)
+
+    static_path = Path(__file__).resolve().parents[2] / settings.static_dir
+    app.state.static_dir = static_path
+
+    yield
+
+    if mongo_client is not None:
+        mongo_client.close()
