@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anurag Jha · Wildbook</title>
+    <meta
+      name="description"
+      content="Anurag Jha — Founder, Wildbook. Digital business card."
+    />
+    <meta property="og:title" content="Anurag Jha · Founder, Wildbook" />
+    <meta property="og:description" content="Get in touch with Anurag Jha at Wildbook." />
+    <meta property="og:image" content="assets/photo.png" />
+    <meta name="theme-color" content="#002023" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Nunito:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js" defer></script>
+    <script src="card.js" defer></script>
+  </head>
+  <body>
+    <div class="atmosphere" aria-hidden="true"></div>
+
+    <main class="card">
+      <header class="hero">
+        <div class="photo-wrap">
+          <img
+            class="photo"
+            src="assets/photo.png"
+            alt="Anurag Jha"
+            width="480"
+            height="600"
+          />
+        </div>
+        <div class="identity">
+          <p class="brand">Wildbook</p>
+          <h1>Anurag Jha</h1>
+          <p class="role">Founder</p>
+        </div>
+      </header>
+
+      <section class="links" aria-label="Contact">
+        <a class="link" href="mailto:hello@wildbook.in">
+          <span class="link-label">Email</span>
+          <span class="link-value">hello@wildbook.in</span>
+        </a>
+        <a
+          class="link"
+          href="https://www.wildbook.in"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span class="link-label">Website</span>
+          <span class="link-value">www.wildbook.in</span>
+        </a>
+        <a
+          class="link"
+          href="https://www.instagram.com/wildbook.in"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span class="link-label">Instagram</span>
+          <span class="link-value">@wildbook.in</span>
+        </a>
+      </section>
+
+      <section class="actions">
+        <button type="button" class="btn btn-primary" id="save-contact">
+          Save contact
+        </button>
+        <button type="button" class="btn btn-ghost" id="toggle-qr" aria-expanded="false">
+          Show QR
+        </button>
+      </section>
+
+      <section class="qr-panel" id="qr-panel" hidden>
+        <canvas id="qr-canvas" width="200" height="200" aria-label="QR code for this card"></canvas>
+        <p class="qr-hint">Scan to open this card</p>
+      </section>
+    </main>
+  </body>
+</html>
