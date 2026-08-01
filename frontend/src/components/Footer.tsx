@@ -7,14 +7,20 @@ import {
 } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import footerTop from "../assets/Mask group (1).svg";
+import { Reveal } from "../motion";
 
 export function Footer() {
   return (
     <footer className="mt-20 mx-auto w-full max-w-[1920px] overflow-hidden bg-[#F6F4F0]">
-      <img src={footerTop} alt="" aria-hidden="true" className="block w-full h-auto select-none" />
+      <Reveal preset="fadeIn" early>
+        <img src={footerTop} alt="" aria-hidden="true" className="block w-full h-auto select-none" />
+      </Reveal>
       <div className="page-px-footer bg-[#0e1b15] pt-10 lg:pt-14 pb-6 lg:pb-8">
         {/* Main footer row */}
-        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-10 lg:gap-[80px]">
+        <Reveal
+          preset="fadeUp"
+          className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-10 lg:gap-[80px]"
+        >
           {/* Left: Logo + description + copyright */}
           <div className="flex flex-col gap-[40px] lg:gap-[56px] lg:w-[380px] shrink-0">
             <div className="flex flex-col gap-[16px]">
@@ -143,7 +149,7 @@ export function Footer() {
               </div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </footer>
   );

@@ -28,6 +28,7 @@ import { ExpertAvatar } from "../components/common/ExpertAvatar";
 import { ExperienceDetailModal } from "../components/experts/ExperienceDetailModal";
 import { StarRating } from "../components/common/StarRating";
 import { StickyTopNavbar } from "../components/common/StickyTopNavbar";
+import { Reveal, RevealItem, RevealStagger } from "../motion";
 
 function roleLabel(role: string): string {
   if (role === "guide") return "FOREST GUIDE";
@@ -207,7 +208,7 @@ export function ExpertDetailPage() {
         <div className="flex gap-[80px]">
 
           {/* ── Left sidebar ── */}
-          <aside className="w-[364px] shrink-0 lg:sticky lg:top-[88px] lg:self-start">
+          <Reveal as="aside" preset="fadeLeft" className="w-[364px] shrink-0 lg:sticky lg:top-[88px] lg:self-start">
             {/* Back link */}
             <Link
               to="/experts"
@@ -227,7 +228,7 @@ export function ExpertDetailPage() {
               <div className="flex flex-col gap-[8px]">
                 <h1
                   className="text-[24px] leading-[32px] text-black"
-                  style={{ fontFamily: '"Cocogoose Pro"', fontWeight: 300 }}
+                  style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300 }}
                 >
                   {expert.name}
                 </h1>
@@ -279,10 +280,15 @@ export function ExpertDetailPage() {
                 </div>
               )}
             </div>
-          </aside>
+          </Reveal>
 
           {/* ── Main content ── */}
-          <section className="min-w-0 flex-1 flex flex-col gap-[48px]">
+          <Reveal
+            as="section"
+            preset="fadeRight"
+            delay={0.1}
+            className="min-w-0 flex-1 flex flex-col gap-[48px]"
+          >
 
             {/* About */}
             <div className="flex flex-col gap-[32px]">
@@ -394,21 +400,23 @@ export function ExpertDetailPage() {
                   </h3>
                   <p
                     className="text-[24px] leading-[40px] text-[#73706C]"
-                    style={{ fontFamily: '"Cocogoose Pro"', fontWeight: 350 }}
+                    style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 350 }}
                   >
                     Journeys with {firstName}
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-[24px]">
+                <RevealStagger preset="fast" className="flex flex-col gap-[24px]">
                   {experiences.map((item) => {
                     const description = item.description ?? "";
                     const isExpanded = expandedExperienceIds.has(item.id);
                     const canExpand = description.length > 120;
 
                     return (
-                      <article
+                      <RevealItem
+                        as="article"
                         key={item.id}
+                        preset="fadeUpSoft"
                         className="flex gap-[40px] items-start rounded-[16px] bg-[#FBF9F6] p-[16px]"
                       >
                         {/* Image */}
@@ -435,7 +443,7 @@ export function ExpertDetailPage() {
                                 <div className="flex items-center justify-between">
                                   <h4
                                     className="text-[24px] leading-[32px] text-[#2F2B28]"
-                                    style={{ fontFamily: '"Cocogoose Pro"', fontWeight: 300 }}
+                                    style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300 }}
                                   >
                                     {item.title}
                                   </h4>
@@ -518,10 +526,10 @@ export function ExpertDetailPage() {
                             </button>
                           </div>
                         </div>
-                      </article>
+                      </RevealItem>
                     );
                   })}
-                </div>
+                </RevealStagger>
               </div>
             )}
 
@@ -755,7 +763,7 @@ export function ExpertDetailPage() {
                 </div>
               </div>
             </section>
-          </section>
+          </Reveal>
         </div>
       </div>
 

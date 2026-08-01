@@ -17,6 +17,7 @@ import { PageLoader } from "../components/PageLoader";
 import { PageErrorState } from "../components/common/PageErrorState";
 import { ShareLinkModal } from "../components/common/ShareLinkModal";
 import { StickyTopNavbar } from "../components/common/StickyTopNavbar";
+import { HeroReveal, Reveal } from "../motion";
 
 export function AccommodationDetailPage() {
   const { slugOrId } = useParams();
@@ -123,7 +124,9 @@ export function AccommodationDetailPage() {
       <StickyTopNavbar />
       <div className="page-px py-6 lg:py-8">
         <div className="relative mb-6 overflow-hidden rounded-2xl">
-          <img src={heroImage} alt={data.name} className="h-[280px] w-full object-cover md:h-[370px]" />
+          <HeroReveal preset="image" className="block w-full">
+            <img src={heroImage} alt={data.name} className="h-[280px] w-full object-cover md:h-[370px]" />
+          </HeroReveal>
           <div className="absolute inset-0 bg-linear-to-r from-black/65 via-black/20 to-black/55" />
           <div className="absolute inset-x-0 top-0 p-4 md:p-6">
             <Link to="/experts" className="inline-flex items-center gap-2 text-xs text-white">
@@ -132,6 +135,7 @@ export function AccommodationDetailPage() {
             </Link>
           </div>
           <div className="absolute inset-x-0 bottom-0 p-4 md:p-6">
+            <HeroReveal delay={0.15} preset="fadeUp">
             <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
               <div>
                 <h1 className="text-[34px] leading-tight text-white drop-shadow">{data.name}</h1>
@@ -159,10 +163,14 @@ export function AccommodationDetailPage() {
                 </a>
               </div>
             </div>
+            </HeroReveal>
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+        <Reveal
+          preset="fadeUp"
+          className="grid gap-6 lg:grid-cols-[1fr_360px]"
+        >
           <aside className="order-2 lg:order-2 lg:sticky lg:top-24 lg:self-start">
             <div className="rounded-2xl bg-[#FBF9F6] p-4 shadow-[0_0_0_1px_#ece8e3]">
               <div className="flex rounded bg-[#EFE9E2] p-1">
@@ -411,7 +419,7 @@ export function AccommodationDetailPage() {
               </div>
             </div>
           </section>
-        </div>
+        </Reveal>
       </div>
       <ShareLinkModal
         isOpen={isShareModalOpen}

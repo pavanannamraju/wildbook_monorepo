@@ -9,6 +9,7 @@ import shadowUrl from "leaflet/dist/images/marker-shadow.png";
 
 import type { GeoJsonPoint, MapsDataDocument } from "../api/mapsData";
 import { useMapsData } from "../hooks/useMapsData";
+import { Reveal } from "../motion";
 
 type LatLng = L.LatLngTuple;
 
@@ -331,17 +332,22 @@ export function MapSection() {
 
   return (
     <section className="pt-16 lg:pt-20 mx-auto max-w-[1920px] page-px">
-      <div className="flex flex-col gap-[8px] mb-6 lg:mb-[24px]">
+      <Reveal className="flex flex-col gap-[8px] mb-6 lg:mb-[24px]">
         <h2 className="font-['Nunito'] font-bold text-[18px] lg:text-[24px] leading-[32px] text-[#AB863F]">
           Find Your Next Wildlife Destination
         </h2>
         <p className="font-['Nunito'] font-semibold text-[16px] lg:text-[24px] leading-snug lg:leading-[32px] text-[#2F2B28] max-w-3xl">
           Navigate through national parks, uncover the best seasons, and plan meaningful wildlife experiences.
         </p>
-      </div>
+      </Reveal>
 
       {/* `isolate` scopes Leaflet's internal z-indexes so the map never paints over the navbar. */}
-      <div className="relative isolate h-[560px] lg:h-[680px] w-full overflow-hidden rounded-2xl border border-black/10 bg-white/40 shadow-[0_20px_60px_rgba(0,0,0,0.08)]">
+      <Reveal
+        preset="fadeUp"
+        delay={0.1}
+        early
+        className="relative isolate h-[560px] lg:h-[680px] w-full overflow-hidden rounded-2xl border border-black/10 bg-white/40 shadow-[0_20px_60px_rgba(0,0,0,0.08)]"
+      >
         <MapContainer
           center={DEFAULT_CENTER}
           zoom={DEFAULT_ZOOM}
@@ -597,7 +603,7 @@ export function MapSection() {
             </button>
           )}
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

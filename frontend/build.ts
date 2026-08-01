@@ -85,7 +85,7 @@ if (existsSync(indexPath)) {
 }
 
 // Minified CSS drops quotes around font urls. Paths with spaces become invalid
-// (e.g. url(/Cocogoose Pro Thin….ttf)) — quote + encode them.
+// (e.g. url(/Banner Image.png)) — quote + encode them.
 function fixCssAssetUrls(css: string): string {
   return css.replace(/url\(([^)'"]+)\)/g, (_match, raw: string) => {
     const path = String(raw).trim();

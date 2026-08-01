@@ -80,7 +80,7 @@ export function ExperienceDetailModal({ isOpen, experience, onClose }: Props) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
           <p
             className="absolute bottom-[16px] left-[24px] right-[72px] text-[24px] leading-[30px] text-white"
-            style={{ fontFamily: '"Cocogoose Pro"', fontWeight: 300 }}
+            style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300 }}
           >
             {experience.title}
           </p>

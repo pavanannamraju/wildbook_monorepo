@@ -17,7 +17,7 @@ export function PageLoader({
         </p>
         <p
           className="mt-1 text-[20px] text-white"
-          style={{ fontFamily: '"Cocogoose Pro"', fontWeight: 300 }}
+          style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300 }}
         >
           {messageLineTwo}
         </p>

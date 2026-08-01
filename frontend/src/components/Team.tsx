@@ -2,6 +2,7 @@ import Anurag from "../assets/team_photos/Anurag.png";
 import NishadBarde from "../assets/team_photos/Nishad.png";
 import Pavan from "../assets/team_photos/Pavan.png";
 import Sangeetha from "../assets/team_photos/Sangeetha.png";
+import { Reveal, RevealItem, RevealStagger } from "../motion";
 
 const teamMembers = [
   {
@@ -33,8 +34,7 @@ const teamMembers = [
 export function Team() {
   return (
     <section className="relative pt-16 lg:pt-20 page-px max-w-[1920px] mx-auto">
-      {/* Section header row — heading left, COEXIST watermark right */}
-      <header className="flex items-start justify-between overflow-visible">
+      <Reveal as="header" className="flex items-start justify-between overflow-visible">
         <div className="flex flex-col gap-[24px] max-w-[767px]">
           <h2 className="font-['Nunito'] font-bold text-[18px] lg:text-[24px] leading-[32px] text-[#AB863F]">
             People Behind the Mission
@@ -45,14 +45,16 @@ export function Team() {
             the stories it inspires.
           </p>
         </div>
-        
-      </header>
+      </Reveal>
 
-      {/* Team Grid — top-[135px] in Figma, header is 108px → gap = 27px */}
-      <div className="relative grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-[24px] mt-8 xl:mt-[27px]">
+      <RevealStagger
+        preset="slow"
+        className="relative grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-[24px] mt-8 xl:mt-[27px]"
+      >
         {teamMembers.map((member, index) => (
-          <div
+          <RevealItem
             key={index}
+            preset="scaleIn"
             className={`flex w-full items-center ${
               member.offsetUp
                 ? "xl:pt-[64px] xl:pb-0"
@@ -85,15 +87,15 @@ export function Team() {
                 </div>
               </div>
             </div>
-          </div>
+          </RevealItem>
         ))}
-      </div>
+      </RevealStagger>
 
       <span
         aria-hidden="true"
         className="absolute right-0 top-[64px] lg:top-[80px] z-[1] hidden lg:block pointer-events-none select-none leading-none"
         style={{
-          fontFamily: '"Cocogoose Pro"',
+          fontFamily: '"Montserrat", sans-serif',
           fontWeight: 400,
           fontSize: "clamp(80px, 7vw, 120px)",
           color: "#f6f4f0",

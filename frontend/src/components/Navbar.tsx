@@ -129,6 +129,7 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
         borderColor="transparent"
         backgroundOpacity={isLight ? 0 : 0.4}
         backgroundColor={isLight ? "#00000000" : "#f3eee9"}
+        distortion={0}
       >
         <div className="flex w-full items-center justify-between gap-4 px-[88px]">
           {/* Logo */}

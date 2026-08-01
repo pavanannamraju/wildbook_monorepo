@@ -1,4 +1,5 @@
 import ResponsibleTourismImage from "../assets/ceylon-spotted-deer 1.png";
+import { Reveal, RevealItem, RevealStagger } from "../motion";
 
 const principles = [
   {
@@ -30,8 +31,10 @@ const principles = [
 export function ResponsibleTourism() {
   return (
     <section className="relative pt-16 lg:pt-20 page-px max-w-[1920px] mx-auto">
-      {/* Section header row — CONSERVE watermark left, heading right */}
-      <div className="mb-8 lg:mb-10 relative flex items-start justify-end overflow-visible">
+      <Reveal
+        preset="fadeLeft"
+        className="mb-8 lg:mb-10 relative flex items-start justify-end overflow-visible"
+      >
         <div className="flex flex-col items-end text-right relative z-10">
           <h2 className="font-['Nunito'] font-bold text-[18px] lg:text-[24px] leading-[32px] text-[#AB863F]">
             Our Take on Responsible Tourism
@@ -40,20 +43,20 @@ export function ResponsibleTourism() {
             The wild doesn&apos;t belong to us. We belong to it.
           </p>
         </div>
-      </div>
+      </Reveal>
 
-      {/* Content: 2×2 grid + image */}
       <div className="flex flex-col lg:flex-row gap-[24px]">
-        {/* Left: 2×2 principle cards */}
-        <div className="w-full lg:w-[62%] grid grid-cols-1 sm:grid-cols-2 gap-x-[24px] gap-y-[20px]">
+        <RevealStagger
+          preset="default"
+          className="w-full lg:w-[62%] grid grid-cols-1 sm:grid-cols-2 gap-x-[24px] gap-y-[20px]"
+        >
           {principles.map((item) => (
-            <div
+            <RevealItem
               key={item.number}
+              preset="fadeUpSoft"
               className="bg-[#F3EEE9] rounded-[20px] p-[24px] flex flex-col gap-[16px]"
             >
-              <span
-                className="font-['Nunito'] font-light text-[40px] lg:text-[40px] leading-[40px] text-[#0B6E66] tracking-[-0.48px] uppercase"
-              >
+              <span className="font-['Nunito'] font-light text-[40px] lg:text-[40px] leading-[40px] text-[#0B6E66] tracking-[-0.48px] uppercase">
                 {item.number}
               </span>
               <div className="flex flex-col gap-[10px] text-[#73706C]">
@@ -64,12 +67,16 @@ export function ResponsibleTourism() {
                   {item.description}
                 </p>
               </div>
-            </div>
+            </RevealItem>
           ))}
-        </div>
+        </RevealStagger>
 
-        {/* Right: deer image */}
-        <div className="w-full lg:w-[38%] flex items-stretch">
+        <Reveal
+          preset="image"
+          delay={0.15}
+          early
+          className="w-full lg:w-[38%] flex items-stretch"
+        >
           <div className="flex-1 rounded-[20px] overflow-hidden min-h-[300px]">
             <img
               src={ResponsibleTourismImage}
@@ -77,14 +84,14 @@ export function ResponsibleTourism() {
               className="w-full h-full object-cover"
             />
           </div>
-        </div>
+        </Reveal>
       </div>
 
       <span
         aria-hidden="true"
         className="absolute left-24 top-80 z-[1] hidden lg:block pointer-events-none select-none leading-none"
         style={{
-          fontFamily: '"Cocogoose Pro"',
+          fontFamily: '"Montserrat", sans-serif',
           fontWeight: 400,
           fontSize: "100px",
           color: "#f6f4f0",

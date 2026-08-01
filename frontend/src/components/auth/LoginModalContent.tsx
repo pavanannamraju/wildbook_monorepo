@@ -256,7 +256,7 @@ export function LoginModalContent({ onClose, onSuccess }: LoginModalContentProps
         <img src={HERO_IMAGE_URL} alt="Wild landscape" className="absolute inset-0 h-full w-full object-cover object-bottom" />
         <div className="absolute inset-0 p-12 text-white">
           <img src={logoDark} alt="wildbook" className="mb-10 w-auto" />
-          <h3 className="max-w-[420px] text-[48px]" style={{ fontFamily: '"Cocogoose Pro"', fontWeight: 300, lineHeight: '1.1' }}>
+          <h3 className="max-w-[420px] text-[48px]" style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300, lineHeight: '1.1' }}>
             Your Gateway to the Wild
           </h3>
           <p className="mt-2 max-w-[430px] leading-tight text-white/90" style={{fontSize: "20px"}}>

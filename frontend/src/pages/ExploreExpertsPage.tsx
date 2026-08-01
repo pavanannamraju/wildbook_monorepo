@@ -28,6 +28,7 @@ import { StarRating } from "../components/common/StarRating";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import { useScrollPastRef } from "../hooks/useScrollPastRef";
 import { useExperts } from "../hooks/useExperts";
+import { HeroReveal, Reveal, RevealItem, RevealStagger } from "../motion";
 
 const FIRST_FREE_EXPERT_KEY = "wildbook_guest_first_expert_detail";
 const SEARCH_DEBOUNCE_MS = 300;
@@ -175,11 +176,13 @@ export function ExploreExpertsPage() {
 
       {/* ── Hero ── */}
       <section ref={heroRef} className="relative overflow-hidden bg-[#2f2b28]">
-        <img
-          src={heroImage}
-          alt=""
-          className="block h-auto w-full select-none"
-        />
+        <HeroReveal preset="image" className="block w-full">
+          <img
+            src={heroImage}
+            alt=""
+            className="block h-auto w-full select-none"
+          />
+        </HeroReveal>
 
         {/* Gradients matching Figma */}
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(47,43,40,0.72)_0%,rgba(47,43,40,0.30)_28%,rgba(47,43,40,0)_58%)]" />
@@ -191,10 +194,10 @@ export function ExploreExpertsPage() {
 
           {/* Hero text — vertically centered within the banner */}
           <div className="flex flex-1 items-center page-px py-12">
-            <div className="max-w-[452px]">
+            <HeroReveal delay={0.15} className="max-w-[452px]">
             <h1
               className="text-[38px] leading-[1.2] text-[rgba(232,226,220,0.9)] drop-shadow-[0_4px_4px_rgba(0,0,0,0.4)] md:text-[46px] md:leading-[60px] lg:text-[56px] lg:leading-[72px]"
-              style={{ fontFamily: '"Cocogoose Pro"', fontWeight: 300 }}
+              style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300 }}
             >
               Meet India&apos;s Guardians of Coexistence
             </h1>
@@ -202,7 +205,7 @@ export function ExploreExpertsPage() {
               A curated network of India&apos;s most knowledgeable guides and naturalists, offering
               rare access to local expertise across diverse landscapes.
             </p>
-            </div>
+            </HeroReveal>
           </div>
         </div>
       </section>
@@ -211,7 +214,7 @@ export function ExploreExpertsPage() {
       <section className="bg-[#F6F4F0] page-px pt-[56px] pb-[40px] lg:pt-[32px] lg:pb-[48px]">
 
         {/* Title + count row */}
-        <div className="mb-[16px] flex flex-wrap items-center justify-between gap-4">
+        <Reveal className="mb-[16px] flex flex-wrap items-center justify-between gap-4">
           <h2 className="font-['Nunito'] font-bold text-[20px] lg:text-[28px] lg:leading-[40px] text-[#2F2B28]">
             Explore Verified Forest Guides &amp; Naturalists
           </h2>
@@ -220,10 +223,10 @@ export function ExploreExpertsPage() {
               ? `Showing ${rangeStart}\u2013${rangeEnd} of ${stats.totalCount} experts`
               : "No experts found"}
           </p>
-        </div>
+        </Reveal>
 
         {/* Filter + search bar */}
-        <div className="mb-[32px] flex flex-wrap items-center justify-between gap-[16px]">
+        <Reveal delay={0.08} className="mb-[32px] flex flex-wrap items-center justify-between gap-[16px]">
           {/* Role pills */}
           <div className="flex gap-[16px]">
             <button type="button" onClick={() => setRoleFilter("all")}
@@ -260,7 +263,7 @@ export function ExploreExpertsPage() {
               Filter
             </button>
           </div>
-        </div>
+        </Reveal>
 
         {/* Error state */}
         {status === "error" && (
@@ -271,7 +274,8 @@ export function ExploreExpertsPage() {
         {isInitialLoading ? (
           <PageLoader />
         ) : (
-          <div
+          <RevealStagger
+            preset="fast"
             className={`relative grid grid-cols-1 gap-[32px] transition-opacity lg:grid-cols-2 ${
               isListRefreshing ? "pointer-events-none opacity-60" : ""
             }`}
@@ -291,7 +295,12 @@ export function ExploreExpertsPage() {
               const reviewCount = expert.experience_snapshots[0]?.reviews_count ?? 0;
 
               return (
-                <article key={expert.id} className="flex gap-[24px] rounded-[16px] bg-[#F3EEE9] p-[24px]">
+                <RevealItem
+                  as="article"
+                  key={expert.id}
+                  preset="fadeUpSoft"
+                  className="flex gap-[24px] rounded-[16px] bg-[#F3EEE9] p-[24px]"
+                >
                   {/* Photo — Figma: 272×312 rounded-[10px] */}
                   <div className="relative h-[312px] w-[272px] shrink-0 overflow-hidden rounded-[10px] bg-[#0B6E66]/20">
                     <ExpertAvatar src={expert.profile_image_url} alt={expert.name} iconSize={96} lazy />
@@ -393,10 +402,10 @@ export function ExploreExpertsPage() {
                       </button>
                     </div>
                   </div>
-                </article>
+                </RevealItem>
               );
             })}
-          </div>
+          </RevealStagger>
         )}
 
         {/* Pagination — Figma: size-[32px] buttons, gap-[8px] */}
@@ -461,7 +470,7 @@ export function ExploreExpertsPage() {
                   <div className="max-w-[620px]">
                     <h2
                       className="text-[24px] leading-none tracking-[-0.02em]"
-                      style={{ fontFamily: '"Cocogoose Pro"', fontWeight: 300 }}
+                      style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300 }}
                     >
                       <span aria-hidden="true" className="mr-3 inline-block align-middle">
                         <SignInIcon />
@@ -486,7 +495,7 @@ export function ExploreExpertsPage() {
                   <button
                     type="button"
                     className="rounded-md border border-white/45 px-4 py-2 text-[12px] leading-none"
-                    style={{ fontFamily: '"Cocogoose Pro"', fontWeight: 300 }}
+                    style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300 }}
                     onClick={() => { setShowExploreLoginGate(false); setPendingExpertPath(null); }}
                   >
                     Go Back
@@ -494,7 +503,7 @@ export function ExploreExpertsPage() {
                   <button
                     type="button"
                     className="inline-flex items-center gap-3 rounded-md bg-[#0B6E66] px-4 py-2 text-[12px] leading-none"
-                    style={{ fontFamily: '"Cocogoose Pro"', fontWeight: 300 }}
+                    style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300 }}
                     onClick={() => { setShowExploreLoginGate(false); setShowLoginModal(true); }}
                   >
                     Login / Sign Up
