@@ -1,4 +1,5 @@
 .env
+secrets/
 .venv/
 antenv/
 __pycache__/
@@ -13,3 +14,5 @@ static/*
 
 *.egg-info/
 
+.claude
+AGENTS.md

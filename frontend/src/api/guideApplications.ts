@@ -1,6 +1,6 @@
 import { apiFetch } from "./client";
 
-export type GuideProfessionOption = "Registered Forest Guide" | "Private Naturalist";
+export type GuideProfessionOption = "Registered Forest Guide" | "Naturalist";
 
 export type CreateGuideApplicationInput = {
   fullname: string;

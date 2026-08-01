@@ -124,3 +124,14 @@ class CursorPage(BaseModel):
     items: list[ExpertListItem]
     next_cursor: str | None
     total_count: int | None = None
+
+
+class ExpertFilterOption(BaseModel):
+    id: str
+    name: str
+
+
+class ExpertFilterOptions(BaseModel):
+    locations: list[ExpertFilterOption] = Field(default_factory=list)
+    languages: list[ExpertFilterOption] = Field(default_factory=list)
+    expertise: list[ExpertFilterOption] = Field(default_factory=list)

@@ -22,6 +22,30 @@ export type TestimonialSnapshot = {
 
 export type ExpertSource = "local" | "catalog";
 
+export type ExpertFilterOption = {
+  id: string;
+  name: string;
+};
+
+export type ExpertFilterOptions = {
+  locations: ExpertFilterOption[];
+  languages: ExpertFilterOption[];
+  expertise: ExpertFilterOption[];
+};
+
+export type ExpertListFilters = {
+  limit?: number;
+  cursor?: string;
+  status?: string;
+  role?: "guide" | "naturalist" | "all";
+  q?: string;
+  primaryLocationId?: string | null;
+  languageIds?: string[];
+  expertiseIds?: string[];
+  minRating?: number | null;
+  includeBookmark?: boolean;
+};
+
 export type ExpertListItem = {
   id: string;
   slug: string;
@@ -195,14 +219,7 @@ export function parseExpertsResponse(payload: unknown): CursorPage<ExpertListIte
 }
 
 export async function fetchExperts(
-  params: {
-    limit?: number;
-    cursor?: string;
-    status?: string;
-    role?: "guide" | "naturalist" | "all";
-    q?: string;
-    includeBookmark?: boolean;
-  } = {},
+  params: ExpertListFilters = {},
   signal?: AbortSignal,
 ): Promise<CursorPage<ExpertListItem>> {
   const query = new URLSearchParams();
@@ -211,6 +228,14 @@ export async function fetchExperts(
   if (params.status) query.set("status", params.status);
   if (params.role && params.role !== "all") query.set("role", params.role);
   if (params.q && params.q.trim().length > 0) query.set("q", params.q.trim());
+  if (params.primaryLocationId) query.set("primary_location_id", params.primaryLocationId);
+  for (const languageId of params.languageIds ?? []) {
+    if (languageId) query.append("language_id", languageId);
+  }
+  for (const expertiseId of params.expertiseIds ?? []) {
+    if (expertiseId) query.append("expertise_id", expertiseId);
+  }
+  if (typeof params.minRating === "number") query.set("min_rating", String(params.minRating));
   if (params.includeBookmark) query.set("include_bookmark", "true");
 
   const response = await apiFetch(`/api/v1/experts?${query.toString()}`, { signal });
@@ -219,6 +244,40 @@ export async function fetchExperts(
   }
   const json = (await response.json()) as unknown;
   return parseExpertsResponse(json);
+}
+
+function parseFilterOptions(payload: unknown): ExpertFilterOptions {
+  if (!isRecord(payload)) {
+    throw new Error("Unexpected filter options response: expected object.");
+  }
+
+  const parseOptions = (value: unknown): ExpertFilterOption[] => {
+    if (!Array.isArray(value)) return [];
+    return value
+      .map((item) => {
+        if (!isRecord(item)) return null;
+        if (typeof item.id !== "string" || typeof item.name !== "string") return null;
+        return { id: item.id, name: item.name };
+      })
+      .filter((item): item is ExpertFilterOption => item !== null);
+  };
+
+  return {
+    locations: parseOptions(payload.locations),
+    languages: parseOptions(payload.languages),
+    expertise: parseOptions(payload.expertise),
+  };
+}
+
+export async function fetchExpertFilterOptions(
+  signal?: AbortSignal,
+): Promise<ExpertFilterOptions> {
+  const response = await apiFetch("/api/v1/experts/filter-options", { signal });
+  if (!response.ok) {
+    throw new Error(`Failed to load expert filters (HTTP ${response.status}).`);
+  }
+  const json = (await response.json()) as unknown;
+  return parseFilterOptions(json);
 }
 
 function parseExpertDetail(payload: unknown): ExpertDetail {

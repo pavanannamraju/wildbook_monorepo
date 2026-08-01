@@ -55,6 +55,15 @@ def ensure_inquiries_indexes(*, inquiries: Collection[dict[str, Any]]) -> None:
     inquiries.create_index([("status", 1), ("priority", 1), ("created_at", -1)], name="support_queue")
 
 
+def ensure_feature_notifications_indexes(*, feature_notifications: Collection[dict[str, Any]]) -> None:
+    feature_notifications.create_index(
+        [("email", 1), ("feature", 1)],
+        unique=True,
+        name="uniq_email_feature",
+    )
+    feature_notifications.create_index([("feature", 1), ("created_at", -1)], name="by_feature_created")
+
+
 def ensure_guide_profiles_indexes(*, guide_profiles: Collection[dict[str, Any]]) -> None:
     guide_profiles.create_index([("status", 1), ("created_at", -1)], name="by_status_created")
     guide_profiles.create_index([("full_name", 1)], name="by_full_name")

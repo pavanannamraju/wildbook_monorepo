@@ -18,6 +18,7 @@ from app.services.accommodations_service import AccommodationsService
 from app.services.authz_service import AuthzService
 from app.services.bookmarks_service import BookmarksService
 from app.services.experts_adapter_service import ExpertsAdapterService
+from app.services.feature_notify_service import FeatureNotifyService
 from app.services.guide_profiles_service import GuideProfilesService
 from app.services.inquiries_service import InquiriesService
 from app.services.maps_data_service import MapsDataService
@@ -115,6 +116,19 @@ def get_inquiries_service(request: Request) -> InquiriesService:
     return cast(InquiriesService, service)
 
 
+def get_feature_notify_service(request: Request) -> FeatureNotifyService:
+    service = getattr(request.app.state, "feature_notify_service", None)
+    if service is None:
+        settings = get_settings()
+        client = _get_mongo_client(request)
+        db = client[settings.mongo_database_name]
+        service = FeatureNotifyService(
+            notifications=db[settings.mongo_feature_notifications_collection_name],
+        )
+        request.app.state.feature_notify_service = service
+    return cast(FeatureNotifyService, service)
+
+
 def get_authz_service(request: Request) -> AuthzService:
     service = getattr(request.app.state, "authz_service", None)
     if service is None:
@@ -152,7 +166,10 @@ def get_guide_profiles_service(request: Request) -> GuideProfilesService:
 def get_experts_adapter_service(request: Request) -> ExpertsAdapterService:
     service = getattr(request.app.state, "experts_adapter_service", None)
     if service is None:
-        service = ExpertsAdapterService(catalog_client=get_local_catalog(request))
+        service = ExpertsAdapterService(
+            catalog_client=get_local_catalog(request),
+            search_client=get_local_search(request),
+        )
         request.app.state.experts_adapter_service = service
     return cast(ExpertsAdapterService, service)
 

@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     mongo_guide_applications_collection_name: str = "guide_applications"
     mongo_bookmarks_collection_name: str = "bookmarks"
     mongo_inquiries_collection_name: str = "inquiries"
+    mongo_feature_notifications_collection_name: str = "feature_notifications"
 
     firebase_project_id: str | None = None
     auth_required: bool = True

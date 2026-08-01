@@ -1,6 +1,5 @@
-// import { PageScaffold } from "./PageScaffold";
+import { PageScaffold } from "./PageScaffold";
 
-// export function SharedSafarisPage() {
-//   return <PageScaffold title="Shared Safaris" />;
-// }
-
+export function SharedSafarisPage() {
+  return <PageScaffold title="Shared Safaris" />;
+}

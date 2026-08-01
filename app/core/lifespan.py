@@ -19,6 +19,7 @@ from app.stores.indexes import (
     ensure_accommodation_bookings_indexes,
     ensure_accommodations_indexes,
     ensure_bookmarks_indexes,
+    ensure_feature_notifications_indexes,
     ensure_guide_applications_indexes,
     ensure_inquiries_indexes,
     ensure_users_indexes,
@@ -99,7 +100,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         try:
             firebase_admin.get_app()
         except ValueError:
-            firebase_admin.initialize_app(credentials.ApplicationDefault())
+            options = {"projectId": settings.firebase_project_id} if settings.firebase_project_id else None
+            firebase_admin.initialize_app(credentials.ApplicationDefault(), options)
 
     mongo_client = None
     if settings.mongo_uri:
@@ -147,6 +149,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             _try_create_index(
                 lambda: ensure_inquiries_indexes(inquiries=db[settings.mongo_inquiries_collection_name]),
                 label="inquiries",
+            )
+            _try_create_index(
+                lambda: ensure_feature_notifications_indexes(
+                    feature_notifications=db[settings.mongo_feature_notifications_collection_name],
+                ),
+                label="feature_notifications",
             )
             _ensure_guide_indexes(store)
 

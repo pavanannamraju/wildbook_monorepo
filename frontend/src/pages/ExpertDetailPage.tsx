@@ -20,7 +20,7 @@ import { Link, useParams } from "react-router-dom";
 import { addBookmark, fetchBookmarkStatuses, removeBookmark } from "../api/bookmarks";
 import { fetchExpertById, type ExpertDetail, type ExperienceDetail } from "../api/experts";
 import { useAuth } from "../auth/AuthProvider";
-import { createInquiry } from "../api/inquiries";
+import { createInquiry, type InquiryDatesPreference } from "../api/inquiries";
 import { PageLoader } from "../components/PageLoader";
 import { PageErrorState } from "../components/common/PageErrorState";
 import { ShareLinkModal } from "../components/common/ShareLinkModal";
@@ -28,11 +28,10 @@ import { ExpertAvatar } from "../components/common/ExpertAvatar";
 import { ExperienceDetailModal } from "../components/experts/ExperienceDetailModal";
 import { StarRating } from "../components/common/StarRating";
 import { StickyTopNavbar } from "../components/common/StickyTopNavbar";
-import { Reveal, RevealItem, RevealStagger } from "../motion";
 
 function roleLabel(role: string): string {
   if (role === "guide") return "FOREST GUIDE";
-  if (role === "naturalist") return "PRIVATE NATURALIST";
+  if (role === "naturalist") return "NATURALIST";
   return role.toUpperCase();
 }
 
@@ -41,6 +40,17 @@ function durationLabel(experience: ExperienceDetail): string {
   if (!duration) return "Custom";
   const unit = duration.unit === "hours" ? "Hours" : duration.unit === "days" ? "Days" : duration.unit;
   return `${duration.value} ${unit}`;
+}
+
+/** Next calendar day as YYYY-MM-DD (local), for end-date min constraints. */
+function dayAfterIso(isoDate: string): string {
+  const [year, month, day] = isoDate.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  date.setDate(date.getDate() + 1);
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 export function ExpertDetailPage() {
@@ -52,6 +62,7 @@ export function ExpertDetailPage() {
   const [activeImage, setActiveImage] = useState<{ url: string; title: string } | null>(null);
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
+  const [datesPreference, setDatesPreference] = useState<InquiryDatesPreference>("flexible");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [groupSize, setGroupSize] = useState("2");
@@ -125,7 +136,7 @@ export function ExpertDetailPage() {
     return <PageErrorState message={error ?? "Expert not found."} className="bg-[#F0EDE9]" />;
   }
 
-  const primaryRole = expert.roles[0] ? roleLabel(expert.roles[0]) : "PRIVATE NATURALIST";
+  const primaryRole = expert.roles[0] ? roleLabel(expert.roles[0]) : "NATURALIST";
   const expertiseTags = expert.expertise_names.length > 0 ? expert.expertise_names : expert.expertise_ids;
   const experiences = expert.experiences_full ?? [];
   const testimonials = expert.testimonials_full ?? [];
@@ -142,9 +153,11 @@ export function ExpertDetailPage() {
     if (!customerName.trim()) errors.customerName = "Name is required.";
     if (!customerEmail.trim()) errors.customerEmail = "Email is required.";
     else if (!emailRegex.test(customerEmail.trim())) errors.customerEmail = "Enter a valid email.";
-    if (!startDate) errors.startDate = "Start date is required.";
-    if (!endDate) errors.endDate = "End date is required.";
-    if (startDate && endDate && endDate < startDate) errors.endDate = "End date must be on or after start date.";
+    if (datesPreference === "fixed") {
+      if (!startDate) errors.startDate = "Start date is required.";
+      if (!endDate) errors.endDate = "End date is required.";
+      if (startDate && endDate && endDate <= startDate) errors.endDate = "End date must be after start date.";
+    }
     if (!groupSizeValue) errors.groupSize = "Group size is required.";
     if (groupSize === "custom" && !/^\d+$/.test(groupSizeValue)) errors.groupSize = "Enter a valid number.";
     if (groupSize === "custom" && /^\d+$/.test(groupSizeValue) && Number(groupSizeValue) <= 0) {
@@ -168,14 +181,24 @@ export function ExpertDetailPage() {
         expert_name: expert.name,
         customer_name: customerName.trim(),
         customer_email: customerEmail.trim(),
-        travel_dates: `${startDate} to ${endDate}`,
+        dates_preference: datesPreference,
+        ...(datesPreference === "fixed"
+          ? { travel_start_date: startDate, travel_end_date: endDate }
+          : {}),
         group_size: groupSizeValue,
         enquiry_message: enquiryMessage.trim(),
         source: "expert_detail_form",
       });
       setSubmitStatus("success");
-      setCustomerName(""); setCustomerEmail(""); setStartDate(""); setEndDate("");
-      setGroupSize("2"); setCustomGroupSize(""); setEnquiryMessage(""); setSubmitAttempted(false);
+      setCustomerName("");
+      setCustomerEmail("");
+      setDatesPreference("flexible");
+      setStartDate("");
+      setEndDate("");
+      setGroupSize("2");
+      setCustomGroupSize("");
+      setEnquiryMessage("");
+      setSubmitAttempted(false);
     } catch (err: unknown) {
       setSubmitStatus("error");
       setSubmitError(err instanceof Error ? err.message : "Failed to submit enquiry.");
@@ -208,7 +231,7 @@ export function ExpertDetailPage() {
         <div className="flex gap-[80px]">
 
           {/* ── Left sidebar ── */}
-          <Reveal as="aside" preset="fadeLeft" className="w-[364px] shrink-0 lg:sticky lg:top-[88px] lg:self-start">
+          <aside className="w-[364px] shrink-0 lg:sticky lg:top-[88px] lg:self-start">
             {/* Back link */}
             <Link
               to="/experts"
@@ -280,15 +303,10 @@ export function ExpertDetailPage() {
                 </div>
               )}
             </div>
-          </Reveal>
+          </aside>
 
           {/* ── Main content ── */}
-          <Reveal
-            as="section"
-            preset="fadeRight"
-            delay={0.1}
-            className="min-w-0 flex-1 flex flex-col gap-[48px]"
-          >
+          <section className="min-w-0 flex-1 flex flex-col gap-[48px]">
 
             {/* About */}
             <div className="flex flex-col gap-[32px]">
@@ -406,17 +424,15 @@ export function ExpertDetailPage() {
                   </p>
                 </div>
 
-                <RevealStagger preset="fast" className="flex flex-col gap-[24px]">
+                <div className="flex flex-col gap-[24px]">
                   {experiences.map((item) => {
                     const description = item.description ?? "";
                     const isExpanded = expandedExperienceIds.has(item.id);
                     const canExpand = description.length > 120;
 
                     return (
-                      <RevealItem
-                        as="article"
+                      <article
                         key={item.id}
-                        preset="fadeUpSoft"
                         className="flex gap-[40px] items-start rounded-[16px] bg-[#FBF9F6] p-[16px]"
                       >
                         {/* Image */}
@@ -526,10 +542,10 @@ export function ExpertDetailPage() {
                             </button>
                           </div>
                         </div>
-                      </RevealItem>
+                      </article>
                     );
                   })}
-                </RevealStagger>
+                </div>
               </div>
             )}
 
@@ -657,39 +673,6 @@ export function ExpertDetailPage() {
 
                   <div className="grid gap-[24px] md:grid-cols-2">
                     <label className="flex flex-col gap-[4px]">
-                      <span className={labelClass}>Start Date <span className="text-[#D34747]">*</span></span>
-                      <div className="relative flex h-[64px] items-center rounded-[4px] bg-[#F6F4F0] px-[16px]">
-                        <input
-                          type="date"
-                          value={startDate}
-                          onChange={(e) => setStartDate(e.target.value)}
-                          className="w-full bg-transparent pr-[40px] font-['Nunito'] text-[20px] text-[#2F2B28] outline-none [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                        />
-                        <CalendarDotsIcon size={24} className="absolute right-[16px] pointer-events-none text-[#73706C]" />
-                      </div>
-                      {submitAttempted && validationErrors.startDate && (
-                        <p className="text-[12px] text-red-600">{validationErrors.startDate}</p>
-                      )}
-                    </label>
-                    <label className="flex flex-col gap-[4px]">
-                      <span className={labelClass}>End Date <span className="text-[#D34747]">*</span></span>
-                      <div className="relative flex h-[64px] items-center rounded-[4px] bg-[#F6F4F0] px-[16px]">
-                        <input
-                          type="date"
-                          value={endDate}
-                          onChange={(e) => setEndDate(e.target.value)}
-                          className="w-full bg-transparent pr-[40px] font-['Nunito'] text-[20px] text-[#2F2B28] outline-none [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                        />
-                        <CalendarDotsIcon size={24} className="absolute right-[16px] pointer-events-none text-[#73706C]" />
-                      </div>
-                      {submitAttempted && validationErrors.endDate && (
-                        <p className="text-[12px] text-red-600">{validationErrors.endDate}</p>
-                      )}
-                    </label>
-                  </div>
-
-                  <div className="grid gap-[24px] md:grid-cols-2">
-                    <label className="flex flex-col gap-[4px]">
                       <span className={labelClass}>Number of People <span className="text-[#D34747]">*</span></span>
                       <div className="flex h-[64px] items-center justify-between rounded-[4px] bg-[#F6F4F0] px-[16px]">
                         <select
@@ -724,6 +707,91 @@ export function ExpertDetailPage() {
                       </label>
                     ) : <div />}
                   </div>
+
+                  <div className="flex flex-col gap-[8px]">
+                    <span className={labelClass}>Travel dates <span className="text-[#D34747]">*</span></span>
+                    <div
+                      className="grid grid-cols-2 gap-[8px] rounded-[4px] bg-[#F6F4F0] p-[6px]"
+                      role="group"
+                      aria-label="Travel dates preference"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setDatesPreference("fixed")}
+                        aria-pressed={datesPreference === "fixed"}
+                        className={`h-[52px] rounded-[4px] font-['Nunito'] text-[16px] font-semibold transition-colors md:text-[18px] ${
+                          datesPreference === "fixed"
+                            ? "bg-[#0B6E66] text-white"
+                            : "bg-transparent text-[#2F2B28] hover:bg-black/5"
+                        }`}
+                      >
+                        Fixed dates
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDatesPreference("flexible");
+                          setStartDate("");
+                          setEndDate("");
+                        }}
+                        aria-pressed={datesPreference === "flexible"}
+                        className={`h-[52px] rounded-[4px] font-['Nunito'] text-[16px] font-semibold transition-colors md:text-[18px] ${
+                          datesPreference === "flexible"
+                            ? "bg-[#0B6E66] text-white"
+                            : "bg-transparent text-[#2F2B28] hover:bg-black/5"
+                        }`}
+                      >
+                        I&apos;m flexible
+                      </button>
+                    </div>
+                    {datesPreference === "flexible" ? (
+                      <p className="font-['Nunito'] text-[14px] text-[#73706C]">
+                        No problem — we&apos;ll help find a window that works.
+                      </p>
+                    ) : null}
+                  </div>
+
+                  {datesPreference === "fixed" ? (
+                    <div className="grid gap-[24px] md:grid-cols-2">
+                      <label className="flex flex-col gap-[4px]">
+                        <span className={labelClass}>Start Date <span className="text-[#D34747]">*</span></span>
+                        <div className="relative flex h-[64px] items-center rounded-[4px] bg-[#F6F4F0] px-[16px]">
+                          <input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => {
+                              const nextStart = e.target.value;
+                              setStartDate(nextStart);
+                              if (endDate && nextStart && endDate <= nextStart) {
+                                setEndDate("");
+                              }
+                            }}
+                            className="w-full bg-transparent pr-[40px] font-['Nunito'] text-[20px] text-[#2F2B28] outline-none [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                          />
+                          <CalendarDotsIcon size={24} className="absolute right-[16px] pointer-events-none text-[#73706C]" />
+                        </div>
+                        {submitAttempted && validationErrors.startDate && (
+                          <p className="text-[12px] text-red-600">{validationErrors.startDate}</p>
+                        )}
+                      </label>
+                      <label className="flex flex-col gap-[4px]">
+                        <span className={labelClass}>End Date <span className="text-[#D34747]">*</span></span>
+                        <div className="relative flex h-[64px] items-center rounded-[4px] bg-[#F6F4F0] px-[16px]">
+                          <input
+                            type="date"
+                            value={endDate}
+                            min={startDate ? dayAfterIso(startDate) : undefined}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            className="w-full bg-transparent pr-[40px] font-['Nunito'] text-[20px] text-[#2F2B28] outline-none [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                          />
+                          <CalendarDotsIcon size={24} className="absolute right-[16px] pointer-events-none text-[#73706C]" />
+                        </div>
+                        {submitAttempted && validationErrors.endDate && (
+                          <p className="text-[12px] text-red-600">{validationErrors.endDate}</p>
+                        )}
+                      </label>
+                    </div>
+                  ) : null}
 
                   <label className="flex flex-col gap-[4px]">
                     <span className={labelClass}>Your Enquiry <span className="text-[#D34747]">*</span></span>
@@ -763,7 +831,7 @@ export function ExpertDetailPage() {
                 </div>
               </div>
             </section>
-          </Reveal>
+          </section>
         </div>
       </div>
 
@@ -808,7 +876,7 @@ export function ExpertDetailPage() {
         isOpen={selectedExperience !== null}
         experience={selectedExperience}
         guideId={expert.id}
-        guideFirstName={firstName}
+        guideFirstName={firstName ?? ""}
         onClose={() => setSelectedExperience(null)}
       />
     </main>

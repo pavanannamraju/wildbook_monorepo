@@ -64,6 +64,11 @@ class InquiryPriority(StrEnum):
     urgent = "urgent"
 
 
+class InquiryDatesPreference(StrEnum):
+    fixed = "fixed"
+    flexible = "flexible"
+
+
 class ProviderRefType(StrEnum):
     expert = "expert"
     provider = "provider"

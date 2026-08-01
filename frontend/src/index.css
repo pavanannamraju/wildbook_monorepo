@@ -90,4 +90,19 @@
       padding-right: var(--page-px-desktop-footer);
     }
   }
+
+  @keyframes live-pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.55);
+    }
+    70% {
+      box-shadow: 0 0 0 14px rgba(255, 255, 255, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+  }
+  .animate-live-pulse {
+    animation: live-pulse 2s ease-out infinite;
+  }
 }

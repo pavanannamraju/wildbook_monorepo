@@ -5,6 +5,16 @@ import { fetchExperts, type ExpertListItem } from "../api/experts";
 const PAGE_SIZE = 16;
 type RoleFilter = "all" | "guide" | "naturalist";
 
+export type ExpertsQueryFilters = {
+  role: RoleFilter;
+  search: string;
+  includeBookmark: boolean;
+  primaryLocationId: string | null;
+  languageIds: string[];
+  expertiseIds: string[];
+  minRating: number | null;
+};
+
 type ExpertsBaseState = {
   pages: Record<number, ExpertListItem[]>;
   nextCursorByPage: Record<number, string | null>;
@@ -31,6 +41,10 @@ function hasLoadedPages(pages: Record<number, ExpertListItem[]>): boolean {
   return Object.keys(pages).length > 0;
 }
 
+function languageKey(ids: string[]): string {
+  return [...ids].sort().join(",");
+}
+
 const INITIAL_STATE: UseExpertsState = {
   status: "idle",
   error: null,
@@ -41,8 +55,10 @@ const INITIAL_STATE: UseExpertsState = {
   isRefetching: false,
 };
 
-export function useExperts(filters: { role: RoleFilter; search: string; includeBookmark: boolean }) {
+export function useExperts(filters: ExpertsQueryFilters) {
   const [state, setState] = useState<UseExpertsState>(INITIAL_STATE);
+  const languageIdsKey = languageKey(filters.languageIds);
+  const expertiseIdsKey = languageKey(filters.expertiseIds);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -74,6 +90,10 @@ export function useExperts(filters: { role: RoleFilter; search: string; includeB
         status: "published",
         role: filters.role,
         q: filters.search,
+        primaryLocationId: filters.primaryLocationId,
+        languageIds: filters.languageIds,
+        expertiseIds: filters.expertiseIds,
+        minRating: filters.minRating,
         includeBookmark: filters.includeBookmark,
       },
       controller.signal,
@@ -115,7 +135,15 @@ export function useExperts(filters: { role: RoleFilter; search: string; includeB
       });
 
     return () => controller.abort();
-  }, [filters.includeBookmark, filters.role, filters.search]);
+  }, [
+    expertiseIdsKey,
+    filters.includeBookmark,
+    filters.minRating,
+    filters.primaryLocationId,
+    filters.role,
+    filters.search,
+    languageIdsKey,
+  ]);
 
   const goToPage = useCallback(
     async (targetPage: number) => {
@@ -148,6 +176,10 @@ export function useExperts(filters: { role: RoleFilter; search: string; includeB
               status: "published",
               role: filters.role,
               q: filters.search,
+              primaryLocationId: filters.primaryLocationId,
+              languageIds: filters.languageIds,
+              expertiseIds: filters.expertiseIds,
+              minRating: filters.minRating,
               includeBookmark: filters.includeBookmark,
             });
             pages[pageNum] = page.items;
@@ -171,7 +203,18 @@ export function useExperts(filters: { role: RoleFilter; search: string; includeB
         setState((prev) => ({ ...prev, status: "error", error: message, isRefetching: false }));
       }
     },
-    [filters.includeBookmark, filters.role, filters.search, state.nextCursorByPage, state.pages, state.totalCount],
+    [
+      filters.expertiseIds,
+      filters.includeBookmark,
+      filters.languageIds,
+      filters.minRating,
+      filters.primaryLocationId,
+      filters.role,
+      filters.search,
+      state.nextCursorByPage,
+      state.pages,
+      state.totalCount,
+    ],
   );
 
   const nextPage = useCallback(async () => {

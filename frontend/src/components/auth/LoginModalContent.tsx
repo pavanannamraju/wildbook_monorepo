@@ -1,7 +1,7 @@
 import { XIcon } from "@phosphor-icons/react";
 import { FirebaseError } from "firebase/app";
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import { upsertEmailSignupProfile } from "../../api/auth";
 import logoDark from "../../assets/Logo Dark.png";
 import { useAuth } from "../../auth/AuthProvider";
@@ -200,6 +200,8 @@ function ExploreAuthView({ onSuccess }: ExploreAuthViewProps) {
     return <EmailAuthForm mode={emailMode} onBack={() => setEmailMode(null)} onSuccess={onSuccess} />;
   }
 
+  const isSignup = tab === "signup";
+
   return (
     <div className="mt-7 space-y-4">
       <div className="grid h-13 grid-cols-2 gap-2 rounded bg-[#ecebe7] p-1">
@@ -222,21 +224,45 @@ function ExploreAuthView({ onSuccess }: ExploreAuthViewProps) {
           Sign Up
         </button>
       </div>
+
+      <div className="space-y-1 pt-1">
+        <p className="text-[18px] font-semibold text-[#121212]">
+          {isSignup ? "Create your wildbook account" : "Welcome back"}
+        </p>
+        <p className="text-[14px] leading-snug text-[#6b6b6b]">
+          {isSignup
+            ? "Join the community to bookmark guides, book stays, and plan your next trip."
+            : "Sign in to pick up where you left off."}
+        </p>
+      </div>
+
       <button
         type="button"
-        className="flex h-16 w-full items-center justify-start gap-3 rounded border border-black/8 bg-white px-6 text-[20px] leading-none font-medium text-[#2f2b28]"
+        className={`flex h-16 w-full items-center justify-start gap-3 rounded px-6 text-[20px] leading-none font-medium ${
+          isSignup
+            ? "bg-(--color-wildbook-teal) text-white"
+            : "border border-black/8 bg-white text-[#2f2b28]"
+        }`}
         onClick={handleGoogleLogin}
       >
-        <img src={googleIcon} alt="" className="h-7 w-7 shrink-0" />
-        Continue with Google
+        <img
+          src={googleIcon}
+          alt=""
+          className={`h-7 w-7 shrink-0 ${isSignup ? "rounded-sm bg-white p-0.5" : ""}`}
+        />
+        {isSignup ? "Sign up with Google" : "Sign in with Google"}
       </button>
       <button
         type="button"
-        className="flex h-16 w-full items-center justify-start gap-3 rounded border border-black/8 bg-white px-6 text-[20px] leading-none font-medium text-[#2f2b28]"
-        onClick={() => setEmailMode(tab === "signup" ? "signup" : "login")}
+        className={`flex h-16 w-full items-center justify-start gap-3 rounded px-6 text-[20px] leading-none font-medium ${
+          isSignup
+            ? "border border-(--color-wildbook-teal) bg-white text-(--color-wildbook-teal)"
+            : "border border-black/8 bg-white text-[#2f2b28]"
+        }`}
+        onClick={() => setEmailMode(isSignup ? "signup" : "login")}
       >
         <img src={emailIcon} alt="" className="h-7 w-7 shrink-0" />
-        Continue with Email
+        {isSignup ? "Sign up with Email" : "Sign in with Email"}
       </button>
       {error ? <p className="text-sm text-red-700">{error}</p> : null}
     </div>
@@ -245,10 +271,10 @@ function ExploreAuthView({ onSuccess }: ExploreAuthViewProps) {
 
 export function LoginModalContent({ onClose, onSuccess }: LoginModalContentProps) {
   const title = useMemo(() => "Login or sign up", []);
-  const tabButton = (active: boolean) =>
-    `h-12 rounded px-3 text-[15px] leading-tight font-semibold transition-colors ${
-      active ? "bg-(--color-wildbook-teal) text-white" : "bg-transparent text-[#767676]"
-    }`;
+  // const tabButton = (active: boolean) =>
+  //   `h-12 rounded px-3 text-[15px] leading-tight font-semibold transition-colors ${
+  //     active ? "bg-(--color-wildbook-teal) text-white" : "bg-transparent text-[#767676]"
+  //   }`;
 
   return (
     <section className="flex h-[90vh] w-full max-w-[1120px] overflow-hidden bg-transparent shadow-2xl">
@@ -275,6 +301,7 @@ export function LoginModalContent({ onClose, onSuccess }: LoginModalContentProps
           ) : null}
         </header>
 
+        {/* Temporarily hidden — explorer vs guide entry
         <div className="grid h-16 grid-cols-2 gap-2 rounded bg-[#ecebe7] p-2">
           <button type="button" className={tabButton(true)}>
             I want to Explore
@@ -283,6 +310,7 @@ export function LoginModalContent({ onClose, onSuccess }: LoginModalContentProps
             Create Naturalist/Guide Profile
           </Link>
         </div>
+        */}
 
         <ExploreAuthView key="explore-view" onSuccess={onSuccess} />
       </div>

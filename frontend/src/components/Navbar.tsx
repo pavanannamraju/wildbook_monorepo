@@ -7,21 +7,24 @@ import {
   GearIcon,
   ImageSquareIcon,
   QuestionIcon,
+  ShieldCheckIcon,
   SignOutIcon,
   UserIcon,
 } from "@phosphor-icons/react";
 import { createPortal } from "react-dom";
 import { Link, NavLink } from "react-router-dom";
+import { fetchCurrentUser, type UserRole } from "../api/auth";
 import { useAuth } from "../auth/AuthProvider";
 import logoDark from "../assets/Logo Dark.png";
 import logoLight from "../assets/Wildbook_light.svg";
+import { resolveUserAvatarSrc } from "../data/presetAvatars";
 import { LoginModalContent } from "./auth/LoginModalContent";
 
 const NAV_LINKS = [
   { label: "Home", to: "/" },
   { label: "Explore Experts", to: "/experts" },
-  // { label: "Shared Safaris", to: "/safaris" },
-  // { label: "Discover Packages", to: "/packages" },
+  { label: "Shared Safaris", to: "/safaris" },
+  { label: "Homestays", to: "/homestays" },
 ] as const;
 
 export type NavbarVariant = "light" | "dark";
@@ -32,16 +35,17 @@ interface NavbarProps {
 
 type ProfileMenuItem = {
   label: string;
+  to: string;
   icon: React.ComponentType<{ size?: string | number; className?: string }>;
 };
 
 const PROFILE_MENU_ITEMS: ReadonlyArray<ProfileMenuItem> = [
-  { label: "My Profile", icon: UserIcon },
-  { label: "My Bookings", icon: CircleIcon },
-  { label: "Bookmarks", icon: BookmarkSimpleIcon },
-  { label: "My Gallery", icon: ImageSquareIcon },
-  { label: "Settings", icon: GearIcon },
-  { label: "FAQs", icon: QuestionIcon },
+  { label: "My Profile", to: "/account#profile", icon: UserIcon },
+  { label: "My Bookings", to: "/account#bookings", icon: CircleIcon },
+  { label: "Bookmarks", to: "/account#bookmarks", icon: BookmarkSimpleIcon },
+  // { label: "My Gallery", to: "/account#gallery", icon: ImageSquareIcon },
+  // { label: "Settings", to: "/account#settings", icon: GearIcon },
+  // { label: "FAQs", to: "/account#faqs", icon: QuestionIcon },
 ];
 
 export default function Navbar({ variant = "light" }: NavbarProps) {
@@ -49,7 +53,10 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [profileMenuPosition, setProfileMenuPosition] = useState({ top: 0, left: 0 });
-  const { user, logout } = useAuth();
+  const [profileAvatarSrc, setProfileAvatarSrc] = useState<string | null>(null);
+  const [profileAvatarLoading, setProfileAvatarLoading] = useState(false);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const { user, token, loading: authLoading, logout } = useAuth();
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
   const profileTriggerRef = useRef<HTMLButtonElement | null>(null);
   const isLight = variant === "light";
@@ -59,6 +66,40 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
   );
   const userDisplayName = user?.displayName?.trim() || "Wildbook User";
   const userEmail = user?.email?.trim() || "";
+
+  useEffect(() => {
+    if (!user || !token) {
+      setProfileAvatarSrc(null);
+      setProfileAvatarLoading(false);
+      setUserRole(null);
+      return;
+    }
+    const controller = new AbortController();
+    setProfileAvatarLoading(true);
+    fetchCurrentUser(controller.signal)
+      .then((current) => {
+        setUserRole(current.role);
+        setProfileAvatarSrc(
+          resolveUserAvatarSrc({
+            avatarType: current.avatar_type,
+            avatarKey: current.avatar_key,
+            avatarUrl: current.avatar_url,
+          }),
+        );
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) {
+          setProfileAvatarSrc(null);
+          setUserRole(null);
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setProfileAvatarLoading(false);
+        }
+      });
+    return () => controller.abort();
+  }, [token, user]);
 
   useEffect(() => {
     if (!profileMenuOpen) {
@@ -164,8 +205,14 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
             ))}
           </ul>
 
-          {/* Desktop Login - visible at 1000px+ */}
-          {user ? (
+          {/* Desktop auth - visible at 1000px+. Hold a neutral slot while Firebase hydrates
+              so Login does not flash before a restored session paints the profile chip. */}
+          {authLoading ? (
+            <div
+              className="hidden h-10 w-24 shrink-0 min-[1000px]:block"
+              aria-hidden="true"
+            />
+          ) : user ? (
             <div className="hidden shrink-0 min-[1000px]:block">
               <button
                 ref={profileTriggerRef}
@@ -180,8 +227,14 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
                 aria-expanded={profileMenuOpen}
                 aria-haspopup="menu"
               >
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-black/10 text-xs font-semibold">
-                  {userInitial}
+                <span className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full bg-black/10 text-xs font-semibold">
+                  {profileAvatarLoading ? (
+                    <span className="h-full w-full animate-pulse bg-black/15" aria-hidden="true" />
+                  ) : profileAvatarSrc ? (
+                    <img src={profileAvatarSrc} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    userInitial
+                  )}
                 </span>
                 <span className="max-w-32 truncate">{userDisplayName.split(" ")[0]}</span>
               </button>
@@ -243,7 +296,7 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
                 {link.label}
               </NavLink>
             ))}
-            {user ? (
+            {authLoading ? null : user ? (
               <button
                 type="button"
                 className={`mt-2 rounded px-6 py-2.5 text-center text-sm font-medium ${
@@ -290,8 +343,14 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
               }}
             >
               <div className="flex items-start gap-3 border-b border-black/20 pb-3">
-                <span className="mt-0.5 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#D8D8D8] text-base font-semibold text-[#2a2a2a]">
-                  {userInitial}
+                <span className="mt-0.5 flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#D8D8D8] text-base font-semibold text-[#2a2a2a]">
+                  {profileAvatarLoading ? (
+                    <span className="h-full w-full animate-pulse bg-[#cfcfcf]" aria-hidden="true" />
+                  ) : profileAvatarSrc ? (
+                    <img src={profileAvatarSrc} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    userInitial
+                  )}
                 </span>
                 <div className="min-w-0">
                   <p className="truncate text-sm leading-tight font-semibold">{userDisplayName}</p>
@@ -304,16 +363,30 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
               <ul className="space-y-1 py-4" role="menu" aria-label="Account menu options">
                 {PROFILE_MENU_ITEMS.map((item) => (
                   <li key={item.label}>
-                    <button
-                      type="button"
+                    <Link
+                      to={item.to}
                       className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-sm text-[#2c2c2c] transition-colors hover:bg-black/5"
                       role="menuitem"
+                      onClick={() => setProfileMenuOpen(false)}
                     >
                       <item.icon size={24} className="text-[#0f7c79]" />
                       <span>{item.label}</span>
-                    </button>
+                    </Link>
                   </li>
                 ))}
+                {userRole === "ADMIN" ? (
+                  <li>
+                    <Link
+                      to="/admin"
+                      className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-sm text-[#2c2c2c] transition-colors hover:bg-black/5"
+                      role="menuitem"
+                      onClick={() => setProfileMenuOpen(false)}
+                    >
+                      <ShieldCheckIcon size={24} className="text-[#0f7c79]" />
+                      <span>Admin</span>
+                    </Link>
+                  </li>
+                ) : null}
               </ul>
 
               <div className="border-t border-black/20 pt-3">

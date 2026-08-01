@@ -122,6 +122,7 @@ class AccommodationBookingsService:
         status: BookingStatus | None,
         provider_type: str | None,
         provider_id: str | None,
+        customer_email: str | None = None,
     ) -> CursorPage[AccommodationBookingResponse]:
         cursor_payload = decode_cursor(params.cursor) if params.cursor else None
         query: dict[str, Any] = {}
@@ -133,6 +134,8 @@ class AccommodationBookingsService:
             query["provider_ref.type"] = provider_type
         if provider_id:
             query["provider_ref.id"] = self._to_object_id_or_raw(provider_id)
+        if customer_email:
+            query["customer_email"] = customer_email.strip().lower()
 
         sort = [("created_at", -1), ("_id", -1)]
         if cursor_payload is not None:

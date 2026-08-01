@@ -13,7 +13,7 @@ from app.domain.guides.local_catalog import LocalCatalog
 from app.errors.http import BadRequestError, NotFoundError
 from app.models.auth import CurrentUserResponse
 from app.models.bookmark import BookmarkType
-from app.models.expert import CursorPage, ExpertPublicDetail
+from app.models.expert import CursorPage, ExpertFilterOptions, ExpertPublicDetail
 from app.services.bookmarks_service import BookmarksService
 from app.services.experts_adapter_service import ExpertsAdapterService
 
@@ -24,6 +24,13 @@ def _correlation_id(request: Request) -> str | None:
     return getattr(request.state, "request_id", None)
 
 
+def _normalize_id_list(values: list[str] | None) -> list[str] | None:
+    if not values:
+        return None
+    cleaned = [value.strip() for value in values if value and value.strip()]
+    return cleaned or None
+
+
 @router.get("/experts", response_model=CursorPage)
 async def list_experts(
     request: Request,
@@ -32,6 +39,10 @@ async def list_experts(
     status: str | None = Query(default="published"),
     role: str | None = Query(default=None),
     q: str | None = Query(default=None),
+    primary_location_id: str | None = Query(default=None),
+    language_id: list[str] | None = Query(default=None),
+    expertise_id: list[str] | None = Query(default=None),
+    min_rating: float | None = Query(default=None, ge=0, le=5),
     include_bookmark: bool = Query(default=False),
     current_user: CurrentUserResponse | None = Depends(get_optional_current_user),
     service: ExpertsAdapterService = Depends(get_experts_adapter_service),
@@ -46,6 +57,10 @@ async def list_experts(
         cursor=cursor,
         role=role,
         q=q,
+        primary_location_id=primary_location_id.strip() if primary_location_id else None,
+        language_ids=_normalize_id_list(language_id),
+        expertise_ids=_normalize_id_list(expertise_id),
+        min_rating=min_rating,
         bookmarked_ids=None,
         media_base_url=str(request.base_url).rstrip("/"),
     )
@@ -61,6 +76,14 @@ async def list_experts(
             item.is_bookmarked = item.id in bookmarked
 
     return page
+
+
+@router.get("/experts/filter-options", response_model=ExpertFilterOptions)
+async def get_expert_filter_options(
+    request: Request,
+    service: ExpertsAdapterService = Depends(get_experts_adapter_service),
+) -> ExpertFilterOptions:
+    return await service.get_filter_options(correlation_id=_correlation_id(request))
 
 
 @router.get("/experts/{slug_or_id}", response_model=ExpertPublicDetail)

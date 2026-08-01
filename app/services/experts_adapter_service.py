@@ -5,18 +5,18 @@ import json
 from typing import Any
 
 from app.domain.guides.local_catalog import LocalCatalog
+from app.domain.guides.local_search import LocalSearch
 from app.models.expert import (
     CursorPage,
     ExperienceDetail,
+    ExperienceSnapshot,
     ExpertBio,
+    ExpertFilterOption,
+    ExpertFilterOptions,
     ExpertListItem,
     ExpertLocation,
     ExpertPublicDetail,
 )
-
-# Maximum guides scanned for in-memory text filtering when a query is supplied.
-# The catalog list endpoint has no full-text search, so the BFF filters a window.
-_TEXT_FILTER_SCAN_CAP = 100
 
 
 def _expert_photo_url(expert_id: str, *, has_profile_photo: bool, media_base_url: str | None) -> str | None:
@@ -61,6 +61,8 @@ def _ref_pair(items: Any) -> tuple[list[str], list[str]]:
 
 
 def _guide_bio_summary(guide: dict[str, Any]) -> str | None:
+    if isinstance(guide.get("bio_summary"), str) and guide["bio_summary"]:
+        return guide["bio_summary"]
     bio = guide.get("bio") if isinstance(guide.get("bio"), dict) else None
     if bio and isinstance(bio.get("summary"), str) and bio["summary"]:
         return bio["summary"]
@@ -87,11 +89,26 @@ def _offering_to_detail(offering: dict[str, Any]) -> ExperienceDetail:
     )
 
 
-class ExpertsAdapterService:
-    """Serves the public experts directory from the catalog service (single source of truth)."""
+def _as_filter_options(items: Any) -> list[ExpertFilterOption]:
+    if not isinstance(items, list):
+        return []
+    options: list[ExpertFilterOption] = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        option_id = item.get("id")
+        name = item.get("name")
+        if isinstance(option_id, str) and option_id and isinstance(name, str) and name:
+            options.append(ExpertFilterOption(id=option_id, name=name))
+    return options
 
-    def __init__(self, *, catalog_client: LocalCatalog) -> None:
+
+class ExpertsAdapterService:
+    """Serves the public experts directory from catalog + search (single source of truth)."""
+
+    def __init__(self, *, catalog_client: LocalCatalog, search_client: LocalSearch) -> None:
         self._catalog = catalog_client
+        self._search = search_client
 
     def _guide_to_list_item(
         self,
@@ -104,6 +121,19 @@ class ExpertsAdapterService:
         location = guide.get("location") if isinstance(guide.get("location"), dict) else {}
         expertise_ids, expertise_names = _ref_pair(guide.get("expertise"))
         language_ids, language_names = _ref_pair(guide.get("languages"))
+        max_rating = guide.get("max_rating")
+        total_reviews = guide.get("total_reviews_count")
+        review_snapshots: list[ExperienceSnapshot] = []
+        if isinstance(total_reviews, int) and total_reviews > 0:
+            review_snapshots = [
+                ExperienceSnapshot(
+                    id="aggregate",
+                    title="Reviews",
+                    type="summary",
+                    rating=max_rating if isinstance(max_rating, (int, float)) else None,
+                    reviews_count=total_reviews,
+                )
+            ]
 
         return ExpertListItem(
             id=guide_id,
@@ -123,16 +153,11 @@ class ExpertsAdapterService:
             expertise_names=expertise_names,
             language_ids=language_ids,
             language_names=language_names,
-            experience_snapshots=[],
+            experience_snapshots=review_snapshots,
             testimonial_snapshots=[],
-            experience_rating_max=None,
+            experience_rating_max=max_rating if isinstance(max_rating, (int, float)) else None,
             is_bookmarked=guide_id in bookmarked_ids if bookmarked_ids is not None else None,
         )
-
-    @staticmethod
-    def _matches_query(item: ExpertListItem, needle: str) -> bool:
-        haystacks = [item.name, item.location_name or "", *item.expertise_names]
-        return any(needle in value.casefold() for value in haystacks)
 
     async def list_experts(
         self,
@@ -142,29 +167,25 @@ class ExpertsAdapterService:
         cursor: str | None,
         role: str | None,
         q: str | None,
+        primary_location_id: str | None = None,
+        language_ids: list[str] | None = None,
+        expertise_ids: list[str] | None = None,
+        min_rating: float | None = None,
         bookmarked_ids: set[str] | None,
         media_base_url: str | None = None,
     ) -> CursorPage:
         offset = _decode_offset_cursor(cursor) if cursor else 0
         catalog_role = role.upper() if role and role not in {"all", ""} else None
-        search_term = q.strip().casefold() if q and q.strip() else None
+        search_term = q.strip() if q and q.strip() else None
 
-        if search_term is not None:
-            return await self._list_with_text_filter(
-                correlation_id=correlation_id,
-                limit=limit,
-                offset=offset,
-                catalog_role=catalog_role,
-                needle=search_term,
-                bookmarked_ids=bookmarked_ids,
-                media_base_url=media_base_url,
-            )
-
-        payload = await self._catalog.list_guides(
-            correlation_id=correlation_id,
-            status="PUBLISHED",
-            is_active=True,
+        payload = await self._search.search_guides(
+            q=search_term,
+            primary_location_id=primary_location_id,
+            language_ids=language_ids,
+            expertise_ids=expertise_ids,
             role=catalog_role,
+            min_rating=min_rating,
+            sort="rating_desc",
             limit=limit,
             offset=offset,
         )
@@ -184,37 +205,13 @@ class ExpertsAdapterService:
 
         return CursorPage(items=items, next_cursor=next_cursor, total_count=total)
 
-    async def _list_with_text_filter(
-        self,
-        *,
-        correlation_id: str | None,
-        limit: int,
-        offset: int,
-        catalog_role: str | None,
-        needle: str,
-        bookmarked_ids: set[str] | None,
-        media_base_url: str | None,
-    ) -> CursorPage:
-        payload = await self._catalog.list_guides(
-            correlation_id=correlation_id,
-            status="PUBLISHED",
-            is_active=True,
-            role=catalog_role,
-            limit=_TEXT_FILTER_SCAN_CAP,
-            offset=0,
+    async def get_filter_options(self, *, correlation_id: str | None) -> ExpertFilterOptions:
+        references = await self._catalog.list_references(correlation_id=correlation_id)
+        return ExpertFilterOptions(
+            locations=_as_filter_options(references.get("locations")),
+            languages=_as_filter_options(references.get("languages")),
+            expertise=_as_filter_options(references.get("expertise")),
         )
-        guides = payload.get("items") if isinstance(payload.get("items"), list) else []
-        all_items = [
-            self._guide_to_list_item(g, bookmarked_ids=bookmarked_ids, media_base_url=media_base_url)
-            for g in guides
-            if isinstance(g, dict)
-        ]
-        filtered = [item for item in all_items if self._matches_query(item, needle)]
-
-        window = filtered[offset : offset + limit]
-        next_offset = offset + len(window)
-        next_cursor = _encode_offset_cursor(next_offset) if next_offset < len(filtered) else None
-        return CursorPage(items=window, next_cursor=next_cursor, total_count=len(filtered))
 
     async def get_expert(
         self,
@@ -244,6 +241,11 @@ class ExpertsAdapterService:
         if not isinstance(experience_years, int) and naturalist:
             experience_years = naturalist.get("years_field_experience")
 
+        offering_ratings = [
+            o.get("rating") for o in offerings if isinstance(o.get("rating"), (int, float))
+        ]
+        max_rating = max(offering_ratings) if offering_ratings else None
+
         return ExpertPublicDetail(
             id=guide_id,
             slug=guide_id,
@@ -266,7 +268,7 @@ class ExpertsAdapterService:
             expertise_names=expertise_names,
             language_ids=language_ids,
             language_names=language_names,
-            experience_rating_max=None,
+            experience_rating_max=max_rating if isinstance(max_rating, (int, float)) else None,
             experiences_full=[_offering_to_detail(o) for o in offerings] if "experiences_full" in include else None,
             testimonials_full=[] if "testimonials_full" in include else None,
             field_entries_full=[] if "field_entries_full" in include else None,

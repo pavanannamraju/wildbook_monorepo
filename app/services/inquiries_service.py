@@ -10,7 +10,7 @@ from pymongo.errors import PyMongoError
 
 from app.domain.guides.local_search import LocalSearch
 from app.errors.http import NotFoundError, ServiceUnavailableError
-from app.models.enums import InquiryStatus
+from app.models.enums import InquiryDatesPreference, InquiryStatus
 from app.models.inquiry import InquiryAdminUpdate, InquiryCreate, InquiryResponse
 from app.models.pagination import CursorPage, CursorParams, decode_cursor, encode_cursor
 
@@ -42,6 +42,19 @@ class InquiriesService:
             doc = payload.model_dump(exclude_none=True)
             doc["expert_id"] = expert_id
             doc["customer_email"] = payload.customer_email.strip().lower()
+            doc["dates_preference"] = payload.dates_preference.value
+            if payload.dates_preference == InquiryDatesPreference.fixed:
+                assert payload.travel_start_date is not None
+                assert payload.travel_end_date is not None
+                doc["travel_start_date"] = payload.travel_start_date.isoformat()
+                doc["travel_end_date"] = payload.travel_end_date.isoformat()
+                doc["travel_dates"] = (
+                    f"{payload.travel_start_date.isoformat()} to {payload.travel_end_date.isoformat()}"
+                )
+            else:
+                doc.pop("travel_start_date", None)
+                doc.pop("travel_end_date", None)
+                doc["travel_dates"] = None
             doc.update(
                 {
                     "status": InquiryStatus.new.value,
@@ -153,4 +166,6 @@ class InquiriesService:
     def _doc_to_response(self, doc: dict[str, Any]) -> InquiryResponse:
         payload = {**doc, "id": str(doc["_id"])}
         payload.pop("_id", None)
+        if payload.get("dates_preference") is None and payload.get("travel_dates"):
+            payload["dates_preference"] = InquiryDatesPreference.fixed.value
         return InquiryResponse.model_validate(payload)

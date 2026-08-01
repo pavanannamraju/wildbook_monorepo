@@ -49,6 +49,39 @@ export async function fetchBookmarkStatuses(
   return new Set(parsed.bookmarked_target_ids);
 }
 
+export type Bookmark = {
+  id: string;
+  type: BookmarkType;
+  target_id: string;
+  created_at: string;
+};
+
+function parseBookmark(item: unknown): Bookmark | null {
+  if (!isRecord(item) || typeof item.id !== "string" || typeof item.target_id !== "string") {
+    return null;
+  }
+  const type = item.type;
+  if (type !== "expert" && type !== "homestay") return null;
+  return {
+    id: item.id,
+    type,
+    target_id: item.target_id,
+    created_at: typeof item.created_at === "string" ? item.created_at : "",
+  };
+}
+
+export async function fetchBookmarks(type: BookmarkType, signal?: AbortSignal): Promise<Bookmark[]> {
+  const response = await apiFetch(`/api/v1/bookmarks?type=${encodeURIComponent(type)}`, { signal });
+  if (!response.ok) {
+    throw new Error(`Failed to load bookmarks (HTTP ${response.status}).`);
+  }
+  const json = (await response.json()) as unknown;
+  if (!Array.isArray(json)) {
+    throw new Error("Unexpected bookmarks response.");
+  }
+  return json.map((item) => parseBookmark(item)).filter((item): item is Bookmark => item !== null);
+}
+
 export async function addBookmark(type: BookmarkType, targetId: string): Promise<void> {
   const response = await apiFetch("/api/v1/bookmarks", {
     method: "POST",

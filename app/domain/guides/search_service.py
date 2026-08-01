@@ -14,6 +14,15 @@ def _escape_regex(value: str) -> str:
     return re.escape(value.strip())
 
 
+def _reference_matches_term(doc: dict[str, Any], term: str, fields: tuple[str, ...]) -> bool:
+    needle = term.casefold()
+    for field in fields:
+        value = doc.get(field)
+        if isinstance(value, str) and needle in value.casefold():
+            return True
+    return False
+
+
 class GuideSearchService:
     """Browse/search over the shared guides collection (no denormalized index)."""
 
@@ -26,25 +35,36 @@ class GuideSearchService:
         q: str | None = None,
         primary_location_id: str | None = None,
         expertise_id: str | None = None,
+        expertise_ids: list[str] | None = None,
         language_id: str | None = None,
+        language_ids: list[str] | None = None,
         role: str | None = None,
         experience_type: str | None = None,
         min_price: int | None = None,
         max_price: int | None = None,
+        min_rating: float | None = None,
         sort: str = "rating_desc",
         limit: int = 20,
         offset: int = 0,
     ) -> dict[str, Any]:
-        self._validate(sort=sort, min_price=min_price, max_price=max_price)
+        self._validate(
+            sort=sort,
+            min_price=min_price,
+            max_price=max_price,
+            min_rating=min_rating,
+        )
         mongo_filter = self._build_filter(
             q=q,
             primary_location_id=primary_location_id,
             expertise_id=expertise_id,
+            expertise_ids=expertise_ids,
             language_id=language_id,
+            language_ids=language_ids,
             role=role,
             experience_type=experience_type,
             min_price=min_price,
             max_price=max_price,
+            min_rating=min_rating,
         )
         sort_spec = self._build_sort(sort=sort, has_q=bool(q and q.strip()))
         total = self._store.guides.count_documents(mongo_filter)
@@ -68,7 +88,14 @@ class GuideSearchService:
         card["naturalist_profile"] = self._naturalist_summary(doc)
         return card
 
-    def _validate(self, *, sort: str, min_price: int | None, max_price: int | None) -> None:
+    def _validate(
+        self,
+        *,
+        sort: str,
+        min_price: int | None,
+        max_price: int | None,
+        min_rating: float | None = None,
+    ) -> None:
         allowed = {"relevance", "rating_desc", "price_asc", "price_desc", "name_asc"}
         if sort not in allowed:
             raise AppError(status.HTTP_400_BAD_REQUEST, "INVALID_QUERY", f"Unsupported sort: {sort}")
@@ -78,6 +105,20 @@ class GuideSearchService:
             raise AppError(status.HTTP_400_BAD_REQUEST, "INVALID_QUERY", "max_price must be >= 0")
         if min_price is not None and max_price is not None and min_price > max_price:
             raise AppError(status.HTTP_400_BAD_REQUEST, "INVALID_QUERY", "min_price must be <= max_price")
+        if min_rating is not None and (min_rating < 0 or min_rating > 5):
+            raise AppError(status.HTTP_400_BAD_REQUEST, "INVALID_QUERY", "min_rating must be between 0 and 5")
+
+    @staticmethod
+    def _merge_id_filters(single: str | None, many: list[str] | None) -> list[str]:
+        values: list[str] = []
+        seen: set[str] = set()
+        for raw in [*(many or []), *([single] if single else [])]:
+            cleaned = raw.strip()
+            if not cleaned or cleaned in seen:
+                continue
+            seen.add(cleaned)
+            values.append(cleaned)
+        return values
 
     def _build_filter(
         self,
@@ -85,11 +126,14 @@ class GuideSearchService:
         q: str | None,
         primary_location_id: str | None,
         expertise_id: str | None,
+        expertise_ids: list[str] | None,
         language_id: str | None,
+        language_ids: list[str] | None,
         role: str | None,
         experience_type: str | None,
         min_price: int | None,
         max_price: int | None,
+        min_rating: float | None,
     ) -> dict[str, Any]:
         mongo_filter: dict[str, Any] = {
             "is_deleted": False,
@@ -100,10 +144,16 @@ class GuideSearchService:
             mongo_filter["primary_location_id"] = primary_location_id
         if role:
             mongo_filter["role"] = role.upper()
-        if language_id:
-            mongo_filter["language_ids"] = language_id
-        if expertise_id:
-            mongo_filter["expertise_ids"] = expertise_id
+        resolved_languages = self._merge_id_filters(language_id, language_ids)
+        if len(resolved_languages) == 1:
+            mongo_filter["language_ids"] = resolved_languages[0]
+        elif resolved_languages:
+            mongo_filter["language_ids"] = {"$in": resolved_languages}
+        resolved_expertise = self._merge_id_filters(expertise_id, expertise_ids)
+        if len(resolved_expertise) == 1:
+            mongo_filter["expertise_ids"] = resolved_expertise[0]
+        elif resolved_expertise:
+            mongo_filter["expertise_ids"] = {"$in": resolved_expertise}
         if experience_type:
             mongo_filter["experience_types"] = experience_type.upper()
         if min_price is not None or max_price is not None:
@@ -113,9 +163,37 @@ class GuideSearchService:
             if max_price is not None:
                 price["$lte"] = max_price
             mongo_filter["min_price_amount"] = price
+        if min_rating is not None:
+            mongo_filter["max_rating"] = {"$gte": min_rating}
         if q and q.strip():
-            mongo_filter["search_text"] = {"$regex": _escape_regex(q.strip()), "$options": "i"}
+            mongo_filter["$or"] = self._text_search_clauses(q.strip())
         return mongo_filter
+
+    def _text_search_clauses(self, term: str) -> list[dict[str, Any]]:
+        """Match only name, location, and expertise (not bios/offerings)."""
+        regex = {"$regex": _escape_regex(term), "$options": "i"}
+        clauses: list[dict[str, Any]] = [
+            {"full_name": regex},
+            {"full_name_normalized": regex},
+        ]
+
+        location_ids = [
+            doc["_id"]
+            for doc in self._store.list_active_references("reference_locations")
+            if _reference_matches_term(doc, term, ("name", "city", "state"))
+        ]
+        if location_ids:
+            clauses.append({"primary_location_id": {"$in": location_ids}})
+
+        expertise_ids = [
+            doc["_id"]
+            for doc in self._store.list_active_references("reference_expertise")
+            if _reference_matches_term(doc, term, ("name", "slug"))
+        ]
+        if expertise_ids:
+            clauses.append({"expertise_ids": {"$in": expertise_ids}})
+
+        return clauses
 
     def _build_sort(self, *, sort: str, has_q: bool) -> list[tuple[str, int]]:
         if sort == "price_asc":

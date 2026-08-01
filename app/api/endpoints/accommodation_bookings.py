@@ -6,6 +6,7 @@ from app.api.deps import (
     disallow_guide_booking,
     get_accommodation_bookings_service,
     require_admin_user,
+    require_user_or_admin,
 )
 from app.models.accommodation_booking import (
     AccommodationBookingAdminUpdate,
@@ -45,6 +46,22 @@ async def list_accommodation_bookings(
         status=status,
         provider_type=provider_type,
         provider_id=provider_id,
+    )
+
+
+@router.get("/accommodation-bookings/mine", response_model=CursorPage[AccommodationBookingResponse])
+async def list_my_accommodation_bookings(
+    params: CursorParams = Depends(),
+    current_user: CurrentUserResponse = Depends(require_user_or_admin),
+    service: AccommodationBookingsService = Depends(get_accommodation_bookings_service),
+) -> CursorPage[AccommodationBookingResponse]:
+    return await service.list(
+        params=params,
+        accommodation_id=None,
+        status=None,
+        provider_type=None,
+        provider_id=None,
+        customer_email=current_user.email,
     )
 
 

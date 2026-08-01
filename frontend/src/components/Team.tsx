@@ -2,30 +2,29 @@ import Anurag from "../assets/team_photos/Anurag.png";
 import NishadBarde from "../assets/team_photos/Nishad.png";
 import Pavan from "../assets/team_photos/Pavan.png";
 import Sangeetha from "../assets/team_photos/Sangeetha.png";
-import { Reveal, RevealItem, RevealStagger } from "../motion";
 
 const teamMembers = [
   {
     name: "Anurag Jha",
-    role: "Chief Pathfinder",
+    role: "Naturalist",
     image: Anurag,
     offsetUp: true,
   },
   {
     name: "Nishad Barde",
-    role: "Operations Commander",
+    role: "Filmmaker",
     image: NishadBarde,
     offsetUp: false,
   },
   {
     name: "Sangeetha Venugopalan",
-    role: "Keeper of Experiences",
+    role: "Design Consultant",
     image: Sangeetha,
     offsetUp: true,
   },
   {
     name: "Sai Pavan Annamaraju",
-    role: "Chief Systems Ranger",
+    role: "IT Professional",
     image: Pavan,
     offsetUp: false,
   },
@@ -34,7 +33,7 @@ const teamMembers = [
 export function Team() {
   return (
     <section className="relative pt-16 lg:pt-20 page-px max-w-[1920px] mx-auto">
-      <Reveal as="header" className="flex items-start justify-between overflow-visible">
+      <header className="flex items-start justify-between overflow-visible">
         <div className="flex flex-col gap-[24px] max-w-[767px]">
           <h2 className="font-['Nunito'] font-bold text-[18px] lg:text-[24px] leading-[32px] text-[#AB863F]">
             People Behind the Mission
@@ -45,16 +44,12 @@ export function Team() {
             the stories it inspires.
           </p>
         </div>
-      </Reveal>
+      </header>
 
-      <RevealStagger
-        preset="slow"
-        className="relative grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-[24px] mt-8 xl:mt-[27px]"
-      >
+      <div className="relative grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-[24px] mt-8 xl:mt-[27px]">
         {teamMembers.map((member, index) => (
-          <RevealItem
+          <div
             key={index}
-            preset="scaleIn"
             className={`flex w-full items-center ${
               member.offsetUp
                 ? "xl:pt-[64px] xl:pb-0"
@@ -87,11 +82,11 @@ export function Team() {
                 </div>
               </div>
             </div>
-          </RevealItem>
+          </div>
         ))}
-      </RevealStagger>
+      </div>
 
-      <span
+      {/* <span
         aria-hidden="true"
         className="absolute right-0 top-[64px] lg:top-[80px] z-[1] hidden lg:block pointer-events-none select-none leading-none"
         style={{
@@ -104,7 +99,7 @@ export function Team() {
         }}
       >
         COEXIST
-      </span>
+      </span> */}
     </section>
   );
 }

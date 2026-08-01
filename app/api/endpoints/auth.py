@@ -5,8 +5,10 @@ from fastapi import APIRouter, Depends
 from app.api.deps import get_authz_service, get_current_user, require_admin_user
 from app.models.auth import (
     AdminCreateUserRequest,
+    AvatarUpdateRequest,
     CurrentUserResponse,
     EmailSignupProfileUpsertRequest,
+    ProfileDetailsUpdateRequest,
 )
 from app.services.authz_service import AuthzService
 
@@ -36,3 +38,21 @@ async def upsert_email_signup_profile(
     authz_service: AuthzService = Depends(get_authz_service),
 ) -> CurrentUserResponse:
     return authz_service.upsert_email_signup_profile(current_user=current_user, payload=payload)
+
+
+@router.patch("/auth/me/profile-details", response_model=CurrentUserResponse)
+async def update_profile_details(
+    payload: ProfileDetailsUpdateRequest,
+    current_user: CurrentUserResponse = Depends(get_current_user),
+    authz_service: AuthzService = Depends(get_authz_service),
+) -> CurrentUserResponse:
+    return authz_service.update_profile_details(current_user=current_user, payload=payload)
+
+
+@router.patch("/auth/me/avatar", response_model=CurrentUserResponse)
+async def update_avatar(
+    payload: AvatarUpdateRequest,
+    current_user: CurrentUserResponse = Depends(get_current_user),
+    authz_service: AuthzService = Depends(get_authz_service),
+) -> CurrentUserResponse:
+    return authz_service.update_avatar(current_user=current_user, payload=payload)

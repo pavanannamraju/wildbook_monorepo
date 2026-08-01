@@ -8,7 +8,6 @@ import {
   CircleNotchIcon,
   FunnelSimpleIcon,
   GlobeIcon,
-  HouseSimpleIcon,
   MagnifyingGlassIcon,
   MapPinIcon,
   ShareNetworkIcon,
@@ -25,13 +24,23 @@ import { ShareLinkModal } from "../components/common/ShareLinkModal";
 import { StickyHeader } from "../components/StickyHeader";
 import { ExpertAvatar } from "../components/common/ExpertAvatar";
 import { StarRating } from "../components/common/StarRating";
+import {
+  ExpertsFilterPanel,
+  type ExpertsPanelFilters,
+} from "../components/experts/ExpertsFilterPanel";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import { useScrollPastRef } from "../hooks/useScrollPastRef";
 import { useExperts } from "../hooks/useExperts";
-import { HeroReveal, Reveal, RevealItem, RevealStagger } from "../motion";
 
 const FIRST_FREE_EXPERT_KEY = "wildbook_guest_first_expert_detail";
 const SEARCH_DEBOUNCE_MS = 300;
+
+const EMPTY_PANEL_FILTERS: ExpertsPanelFilters = {
+  primaryLocationId: null,
+  languageIds: [],
+  expertiseIds: [],
+  minRating: null,
+};
 
 function areSetsEqual(left: Set<string>, right: Set<string>): boolean {
   if (left.size !== right.size) return false;
@@ -55,6 +64,8 @@ export function ExploreExpertsPage() {
   const [roleFilter, setRoleFilter] = useState<"all" | "guide" | "naturalist">("all");
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
+  const [panelFilters, setPanelFilters] = useState<ExpertsPanelFilters>(EMPTY_PANEL_FILTERS);
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [showExploreLoginGate, setShowExploreLoginGate] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [pendingExpertPath, setPendingExpertPath] = useState<string | null>(null);
@@ -66,7 +77,17 @@ export function ExploreExpertsPage() {
       role: roleFilter,
       search: debouncedSearch,
       includeBookmark: Boolean(user),
+      primaryLocationId: panelFilters.primaryLocationId,
+      languageIds: panelFilters.languageIds,
+      expertiseIds: panelFilters.expertiseIds,
+      minRating: panelFilters.minRating,
     });
+
+  const activeFilterCount =
+    (panelFilters.primaryLocationId ? 1 : 0) +
+    panelFilters.languageIds.length +
+    panelFilters.expertiseIds.length +
+    (panelFilters.minRating != null ? 1 : 0);
 
   const totalPages = stats.totalPages;
   const currentPage = stats.currentPage;
@@ -176,13 +197,11 @@ export function ExploreExpertsPage() {
 
       {/* ── Hero ── */}
       <section ref={heroRef} className="relative overflow-hidden bg-[#2f2b28]">
-        <HeroReveal preset="image" className="block w-full">
-          <img
-            src={heroImage}
-            alt=""
-            className="block h-auto w-full select-none"
-          />
-        </HeroReveal>
+        <img
+          src={heroImage}
+          alt=""
+          className="block h-auto w-full select-none"
+        />
 
         {/* Gradients matching Figma */}
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(47,43,40,0.72)_0%,rgba(47,43,40,0.30)_28%,rgba(47,43,40,0)_58%)]" />
@@ -194,18 +213,17 @@ export function ExploreExpertsPage() {
 
           {/* Hero text — vertically centered within the banner */}
           <div className="flex flex-1 items-center page-px py-12">
-            <HeroReveal delay={0.15} className="max-w-[452px]">
+            <div className="max-w-[452px]">
             <h1
               className="text-[38px] leading-[1.2] text-[rgba(232,226,220,0.9)] drop-shadow-[0_4px_4px_rgba(0,0,0,0.4)] md:text-[46px] md:leading-[60px] lg:text-[56px] lg:leading-[72px]"
               style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300 }}
             >
-              Meet India&apos;s Guardians of Coexistence
+              Connect with Wildlife Experts
             </h1>
             <p className="mt-[16px] font-['Nunito'] font-bold text-[16px] leading-[1.4] text-[#9bcdb2] md:text-[18px] lg:text-[24px] lg:leading-[32px]">
-              A curated network of India&apos;s most knowledgeable guides and naturalists, offering
-              rare access to local expertise across diverse landscapes.
+            Explore and connect with our growing network of guides and naturalists, helping travelers access local knowledge across India’s wildlife destinations.
             </p>
-            </HeroReveal>
+            </div>
           </div>
         </div>
       </section>
@@ -214,7 +232,7 @@ export function ExploreExpertsPage() {
       <section className="bg-[#F6F4F0] page-px pt-[56px] pb-[40px] lg:pt-[32px] lg:pb-[48px]">
 
         {/* Title + count row */}
-        <Reveal className="mb-[16px] flex flex-wrap items-center justify-between gap-4">
+        <div className="mb-[16px] flex flex-wrap items-center justify-between gap-4">
           <h2 className="font-['Nunito'] font-bold text-[20px] lg:text-[28px] lg:leading-[40px] text-[#2F2B28]">
             Explore Verified Forest Guides &amp; Naturalists
           </h2>
@@ -223,10 +241,10 @@ export function ExploreExpertsPage() {
               ? `Showing ${rangeStart}\u2013${rangeEnd} of ${stats.totalCount} experts`
               : "No experts found"}
           </p>
-        </Reveal>
+        </div>
 
         {/* Filter + search bar */}
-        <Reveal delay={0.08} className="mb-[32px] flex flex-wrap items-center justify-between gap-[16px]">
+        <div className="mb-[32px] flex flex-wrap items-center justify-between gap-[16px]">
           {/* Role pills */}
           <div className="flex gap-[16px]">
             <button type="button" onClick={() => setRoleFilter("all")}
@@ -237,9 +255,9 @@ export function ExploreExpertsPage() {
               className={pillClass(roleFilter === "naturalist")}>Naturalists</button>
           </div>
 
-          {/* Search + Filter — Figma: w-560 search, gap-16 between */}
-          <div className="flex gap-[16px]">
-            <div className="flex h-[48px] w-full min-w-[200px] max-w-[560px] items-center gap-[16px] rounded-[4px] bg-[rgba(115,112,108,0.1)] px-[24px]">
+          {/* Search + Filter */}
+          <div className="flex min-w-0 flex-1 justify-end gap-[16px]">
+            <div className="flex h-[48px] w-full min-w-[280px] max-w-[720px] items-center gap-[12px] rounded-[4px] bg-[rgba(115,112,108,0.1)] pl-[14px] pr-[20px]">
               {isListRefreshing ? (
                 <CircleNotchIcon
                   size={20}
@@ -252,18 +270,26 @@ export function ExploreExpertsPage() {
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search"
+                placeholder="Search by name, location, or expertise"
                 aria-busy={isListRefreshing}
-                className="w-full bg-transparent font-['Nunito'] font-normal text-[14px] lg:text-[16px] text-[#2F2B28] outline-none placeholder:text-[#73706C]"
+                className="w-full bg-transparent font-['Nunito'] font-normal text-[14px] lg:text-[16px] text-[#2F2B28] outline-none placeholder:text-[12px] placeholder:text-[#73706C] lg:placeholder:text-[13px]"
               />
             </div>
-            <button type="button"
-              className="inline-flex h-[48px] items-center gap-[16px] rounded-[4px] bg-[rgba(115,112,108,0.1)] px-[24px] font-['Nunito'] font-normal text-[14px] lg:text-[16px] text-[#2F2B28] whitespace-nowrap">
+            <button
+              type="button"
+              onClick={() => setIsFilterPanelOpen(true)}
+              aria-expanded={isFilterPanelOpen}
+              className={`inline-flex h-[48px] items-center gap-[16px] rounded-[4px] px-[24px] font-['Nunito'] font-normal text-[14px] lg:text-[16px] whitespace-nowrap transition-colors ${
+                activeFilterCount > 0
+                  ? "bg-[#0B6E66] text-[#FAFAFA]"
+                  : "bg-[rgba(115,112,108,0.1)] text-[#2F2B28]"
+              }`}
+            >
               <FunnelSimpleIcon size={20} />
-              Filter
+              Filter{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
             </button>
           </div>
-        </Reveal>
+        </div>
 
         {/* Error state */}
         {status === "error" && (
@@ -274,8 +300,7 @@ export function ExploreExpertsPage() {
         {isInitialLoading ? (
           <PageLoader />
         ) : (
-          <RevealStagger
-            preset="fast"
+          <div
             className={`relative grid grid-cols-1 gap-[32px] transition-opacity lg:grid-cols-2 ${
               isListRefreshing ? "pointer-events-none opacity-60" : ""
             }`}
@@ -295,10 +320,8 @@ export function ExploreExpertsPage() {
               const reviewCount = expert.experience_snapshots[0]?.reviews_count ?? 0;
 
               return (
-                <RevealItem
-                  as="article"
+                <article
                   key={expert.id}
-                  preset="fadeUpSoft"
                   className="flex gap-[24px] rounded-[16px] bg-[#F3EEE9] p-[24px]"
                 >
                   {/* Photo — Figma: 272×312 rounded-[10px] */}
@@ -397,15 +420,15 @@ export function ExploreExpertsPage() {
                         onClick={() => handleViewDetails(expertPath)}
                         className="inline-flex h-[48px] w-full items-center justify-center gap-[10px] rounded-[4px] bg-[#0B6E66] font-['Nunito'] font-medium text-[14px] lg:text-[18px] text-[#FAFAFA] hover:bg-[#074A46] transition-colors"
                       >
-                        View Details
+                        View More
                         <ArrowRightIcon size={24} />
                       </button>
                     </div>
                   </div>
-                </RevealItem>
+                </article>
               );
             })}
-          </RevealStagger>
+          </div>
         )}
 
         {/* Pagination — Figma: size-[32px] buttons, gap-[8px] */}
@@ -543,6 +566,13 @@ export function ExploreExpertsPage() {
         path={sharePath ?? "/experts"}
         title="Share expert profile"
         onClose={() => setSharePath(null)}
+      />
+
+      <ExpertsFilterPanel
+        open={isFilterPanelOpen}
+        value={panelFilters}
+        onClose={() => setIsFilterPanelOpen(false)}
+        onApply={setPanelFilters}
       />
     </main>
   );
