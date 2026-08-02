@@ -30,12 +30,12 @@ export const Hero = forwardRef<HTMLElement>(function Hero(_, ref) {
       <div className="relative z-10 flex h-full flex-col">
         <Navbar variant="light" />
 
-        <div className="flex flex-1 flex-col items-center justify-center page-px py-8 text-center sm:py-10 md:items-start md:py-11 md:text-left lg:py-12">
+        <div className="flex flex-1 flex-col justify-center page-px py-8 max-md:items-center max-md:text-center sm:py-10 md:py-11 lg:py-12">
           <p className="font-['Nunito'] font-bold text-[14px] leading-snug text-[#AB863F] sm:text-[18px] sm:leading-7 md:text-[20px] lg:text-[24px] lg:leading-8">
             Bringing India’s wildlife ecosystem together
           </p>
 
-          <h1 className="mb-5 mt-3 flex flex-col items-center gap-1 font-['Montserrat'] font-medium leading-[0.95] text-[#EDE8E2]/90 sm:mb-6 sm:mt-4 sm:gap-2 md:mb-7 md:items-start md:gap-3 lg:mb-8">
+          <h1 className="mb-5 mt-3 flex flex-col gap-1 font-['Montserrat'] font-medium leading-[0.95] text-[#EDE8E2]/90 max-md:items-center sm:mb-6 sm:mt-4 sm:gap-2 md:mb-7 md:gap-3 lg:mb-8">
             {["connect", "conserve", "coexist"].map((word) => (
               <span
                 key={word}

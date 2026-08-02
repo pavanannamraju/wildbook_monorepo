@@ -210,7 +210,7 @@ export function ExploreExpertsPage() {
           <Navbar variant="light" />
 
           {/* Hero text — vertically centered within the banner */}
-          <div className="flex flex-1 items-center justify-center page-px py-6 text-center sm:py-8 md:justify-start md:py-10 md:text-left lg:py-12">
+          <div className="flex flex-1 items-center page-px py-6 max-md:justify-center max-md:text-center sm:py-8 md:py-10 lg:py-12">
             <div className="max-w-[452px]">
               <h1
                 className="text-[28px] leading-[1.2] text-[rgba(232,226,220,0.9)] drop-shadow-[0_4px_4px_rgba(0,0,0,0.4)] sm:text-[36px] md:text-[42px] md:leading-[1.15] lg:text-[56px] lg:leading-[72px]"
