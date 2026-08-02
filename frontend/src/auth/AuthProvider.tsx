@@ -151,6 +151,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
       logout: async () => {
         await signOut(firebaseAuth);
+        window.location.assign("/");
       },
     }),
     [loading, profile, profileLoading, refreshProfile, setProfile, token, user],
