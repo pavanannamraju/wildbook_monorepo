@@ -9,6 +9,7 @@ import {
   ShieldCheckIcon,
   SignOutIcon,
   UserIcon,
+  XIcon,
 } from "@phosphor-icons/react";
 import { createPortal } from "react-dom";
 import { Link, NavLink } from "react-router-dom";
@@ -74,6 +75,27 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
   const userRole = profile?.role ?? null;
   const avatarOverflowTop = profile?.avatar_type === "preset";
   const avatarInitials = userInitial;
+
+  useEffect(() => {
+    if (!mobileMenuOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [mobileMenuOpen]);
 
   useEffect(() => {
     if (!profileMenuOpen) {
@@ -254,119 +276,167 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
           </button>
         </div>
 
-        {/* Mobile menu - below 1000px */}
-        <div
-          className={`min-[1000px]:hidden overflow-hidden transition-[max-height,opacity] duration-200 ${
-            mobileMenuOpen ? "max-h-[min(80svh,640px)] opacity-100" : "max-h-0 opacity-0"
-          }`}
-        >
-          <div className="flex max-h-[min(80svh,640px)] flex-col gap-1 overflow-y-auto border-t border-black/10 py-4 page-px">
-            {NAV_LINKS.map((link) => (
-              <NavLink
-                key={link.label}
-                to={link.to}
-                end={link.to === "/"}
-                className={({ isActive }) => linkClasses(isActive)}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {link.label}
-              </NavLink>
-            ))}
-
-            {authLoading ? null : user ? (
-              <>
-                <div
-                  className={`my-2 border-t ${isLight ? "border-white/15" : "border-black/10"}`}
-                />
-                <p
-                  className={`px-5 pb-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${
-                    isLight ? "text-white/55" : "text-black/45"
-                  }`}
-                >
-                  Account
-                </p>
-                <div className={`mb-1 flex items-center gap-3 px-5 py-2 ${isLight ? "text-(--color-wildbook-cream)" : "text-black"}`}>
-                  <UserAvatar
-                    initials={avatarInitials}
-                    imageUrl={profileAvatarSrc}
-                    size="xs"
-                    overflowTop={avatarOverflowTop}
-                    loading={profileLoading}
-                    alt=""
-                  />
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold">{userDisplayName}</p>
-                    {userEmail ? (
-                      <p className={`truncate text-xs ${isLight ? "text-white/65" : "text-black/55"}`}>
-                        {userEmail}
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-                {PROFILE_MENU_ITEMS.map((item) => (
-                  <Link
-                    key={item.label}
-                    to={item.to}
-                    className={linkClasses(false)}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <span className="inline-flex items-center gap-3">
-                      <item.icon size={18} aria-hidden="true" />
-                      {item.label}
-                    </span>
-                  </Link>
-                ))}
-                {userRole === "ADMIN" ? (
-                  <Link
-                    to="/admin"
-                    className={linkClasses(false)}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <span className="inline-flex items-center gap-3">
-                      <ShieldCheckIcon size={18} aria-hidden="true" />
-                      Admin
-                    </span>
-                  </Link>
-                ) : null}
-                <button
-                  type="button"
-                  className={`mt-1 rounded px-5 py-2.5 text-left text-sm font-medium ${
-                    isLight
-                      ? "text-[#FFB4AE] hover:bg-white/10"
-                      : "text-[#D83A31] hover:bg-[#D83A31]/10"
-                  }`}
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    void logout();
-                  }}
-                >
-                  <span className="inline-flex items-center gap-3">
-                    <SignOutIcon size={18} aria-hidden="true" />
-                    Logout
-                  </span>
-                </button>
-              </>
-            ) : (
-              <button
-                type="button"
-                className={`mt-2 rounded px-5 py-2.5 text-left text-sm font-medium ${
-                  isLight ? "text-(--color-wildbook-cream) hover:bg-white/10" : "text-black hover:bg-black/10"
-                }`}
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setLoginModalOpen(true);
-                }}
-              >
-                <span className="inline-flex items-center gap-3">
-                  <UserIcon size={18} aria-hidden="true" />
-                  Login
-                </span>
-              </button>
-            )}
-          </div>
-        </div>
       </GlassCard>
       </nav>
+      {mobileMenuOpen
+        ? createPortal(
+            <div
+              className="fixed inset-0 z-1100 flex flex-col min-[1000px]:hidden"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Navigation menu"
+            >
+              <div
+                className={`flex min-h-0 flex-1 flex-col ${
+                  isLight
+                    ? "bg-[#1C1917]/95 text-(--color-wildbook-cream) backdrop-blur-md"
+                    : "bg-[#F7F6F2] text-black"
+                }`}
+              >
+                <div className="flex shrink-0 items-center justify-between gap-3 page-px py-3">
+                  <Link
+                    to="/"
+                    className="flex shrink-0 items-center"
+                    aria-label="Wildbook home"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <img
+                      src={isLight ? logoDark : logoLight}
+                      alt="Wildbook"
+                      className="h-4 w-auto"
+                    />
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`-mr-2 rounded p-2 ${
+                      isLight ? "text-white hover:bg-white/10" : "text-black hover:bg-black/10"
+                    }`}
+                    aria-label="Close menu"
+                  >
+                    <XIcon size={22} aria-hidden="true" />
+                  </button>
+                </div>
+
+                <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto border-t border-black/10 py-4 page-px">
+                  {NAV_LINKS.map((link) => (
+                    <NavLink
+                      key={link.label}
+                      to={link.to}
+                      end={link.to === "/"}
+                      className={({ isActive }) => linkClasses(isActive)}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {link.label}
+                    </NavLink>
+                  ))}
+
+                  {authLoading ? null : user ? (
+                    <>
+                      <div
+                        className={`my-2 border-t ${isLight ? "border-white/15" : "border-black/10"}`}
+                      />
+                      <p
+                        className={`px-5 pb-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${
+                          isLight ? "text-white/55" : "text-black/45"
+                        }`}
+                      >
+                        Account
+                      </p>
+                      <div
+                        className={`mb-1 flex items-center gap-3 px-5 py-2 ${
+                          isLight ? "text-(--color-wildbook-cream)" : "text-black"
+                        }`}
+                      >
+                        <UserAvatar
+                          initials={avatarInitials}
+                          imageUrl={profileAvatarSrc}
+                          size="xs"
+                          overflowTop={avatarOverflowTop}
+                          loading={profileLoading}
+                          alt=""
+                        />
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold">{userDisplayName}</p>
+                          {userEmail ? (
+                            <p
+                              className={`truncate text-xs ${
+                                isLight ? "text-white/65" : "text-black/55"
+                              }`}
+                            >
+                              {userEmail}
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
+                      {PROFILE_MENU_ITEMS.map((item) => (
+                        <Link
+                          key={item.label}
+                          to={item.to}
+                          className={linkClasses(false)}
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <span className="inline-flex items-center gap-3">
+                            <item.icon size={18} aria-hidden="true" />
+                            {item.label}
+                          </span>
+                        </Link>
+                      ))}
+                      {userRole === "ADMIN" ? (
+                        <Link
+                          to="/admin"
+                          className={linkClasses(false)}
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <span className="inline-flex items-center gap-3">
+                            <ShieldCheckIcon size={18} aria-hidden="true" />
+                            Admin
+                          </span>
+                        </Link>
+                      ) : null}
+                      <button
+                        type="button"
+                        className={`mt-1 rounded px-5 py-2.5 text-left text-sm font-medium ${
+                          isLight
+                            ? "text-[#FFB4AE] hover:bg-white/10"
+                            : "text-[#D83A31] hover:bg-[#D83A31]/10"
+                        }`}
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          void logout();
+                        }}
+                      >
+                        <span className="inline-flex items-center gap-3">
+                          <SignOutIcon size={18} aria-hidden="true" />
+                          Logout
+                        </span>
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      className={`mt-2 rounded px-5 py-2.5 text-left text-sm font-medium ${
+                        isLight
+                          ? "text-(--color-wildbook-cream) hover:bg-white/10"
+                          : "text-black hover:bg-black/10"
+                      }`}
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        setLoginModalOpen(true);
+                      }}
+                    >
+                      <span className="inline-flex items-center gap-3">
+                        <UserIcon size={18} aria-hidden="true" />
+                        Login
+                      </span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
       {profileMenuOpen && user
         ? createPortal(
             <div
