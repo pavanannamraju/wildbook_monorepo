@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { GlassCard } from "react-glass-ui";
 import {
-  ArrowRightIcon,
   BookmarkSimpleIcon,
   CircleIcon,
   GearIcon,
@@ -258,10 +257,10 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
         {/* Mobile menu - below 1000px */}
         <div
           className={`min-[1000px]:hidden overflow-hidden transition-[max-height,opacity] duration-200 ${
-            mobileMenuOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0"
+            mobileMenuOpen ? "max-h-[min(80svh,640px)] opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          <div className="flex flex-col gap-1 border-t border-black/10 py-4 page-px">
+          <div className="flex max-h-[min(80svh,640px)] flex-col gap-1 overflow-y-auto border-t border-black/10 py-4 page-px">
             {NAV_LINKS.map((link) => (
               <NavLink
                 key={link.label}
@@ -273,28 +272,84 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
                 {link.label}
               </NavLink>
             ))}
+
             {authLoading ? null : user ? (
-              <button
-                type="button"
-                className={`mt-2 rounded px-6 py-2.5 text-center text-sm font-medium ${
-                  isLight
-                    ? "text-(--color-wildbook-cream) hover:bg-white/10"
-                    : "text-black hover:bg-black/10"
-                }`}
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  void logout();
-                }}
-              >
-                <span className="inline-flex items-center justify-center gap-2">
-                  <ArrowRightIcon size={16} aria-hidden="true" />
-                  Logout
-                </span>
-              </button>
+              <>
+                <div
+                  className={`my-2 border-t ${isLight ? "border-white/15" : "border-black/10"}`}
+                />
+                <p
+                  className={`px-5 pb-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${
+                    isLight ? "text-white/55" : "text-black/45"
+                  }`}
+                >
+                  Account
+                </p>
+                <div className={`mb-1 flex items-center gap-3 px-5 py-2 ${isLight ? "text-(--color-wildbook-cream)" : "text-black"}`}>
+                  <UserAvatar
+                    initials={avatarInitials}
+                    imageUrl={profileAvatarSrc}
+                    size="xs"
+                    overflowTop={avatarOverflowTop}
+                    loading={profileLoading}
+                    alt=""
+                  />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold">{userDisplayName}</p>
+                    {userEmail ? (
+                      <p className={`truncate text-xs ${isLight ? "text-white/65" : "text-black/55"}`}>
+                        {userEmail}
+                      </p>
+                    ) : null}
+                  </div>
+                </div>
+                {PROFILE_MENU_ITEMS.map((item) => (
+                  <Link
+                    key={item.label}
+                    to={item.to}
+                    className={linkClasses(false)}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <span className="inline-flex items-center gap-3">
+                      <item.icon size={18} aria-hidden="true" />
+                      {item.label}
+                    </span>
+                  </Link>
+                ))}
+                {userRole === "ADMIN" ? (
+                  <Link
+                    to="/admin"
+                    className={linkClasses(false)}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <span className="inline-flex items-center gap-3">
+                      <ShieldCheckIcon size={18} aria-hidden="true" />
+                      Admin
+                    </span>
+                  </Link>
+                ) : null}
+                <button
+                  type="button"
+                  className={`mt-1 rounded px-5 py-2.5 text-left text-sm font-medium ${
+                    isLight
+                      ? "text-[#FFB4AE] hover:bg-white/10"
+                      : "text-[#D83A31] hover:bg-[#D83A31]/10"
+                  }`}
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    void logout();
+                  }}
+                >
+                  <span className="inline-flex items-center gap-3">
+                    <SignOutIcon size={18} aria-hidden="true" />
+                    Logout
+                  </span>
+                </button>
+              </>
             ) : (
               <button
                 type="button"
-                className={`mt-2 rounded px-6 py-2.5 text-center text-sm font-medium ${
+                className={`mt-2 rounded px-5 py-2.5 text-left text-sm font-medium ${
                   isLight ? "text-(--color-wildbook-cream) hover:bg-white/10" : "text-black hover:bg-black/10"
                 }`}
                 onClick={() => {
@@ -302,7 +357,10 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
                   setLoginModalOpen(true);
                 }}
               >
-                Login
+                <span className="inline-flex items-center gap-3">
+                  <UserIcon size={18} aria-hidden="true" />
+                  Login
+                </span>
               </button>
             )}
           </div>

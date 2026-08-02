@@ -18,6 +18,7 @@ import {
   XIcon,
 } from "@phosphor-icons/react";
 import { useEffect, useMemo, useRef, useState, type ComponentType, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import {
   fetchCurrentUser,
@@ -599,6 +600,25 @@ export function AccountPage() {
   const [avatarSaving, setAvatarSaving] = useState(false);
   const customPhotoInputRef = useRef<HTMLInputElement | null>(null);
 
+  useEffect(() => {
+    if (!avatarOpen) return;
+
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !avatarSaving) {
+        setAvatarOpen(false);
+      }
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onEscape);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onEscape);
+    };
+  }, [avatarOpen, avatarSaving]);
+
   const [bookings, setBookings] = useState<AccommodationBookingSummary[] | null>(null);
   const [bookingsError, setBookingsError] = useState<string | null>(null);
   const [bookingsTab, setBookingsTab] = useState<BookingsTab>("upcoming");
@@ -881,7 +901,10 @@ export function AccountPage() {
               />
               <button
                 type="button"
-                onClick={() => setAvatarOpen((open) => !open)}
+                onClick={() => {
+                  setAvatarSaveError(null);
+                  setAvatarOpen(true);
+                }}
                 className="mt-2 flex w-24 items-center justify-center gap-1 rounded-[4px] py-1 text-[11px] font-semibold text-[#0B6E66] transition-colors hover:bg-[#9BCDB2]/20"
               >
                 <PencilSimpleIcon size={12} /> Edit photo
@@ -940,76 +963,119 @@ export function AccountPage() {
           </div>
         </section>
 
-        {avatarOpen ? (
-          <div className="mt-3 rounded-[8px] border border-[#D7D2CC] bg-white p-4 shadow-sm">
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                disabled={avatarSaving}
-                onClick={() => customPhotoInputRef.current?.click()}
-                className="flex items-center gap-2 rounded-[4px] border border-dashed border-[#0B6E66]/40 px-4 py-2 text-xs font-semibold text-[#0B6E66] transition-colors hover:bg-[#E0F0EC] disabled:opacity-60"
+        {avatarOpen
+          ? createPortal(
+              <div
+                className="fixed inset-0 z-1200 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="edit-photo-title"
               >
-                <UploadSimpleIcon size={14} /> Upload photo
-              </button>
-              <input
-                ref={customPhotoInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(event) => void handleCustomPhotoSelected(event.target.files?.[0] ?? null)}
-              />
-              <span className="text-xs text-[#9A9691]">or choose a wildlife avatar</span>
-              <button
-                type="button"
-                onClick={() => setAvatarOpen(false)}
-                className="ml-auto rounded-full p-1 text-[#9A9691] hover:bg-[#F6F4F1]"
-                aria-label="Close avatar picker"
-              >
-                <XIcon size={16} />
-              </button>
-            </div>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              {PRESET_AVATARS.map((avatar) => {
-                const selected = avatarType === "preset" && avatarKey === avatar.key;
-                return (
-                  <button
-                    key={avatar.key}
-                    type="button"
-                    disabled={avatarSaving}
-                    title={avatar.label}
-                    aria-label={`Select ${avatar.label} avatar`}
-                    data-avatar-type="preset"
-                    data-avatar-key={avatar.key}
-                    onClick={() => void handleSelectPresetAvatar(avatar.key)}
-                    className={`overflow-visible rounded-full p-0.5 transition-transform hover:scale-110 disabled:opacity-60 ${
-                      selected ? "ring-2 ring-[#0B6E66] ring-offset-2" : ""
-                    }`}
-                  >
-                    <UserAvatar
-                      initials={avatar.label.slice(0, 2)}
-                      imageUrl={avatar.src}
-                      alt={avatar.label}
-                      overflowTop
-                      ring
+                <button
+                  type="button"
+                  className="absolute inset-0 cursor-default"
+                  aria-label="Close edit photo dialog"
+                  onClick={() => {
+                    if (!avatarSaving) setAvatarOpen(false);
+                  }}
+                />
+                <div className="relative z-1 flex max-h-[90svh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-2xl bg-[#F8F6F3] shadow-2xl sm:rounded-2xl">
+                  <div className="flex items-start justify-between gap-3 border-b border-[#E3DDD8] px-5 py-4">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9A9691]">
+                        Profile
+                      </p>
+                      <h2
+                        id="edit-photo-title"
+                        className="mt-1 text-[18px] font-extrabold tracking-[-0.02em] text-[#3B372F] sm:text-[20px]"
+                        style={{ fontFamily: '"Montserrat", sans-serif' }}
+                      >
+                        Edit photo
+                      </h2>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={avatarSaving}
+                      onClick={() => setAvatarOpen(false)}
+                      className="rounded-full p-2 text-[#9A9691] transition-colors hover:bg-[#E8E2DC] hover:text-[#3B372F] disabled:opacity-50"
+                      aria-label="Close"
+                    >
+                      <XIcon size={18} />
+                    </button>
+                  </div>
+
+                  <div className="overflow-y-auto px-5 py-5">
+                    <div className="mb-5 flex justify-center">
+                      <UserAvatar
+                        initials={avatarInitials}
+                        imageUrl={profileAvatarSrc}
+                        large
+                        ring
+                        overflowTop={avatarType === "preset"}
+                        alt={displayName}
+                      />
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={avatarSaving}
+                      onClick={() => customPhotoInputRef.current?.click()}
+                      className="flex w-full items-center justify-center gap-2 rounded-[6px] border border-dashed border-[#0B6E66]/40 bg-white px-4 py-3 text-sm font-semibold text-[#0B6E66] transition-colors hover:bg-[#E0F0EC] disabled:opacity-60"
+                    >
+                      <UploadSimpleIcon size={16} />
+                      {avatarSaving ? "Saving…" : "Upload photo"}
+                    </button>
+                    <input
+                      ref={customPhotoInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(event) =>
+                        void handleCustomPhotoSelected(event.target.files?.[0] ?? null)
+                      }
                     />
-                  </button>
-                );
-              })}
-            </div>
-            {avatarType ? (
-              <p className="mt-3 text-[11px] text-[#9A9691]">
-                Saved as <span className="font-semibold text-[#3B372F]">{avatarType}</span>
-                {avatarType === "preset" && avatarKey ? (
-                  <>
-                    {" "}
-                    · key <span className="font-semibold text-[#3B372F]">{avatarKey}</span>
-                  </>
-                ) : null}
-              </p>
-            ) : null}
-            {avatarSaveError ? <p className="mt-2 text-xs text-[#C94A45]">{avatarSaveError}</p> : null}
-          </div>
-        ) : null}
+
+                    <p className="mt-5 mb-3 text-center text-xs font-semibold text-[#9A9691]">
+                      or choose a wildlife avatar
+                    </p>
+                    <div className="grid grid-cols-4 gap-3 sm:grid-cols-5">
+                      {PRESET_AVATARS.map((avatar) => {
+                        const selected = avatarType === "preset" && avatarKey === avatar.key;
+                        return (
+                          <button
+                            key={avatar.key}
+                            type="button"
+                            disabled={avatarSaving}
+                            title={avatar.label}
+                            aria-label={`Select ${avatar.label} avatar`}
+                            data-avatar-type="preset"
+                            data-avatar-key={avatar.key}
+                            onClick={() => void handleSelectPresetAvatar(avatar.key)}
+                            className={`mx-auto overflow-visible rounded-full p-0.5 transition-transform hover:scale-105 disabled:opacity-60 ${
+                              selected ? "ring-2 ring-[#0B6E66] ring-offset-2" : ""
+                            }`}
+                          >
+                            <UserAvatar
+                              initials={avatar.label.slice(0, 2)}
+                              imageUrl={avatar.src}
+                              alt={avatar.label}
+                              overflowTop
+                              ring
+                            />
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {avatarSaveError ? (
+                      <p className="mt-4 text-center text-xs text-[#C94A45]">{avatarSaveError}</p>
+                    ) : null}
+                  </div>
+                </div>
+              </div>,
+              document.body,
+            )
+          : null}
 
         <div className="mt-6 grid gap-5 lg:grid-cols-2">
           <section className={cardClassName}>

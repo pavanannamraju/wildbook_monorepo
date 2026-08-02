@@ -6,12 +6,10 @@ import cheetahUrl from "../assets/avatar_icons/008-cheetah.svg";
 import deerUrl from "../assets/avatar_icons/011-deer.svg";
 import wolfUrl from "../assets/avatar_icons/014-wolf.svg";
 import foxUrl from "../assets/avatar_icons/015-fox.svg";
-import lionUrl from "../assets/avatar_icons/016-lion.svg";
 import tigerUrl from "../assets/avatar_icons/019-tiger.svg";
 import zebraUrl from "../assets/avatar_icons/020-zebra.svg";
 import bearUrl from "../assets/avatar_icons/025-bear.svg";
 import rhinocerosUrl from "../assets/avatar_icons/030-rhinoceros.svg";
-import eagleUrl from "../assets/avatar_icons/033-eagle.svg";
 import elephantUrl from "../assets/avatar_icons/034-elephant.svg";
 import gorillaUrl from "../assets/avatar_icons/042-gorilla.svg";
 import kangarooUrl from "../assets/avatar_icons/043-kangaroo.svg";
@@ -43,12 +41,10 @@ export const PRESET_AVATARS: readonly PresetAvatar[] = [
   { key: "011-deer", label: "Deer", src: deerUrl },
   { key: "014-wolf", label: "Wolf", src: wolfUrl },
   { key: "015-fox", label: "Fox", src: foxUrl },
-  { key: "016-lion", label: "Lion", src: lionUrl },
   { key: "019-tiger", label: "Tiger", src: tigerUrl },
   { key: "020-zebra", label: "Zebra", src: zebraUrl },
   { key: "025-bear", label: "Bear", src: bearUrl },
   { key: "030-rhinoceros", label: "Rhinoceros", src: rhinocerosUrl },
-  { key: "033-eagle", label: "Eagle", src: eagleUrl },
   { key: "034-elephant", label: "Elephant", src: elephantUrl },
   { key: "042-gorilla", label: "Gorilla", src: gorillaUrl },
   { key: "043-kangaroo", label: "Kangaroo", src: kangarooUrl },

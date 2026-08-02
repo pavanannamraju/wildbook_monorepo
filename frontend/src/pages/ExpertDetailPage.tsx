@@ -231,23 +231,23 @@ export function ExpertDetailPage() {
     <main className="mx-auto max-w-[1920px] bg-[#F6F4F0]">
       <StickyTopNavbar />
 
-      <div className="page-px py-[88px]">
-        <div className="flex gap-[80px]">
+      <div className="page-px py-8 sm:py-12 md:py-16 lg:py-[88px]">
+        <div className="flex flex-col gap-8 lg:flex-row lg:gap-16 xl:gap-20">
 
           {/* ── Left sidebar ── */}
-          <aside className="w-[364px] shrink-0 lg:sticky lg:top-[88px] lg:self-start">
+          <aside className="w-full shrink-0 lg:sticky lg:top-[88px] lg:w-[364px] lg:self-start">
             {/* Back link */}
             <Link
               to="/experts"
-              className="mb-[8px] inline-flex items-center gap-[10px] p-[8px] font-['Nunito'] font-normal text-[16px] text-[#73706C] hover:text-[#2F2B28] transition-colors"
+              className="mb-2 inline-flex items-center gap-2 p-2 font-['Nunito'] font-normal text-[14px] text-[#73706C] transition-colors hover:text-[#2F2B28] sm:mb-[8px] sm:gap-[10px] sm:text-[16px]"
             >
-              <ArrowLeftIcon size={24} />
+              <ArrowLeftIcon size={20} className="sm:size-6" />
               Back to all experts
             </Link>
 
-            <div className="flex flex-col gap-[16px]">
+            <div className="flex flex-col gap-4 sm:gap-[16px]">
               {/* Photo */}
-              <div className="h-[440px] w-full overflow-hidden rounded-[20px] bg-[#d7d3cf]">
+              <div className="mx-auto h-[280px] w-full max-w-[364px] overflow-hidden rounded-[16px] bg-[#d7d3cf] sm:h-[360px] sm:rounded-[20px] md:h-[400px] lg:mx-0 lg:h-[440px] lg:max-w-none">
                 <ExpertAvatar src={expert.profile_image_url} alt={expert.name} iconSize={128} />
               </div>
 
@@ -293,39 +293,39 @@ export function ExpertDetailPage() {
           </aside>
 
           {/* ── Main content ── */}
-          <section className="min-w-0 flex-1 flex flex-col gap-[48px]">
+          <section className="flex min-w-0 flex-1 flex-col gap-8 sm:gap-10 lg:gap-12">
 
             {/* About */}
-            <div className="flex flex-col gap-[32px]">
-              <div className="flex flex-col gap-[8px]">
+            <div className="flex flex-col gap-6 sm:gap-8">
+              <div className="flex flex-col gap-2">
                 {/* Heading + actions row */}
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-3">
                   <h2 className="font-['Nunito'] font-bold text-[22px] leading-snug text-[#AB863F] sm:text-[24px] md:text-[26px] lg:text-[28px] lg:leading-10">
                     About
                   </h2>
-                  <div className="flex items-center gap-[4px]">
+                  <div className="flex shrink-0 items-center gap-1">
                     <button
                       type="button"
                       onClick={() => void toggleBookmark()}
                       disabled={!user || bookmarkPending}
-                      className="flex size-[48px] items-center justify-center rounded-full text-[#73706C] hover:bg-black/5 disabled:opacity-50 transition-colors"
+                      className="flex size-10 items-center justify-center rounded-full text-[#73706C] transition-colors hover:bg-black/5 disabled:opacity-50 sm:size-12"
                       aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
                     >
-                      <BookmarkSimpleIcon size={24} weight={isBookmarked ? "fill" : "regular"} />
+                      <BookmarkSimpleIcon size={22} weight={isBookmarked ? "fill" : "regular"} />
                     </button>
                     <button
                       type="button"
                       onClick={() => setIsShareModalOpen(true)}
-                      className="flex size-[48px] items-center justify-center rounded-full text-[#73706C] hover:bg-black/5 transition-colors"
+                      className="flex size-10 items-center justify-center rounded-full text-[#73706C] transition-colors hover:bg-black/5 sm:size-12"
                       aria-label="Share expert profile"
                     >
-                      <ShareNetworkIcon size={24} />
+                      <ShareNetworkIcon size={22} />
                     </button>
                   </div>
                 </div>
 
                 {/* Location + experience */}
-                <div className="flex items-center gap-[24px]">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-6">
                   {locationLabel && (
                     <div className="flex items-center gap-[8px]">
                       <MapPinIcon size={24} className="shrink-0 text-[#2F2B28]" />
@@ -357,17 +357,17 @@ export function ExpertDetailPage() {
 
               {/* Expertise + Languages */}
               {(expertiseTags.length > 0 || languageValues.length > 0) && (
-                <div className="flex flex-wrap gap-[112px]">
+                <div className="flex flex-col gap-6 sm:flex-row sm:flex-wrap sm:gap-8 md:gap-12 lg:gap-16">
                   {expertiseTags.length > 0 && (
                     <div className="flex flex-col gap-[14px]">
                       <h3 className="font-['Nunito'] font-bold text-[18px] leading-snug text-[#AB863F] sm:text-[20px] md:text-[22px] md:leading-7">
                         Expertise
                       </h3>
-                      <div className="flex flex-wrap gap-[16px]">
+                      <div className="flex flex-wrap gap-2 sm:gap-3 md:gap-4">
                         {expertiseTags.map((tag) => (
                           <span
                             key={tag}
-                            className="rounded-[4px] bg-[rgba(155,205,178,0.5)] px-[16px] py-[8px] font-['Nunito'] font-medium text-[15px] leading-6 text-[#2F2B28] sm:text-[16px] md:text-[18px]"
+                            className="rounded-[4px] bg-[rgba(155,205,178,0.5)] px-3 py-1.5 font-['Nunito'] font-medium text-[15px] leading-6 text-[#2F2B28] sm:px-4 sm:py-2 sm:text-[16px] md:text-[18px]"
                           >
                             {tag}
                           </span>
@@ -380,11 +380,11 @@ export function ExpertDetailPage() {
                       <h3 className="font-['Nunito'] font-bold text-[18px] leading-snug text-[#AB863F] sm:text-[20px] md:text-[22px] md:leading-7">
                         Languages Known
                       </h3>
-                      <div className="flex flex-wrap gap-[16px]">
+                      <div className="flex flex-wrap gap-2 sm:gap-3 md:gap-4">
                         {languageValues.map((lang) => (
                           <span
                             key={lang}
-                            className="rounded-[4px] bg-[#D7D2CC] px-[16px] py-[8px] font-['Nunito'] font-medium text-[15px] leading-6 text-[#2F2B28] sm:text-[16px] md:text-[18px]"
+                            className="rounded-[4px] bg-[#D7D2CC] px-3 py-1.5 font-['Nunito'] font-medium text-[15px] leading-6 text-[#2F2B28] sm:px-4 sm:py-2 sm:text-[16px] md:text-[18px]"
                           >
                             {lang}
                           </span>
@@ -420,10 +420,10 @@ export function ExpertDetailPage() {
                     return (
                       <article
                         key={item.id}
-                        className="flex gap-[40px] items-start rounded-[16px] bg-[#FBF9F6] p-[16px]"
+                        className="flex flex-col gap-4 rounded-[16px] bg-[#FBF9F6] p-3 sm:gap-5 sm:p-4 md:flex-row md:items-start md:gap-8 lg:gap-10"
                       >
                         {/* Image */}
-                        <div className="w-[349px] shrink-0 self-stretch overflow-hidden rounded-[8px] bg-[#E6E0D9]">
+                        <div className="h-[200px] w-full shrink-0 overflow-hidden rounded-[8px] bg-[#E6E0D9] sm:h-[240px] md:h-auto md:w-[280px] md:self-stretch lg:w-[349px]">
                           {item.image_url ? (
                             <img
                               src={item.image_url}
@@ -431,19 +431,19 @@ export function ExpertDetailPage() {
                               className="h-full w-full object-cover"
                             />
                           ) : (
-                            <div className="flex h-full min-h-[200px] w-full items-center justify-center text-sm text-[#857f79]">
+                            <div className="flex h-full min-h-[160px] w-full items-center justify-center text-sm text-[#857f79] md:min-h-[200px]">
                               No image
                             </div>
                           )}
                         </div>
 
                         {/* Content */}
-                        <div className="min-w-0 flex-1 flex flex-col gap-[24px]">
-                          <div className="flex flex-col gap-[24px]">
-                            <div className="flex flex-col gap-[4px]">
-                              <div className="flex flex-col gap-[16px]">
+                        <div className="flex min-w-0 flex-1 flex-col gap-4 sm:gap-5 md:gap-6">
+                          <div className="flex flex-col gap-4 sm:gap-5 md:gap-6">
+                            <div className="flex flex-col gap-1">
+                              <div className="flex flex-col gap-3 sm:gap-4">
                                 {/* Title + share */}
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-start justify-between gap-2">
                                   <h4
                                     className="text-[18px] leading-snug text-[#2F2B28] sm:text-[20px] md:text-[24px] md:leading-8"
                                     style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300 }}
@@ -452,9 +452,9 @@ export function ExpertDetailPage() {
                                   </h4>
                                   <button
                                     type="button"
-                                    className="flex size-[32px] items-center justify-center rounded-full text-[#73706C] hover:bg-black/5 transition-colors"
+                                    className="flex size-8 shrink-0 items-center justify-center rounded-full text-[#73706C] transition-colors hover:bg-black/5"
                                   >
-                                    <ShareNetworkIcon size={24} />
+                                    <ShareNetworkIcon size={20} />
                                   </button>
                                 </div>
 
@@ -551,7 +551,7 @@ export function ExpertDetailPage() {
                   {testimonials.map((item) => (
                     <article
                       key={item.id}
-                      className="flex h-[336px] w-[456px] shrink-0 flex-col justify-between rounded-[20px] bg-[#F3EEE9] px-[24px] py-[32px]"
+                      className="flex h-[280px] w-[min(100%,320px)] shrink-0 flex-col justify-between rounded-[16px] bg-[#F3EEE9] px-4 py-6 sm:h-[336px] sm:w-[400px] sm:rounded-[20px] sm:px-6 sm:py-8 md:w-[456px]"
                     >
                       <div className="flex flex-col gap-[24px]">
                         <div className="flex gap-[8px]">
