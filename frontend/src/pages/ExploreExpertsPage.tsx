@@ -10,11 +10,16 @@ import {
   SignInIcon,
 } from "@phosphor-icons/react";
 
+import expertsDesktop from "../assets/heroes/experts-desktop.png";
+import expertsMobile from "../assets/heroes/experts-mobile.png";
+import expertsTablet from "../assets/heroes/experts-tablet.png";
 import heroImage from "../assets/Banner_Image_Experts_V2.jpg";
 import { addBookmark, removeBookmark } from "../api/bookmarks";
 import { useAuth } from "../auth/AuthProvider";
 import { LoginModalContent } from "../components/auth/LoginModalContent";
 import Navbar from "../components/Navbar";
+import { PageLoader } from "../components/PageLoader";
+import { ResponsiveHeroImage } from "../components/common/ResponsiveHeroImage";
 import { ShareLinkModal } from "../components/common/ShareLinkModal";
 import { StickyHeader } from "../components/StickyHeader";
 import { ExpertCard, ExpertCardSkeleton } from "../components/experts/ExpertCard";
@@ -188,10 +193,12 @@ export function ExploreExpertsPage() {
         ref={heroRef}
         className="relative min-h-[320px] h-[min(52svh,560px)] overflow-hidden bg-[#2f2b28] sm:min-h-[380px] sm:h-[min(56svh,640px)] md:min-h-[400px] md:h-[min(58svh,680px)] lg:min-h-[440px] lg:h-[min(60svh,720px)]"
       >
-        <img
-          src={heroImage}
+        <ResponsiveHeroImage
+          mobileSrc={expertsMobile}
+          tabletSrc={expertsTablet}
+          desktopSrc={expertsDesktop}
+          largeSrc={heroImage}
           alt=""
-          className="absolute inset-0 h-full w-full select-none object-cover object-center"
         />
 
         {/* Gradients matching Figma */}
@@ -203,7 +210,7 @@ export function ExploreExpertsPage() {
           <Navbar variant="light" />
 
           {/* Hero text — vertically centered within the banner */}
-          <div className="flex flex-1 items-center page-px py-6 sm:py-8 md:py-10 lg:py-12">
+          <div className="flex flex-1 items-center justify-center page-px py-6 text-center sm:py-8 md:justify-start md:py-10 md:text-left lg:py-12">
             <div className="max-w-[452px]">
               <h1
                 className="text-[28px] leading-[1.2] text-[rgba(232,226,220,0.9)] drop-shadow-[0_4px_4px_rgba(0,0,0,0.4)] sm:text-[36px] md:text-[42px] md:leading-[1.15] lg:text-[56px] lg:leading-[72px]"
@@ -293,6 +300,8 @@ export function ExploreExpertsPage() {
 
         {/* Cards grid */}
         {isInitialLoading ? (
+          <PageLoader />
+        ) : isListRefreshing ? (
           <div
             className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4"
             aria-busy="true"
@@ -304,10 +313,8 @@ export function ExploreExpertsPage() {
           </div>
         ) : (
           <div
-            className={`relative grid grid-cols-1 gap-4 transition-opacity sm:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 ${
-              isListRefreshing ? "pointer-events-none opacity-60" : ""
-            }`}
-            aria-busy={isListRefreshing}
+            className="relative grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4"
+            aria-busy={false}
           >
             {paged.map((expert) => {
               const expertPath = `/experts/${expert.slug || expert.id}`;

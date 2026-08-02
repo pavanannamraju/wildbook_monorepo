@@ -2,7 +2,11 @@ import { forwardRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRightIcon } from "@phosphor-icons/react";
 
+import homeDesktop from "../assets/heroes/home-desktop.png";
+import homeMobile from "../assets/heroes/home-mobile.png";
+import homeTablet from "../assets/heroes/home-tablet.png";
 import bannerImage from "../assets/Banner Image_V2.jpg";
+import { ResponsiveHeroImage } from "./common/ResponsiveHeroImage";
 import Navbar from "./Navbar";
 
 export const Hero = forwardRef<HTMLElement>(function Hero(_, ref) {
@@ -13,10 +17,12 @@ export const Hero = forwardRef<HTMLElement>(function Hero(_, ref) {
       ref={ref}
       className="relative mx-auto max-w-[1920px] min-h-[560px] h-[min(100svh,820px)] overflow-hidden sm:min-h-[620px] md:min-h-[680px] md:h-[min(100svh,860px)] lg:h-[min(100svh,900px)]"
     >
-      <img
-        src={bannerImage}
+      <ResponsiveHeroImage
+        mobileSrc={homeMobile}
+        tabletSrc={homeTablet}
+        desktopSrc={homeDesktop}
+        largeSrc={bannerImage}
         alt=""
-        className="absolute inset-0 h-full w-full select-none object-cover object-center"
       />
       <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(47,43,40,0.55)_0%,rgba(47,43,40,0.25)_42%,rgba(47,43,40,0)_70%)]" />
       <div className="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(180deg,rgba(47,43,40,0)_0%,rgba(47,43,40,0.45)_100%)]" />
@@ -24,12 +30,12 @@ export const Hero = forwardRef<HTMLElement>(function Hero(_, ref) {
       <div className="relative z-10 flex h-full flex-col">
         <Navbar variant="light" />
 
-        <div className="flex flex-1 flex-col justify-center page-px py-8 sm:py-10 md:py-11 lg:py-12">
+        <div className="flex flex-1 flex-col items-center justify-center page-px py-8 text-center sm:py-10 md:items-start md:py-11 md:text-left lg:py-12">
           <p className="font-['Nunito'] font-bold text-[14px] leading-snug text-[#AB863F] sm:text-[18px] sm:leading-7 md:text-[20px] lg:text-[24px] lg:leading-8">
             Bringing India’s wildlife ecosystem together
           </p>
 
-          <h1 className="mb-5 mt-3 flex flex-col gap-1 font-['Montserrat'] font-medium leading-[0.95] text-[#EDE8E2]/90 sm:mb-6 sm:mt-4 sm:gap-2 md:mb-7 md:gap-3 lg:mb-8">
+          <h1 className="mb-5 mt-3 flex flex-col items-center gap-1 font-['Montserrat'] font-medium leading-[0.95] text-[#EDE8E2]/90 sm:mb-6 sm:mt-4 sm:gap-2 md:mb-7 md:items-start md:gap-3 lg:mb-8">
             {["connect", "conserve", "coexist"].map((word) => (
               <span
                 key={word}

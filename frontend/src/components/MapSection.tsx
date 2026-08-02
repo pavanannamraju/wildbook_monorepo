@@ -32,13 +32,12 @@ function formatCoordinates(geometry: GeoJsonPoint): string {
   return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
 }
 
-// Teal is reserved for the selected site so it always stands out. Each
-// category gets its own distinct hue; unknown categories fall back to slate.
-const SELECTED_PIN_COLOR = "#0b6e66";
-const FALLBACK_PIN_COLOR = "#5b6770";
+// Brand palette: teal for selection, forest moss + warm ochre for categories.
+const SELECTED_PIN_COLOR = "#0B6E66";
+const FALLBACK_PIN_COLOR = "#73706C";
 const CATEGORY_PIN_COLORS: Record<string, string> = {
-  "National Park": "#2e7d32",
-  "Wildlife Sanctuary": "#c77d2a",
+  "National Park": "#3D6B4F",
+  "Wildlife Sanctuary": "#AB863F",
 };
 
 function pinColorForCategory(category: string): string {
@@ -48,21 +47,21 @@ function pinColorForCategory(category: string): string {
 function pinSvg(height: number, fill: string): string {
   const width = Math.round(height * (2 / 3));
   return `<svg width="${width}" height="${height}" viewBox="0 0 24 36" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 0C5.373 0 0 5.373 0 12c0 8.5 12 24 12 24s12-15.5 12-24C24 5.373 18.627 0 12 0z" fill="${fill}" stroke="#ffffff" stroke-width="1.5"/>
-    <circle cx="12" cy="12" r="4.5" fill="#ffffff"/>
+    <path d="M12 0C5.373 0 0 5.373 0 12c0 8.5 12 24 12 24s12-15.5 12-24C24 5.373 18.627 0 12 0z" fill="${fill}" stroke="#F6F4F1" stroke-width="1.5" stroke-opacity="0.9"/>
+    <circle cx="12" cy="12" r="4.5" fill="#F6F4F1" fill-opacity="0.95"/>
   </svg>`;
 }
 
 /**
- * The selected pin is larger and carries a teal glow so it reads as
+ * The selected pin is larger and carries a soft teal glow so it reads as
  * "highlighted" at a glance alongside the selected results row.
  */
 function createPinIcon(fill: string, isSelected: boolean): L.DivIcon {
   const height = isSelected ? 46 : 34;
   const width = Math.round(height * (2 / 3));
   const glow = isSelected
-    ? "filter: drop-shadow(0 0 6px rgba(11,110,102,0.95)) drop-shadow(0 2px 3px rgba(0,0,0,0.35));"
-    : "filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));";
+    ? "filter: drop-shadow(0 0 8px rgba(11,110,102,0.55)) drop-shadow(0 2px 4px rgba(47,43,40,0.28));"
+    : "filter: drop-shadow(0 2px 4px rgba(47,43,40,0.22));";
   const html = `<div style="${glow}">${pinSvg(height, fill)}</div>`;
   return L.divIcon({
     html,
@@ -88,7 +87,7 @@ function getPinIcon(fill: string, isSelected: boolean): L.DivIcon {
 function createClusterIcon(cluster: { getChildCount: () => number }): L.DivIcon {
   const count = cluster.getChildCount();
   const size = count < 10 ? 36 : count < 100 ? 44 : 52;
-  const html = `<div style="display:flex;align-items:center;justify-content:center;width:${size}px;height:${size}px;border-radius:9999px;background:rgba(11,110,102,0.92);color:#ffffff;font-weight:700;font-size:13px;border:3px solid rgba(255,255,255,0.85);box-shadow:0 2px 6px rgba(0,0,0,0.3);font-family:'Nunito',sans-serif;">${formatNumber(count)}</div>`;
+  const html = `<div style="display:flex;align-items:center;justify-content:center;width:${size}px;height:${size}px;border-radius:9999px;background:rgba(11,110,102,0.78);color:#F6F4F1;font-weight:700;font-size:13px;border:2.5px solid rgba(246,244,241,0.88);box-shadow:0 2px 8px rgba(47,43,40,0.22);font-family:'Nunito',sans-serif;">${formatNumber(count)}</div>`;
   return L.divIcon({
     html,
     className: "wb-map-cluster",
@@ -118,7 +117,7 @@ function TagList({
         {items.map((item) => (
           <span
             key={item}
-            className={`rounded-full bg-black/5 px-2 py-0.5 text-[11px] leading-tight text-wildbook-text ${
+            className={`rounded-full bg-[#0B6E66]/8 px-2 py-0.5 text-[11px] leading-tight text-[#2F2B28] ${
               italic ? "italic" : ""
             }`}
           >
@@ -168,25 +167,25 @@ function MapFiltersPanel({
   onReset: () => void;
 }) {
   return (
-    <div className="rounded-xl border border-black/10 bg-white/95 p-3 shadow-lg backdrop-blur sm:rounded-2xl sm:p-4">
+    <div className="rounded-xl border border-[#E3DDD8]/80 bg-[#F8F6F3]/92 p-3 shadow-[0_8px_28px_rgba(47,43,40,0.10)] backdrop-blur-md sm:rounded-2xl sm:p-4">
       <div className="flex flex-col gap-2.5 sm:gap-3">
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-3 lg:grid-cols-1">
           <label className="flex min-w-0 flex-col gap-1">
-            <span className="text-xs font-semibold text-wildbook-muted">Search</span>
+            <span className="text-xs font-semibold text-[#73706C]">Search</span>
             <input
               value={query}
               onChange={(e) => onQueryChange(e.target.value)}
               placeholder="Name, state, district…"
-              className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-wildbook-teal/30"
+              className="w-full rounded-xl border border-[#E3DDD8] bg-[#FBF9F6]/90 px-3 py-2 text-sm text-[#2F2B28] outline-none placeholder:text-[#9A9691] focus:border-[#0B6E66]/50 focus:ring-2 focus:ring-[#0B6E66]/20"
             />
           </label>
 
           <label className="flex min-w-0 flex-col gap-1">
-            <span className="text-xs font-semibold text-wildbook-muted">Category</span>
+            <span className="text-xs font-semibold text-[#73706C]">Category</span>
             <select
               value={category}
               onChange={(e) => onCategoryChange(e.target.value)}
-              className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-wildbook-teal/30"
+              className="w-full rounded-xl border border-[#E3DDD8] bg-[#FBF9F6]/90 px-3 py-2 text-sm text-[#2F2B28] outline-none focus:border-[#0B6E66]/50 focus:ring-2 focus:ring-[#0B6E66]/20"
             >
               {categories.map((c) => (
                 <option key={c} value={c}>
@@ -198,56 +197,56 @@ function MapFiltersPanel({
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <div className="text-sm text-wildbook-muted">
-            <span className="font-semibold text-wildbook-text">{formatNumber(resultCount)}</span>{" "}
+          <div className="text-sm text-[#73706C]">
+            <span className="font-semibold text-[#2F2B28]">{formatNumber(resultCount)}</span>{" "}
             results
           </div>
           <button
             type="button"
             onClick={onReset}
-            className="shrink-0 text-sm text-wildbook-teal hover:underline"
+            className="shrink-0 text-sm text-[#0B6E66] hover:underline"
           >
             Reset
           </button>
         </div>
 
         {showLegend ? (
-          <div className="flex flex-col gap-1.5 border-t border-black/10 pt-3">
+          <div className="flex flex-col gap-1.5 border-t border-[#E3DDD8]/70 pt-3">
             {categories
               .filter((c) => c !== "All")
               .map((c) => (
-                <div key={c} className="flex items-center gap-2 text-xs text-wildbook-muted">
+                <div key={c} className="flex items-center gap-2 text-xs text-[#73706C]">
                   <span
-                    className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                    className="inline-block h-2.5 w-2.5 shrink-0 rounded-full opacity-90"
                     style={{ backgroundColor: pinColorForCategory(c) }}
                   />
                   {c}
                 </div>
               ))}
-            <div className="flex items-center gap-2 text-xs text-wildbook-muted">
+            <div className="flex items-center gap-2 text-xs text-[#73706C]">
               <span
-                className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                className="inline-block h-2.5 w-2.5 shrink-0 rounded-full opacity-90"
                 style={{ backgroundColor: SELECTED_PIN_COLOR }}
               />
               Selected
             </div>
           </div>
         ) : (
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-black/10 pt-2.5">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-[#E3DDD8]/70 pt-2.5">
             {categories
               .filter((c) => c !== "All")
               .map((c) => (
-                <div key={c} className="flex items-center gap-1.5 text-[11px] text-wildbook-muted">
+                <div key={c} className="flex items-center gap-1.5 text-[11px] text-[#73706C]">
                   <span
-                    className="inline-block h-2 w-2 shrink-0 rounded-full"
+                    className="inline-block h-2 w-2 shrink-0 rounded-full opacity-90"
                     style={{ backgroundColor: pinColorForCategory(c) }}
                   />
                   {c}
                 </div>
               ))}
-            <div className="flex items-center gap-1.5 text-[11px] text-wildbook-muted">
+            <div className="flex items-center gap-1.5 text-[11px] text-[#73706C]">
               <span
-                className="inline-block h-2 w-2 shrink-0 rounded-full"
+                className="inline-block h-2 w-2 shrink-0 rounded-full opacity-90"
                 style={{ backgroundColor: SELECTED_PIN_COLOR }}
               />
               Selected
@@ -292,19 +291,19 @@ function MapResultsPanel({
 }: MapResultsPanelProps) {
   return (
     <div
-      className={`flex min-h-0 flex-col overflow-hidden rounded-xl border border-black/10 bg-white/95 shadow-lg backdrop-blur sm:rounded-2xl ${className}`}
+      className={`flex min-h-0 flex-col overflow-hidden rounded-xl border border-[#E3DDD8]/80 bg-[#F8F6F3]/92 shadow-[0_8px_28px_rgba(47,43,40,0.10)] backdrop-blur-md sm:rounded-2xl ${className}`}
     >
-      <div className="flex items-center justify-between gap-2 border-b border-black/10 px-3 py-2.5 sm:px-4 sm:py-3">
-        <div className="font-semibold text-wildbook-text">Results</div>
+      <div className="flex items-center justify-between gap-2 border-b border-[#E3DDD8]/70 px-3 py-2.5 sm:px-4 sm:py-3">
+        <div className="font-semibold text-[#2F2B28]">Results</div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-wildbook-muted">{formatNumber(filteredCount)} sites</span>
+          <span className="text-xs text-[#73706C]">{formatNumber(filteredCount)} sites</span>
           {onCollapse ? (
             <button
               type="button"
               onClick={onCollapse}
               aria-label="Collapse results"
               title="Collapse results"
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-wildbook-muted transition-colors hover:bg-black/5 hover:text-wildbook-text"
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-[#73706C] transition-colors hover:bg-[#0B6E66]/8 hover:text-[#2F2B28]"
             >
               <ChevronIcon direction="right" />
             </button>
@@ -316,10 +315,10 @@ function MapResultsPanel({
         {status === "loading" && (
           <ul className="flex flex-col">
             {Array.from({ length: 6 }).map((_, i) => (
-              <li key={i} className="border-b border-black/5 px-4 py-3 last:border-b-0">
-                <div className="h-4 w-2/3 animate-pulse rounded bg-black/10" />
-                <div className="mt-2 h-3 w-1/2 animate-pulse rounded bg-black/10" />
-                <div className="mt-2 h-3 w-2/5 animate-pulse rounded bg-black/10" />
+              <li key={i} className="border-b border-[#E3DDD8]/50 px-4 py-3 last:border-b-0">
+                <div className="h-4 w-2/3 animate-pulse rounded bg-[#0B6E66]/10" />
+                <div className="mt-2 h-3 w-1/2 animate-pulse rounded bg-[#0B6E66]/8" />
+                <div className="mt-2 h-3 w-2/5 animate-pulse rounded bg-[#AB863F]/15" />
               </li>
             ))}
           </ul>
@@ -332,7 +331,7 @@ function MapResultsPanel({
         )}
 
         {status === "success" && filteredCount === 0 && (
-          <div className="px-4 py-6 text-sm text-wildbook-muted">
+          <div className="px-4 py-6 text-sm text-[#73706C]">
             No sites match your search. Try a different name or category.
           </div>
         )}
@@ -345,33 +344,33 @@ function MapResultsPanel({
                 <li
                   key={doc._id.$oid}
                   ref={isSelected ? selectedItemRef : undefined}
-                  className="border-b border-black/5 last:border-b-0"
+                  className="border-b border-[#E3DDD8]/50 last:border-b-0"
                 >
                   <button
                     type="button"
                     onClick={() => onSelect(doc._id.$oid)}
                     className={`block w-full px-3 py-2.5 text-left transition-colors sm:px-4 sm:py-3 ${
                       isSelected
-                        ? "border-l-4 border-wildbook-teal bg-wildbook-teal/15 pl-2.5 sm:pl-3"
-                        : "border-l-4 border-transparent hover:bg-black/5"
+                        ? "border-l-4 border-[#0B6E66] bg-[#0B6E66]/10 pl-2.5 sm:pl-3"
+                        : "border-l-4 border-transparent hover:bg-[#9BCDB2]/15"
                     }`}
                   >
-                    <div className="font-semibold leading-snug text-wildbook-text">{doc.name}</div>
-                    <div className="mt-0.5 text-xs text-wildbook-muted">
+                    <div className="font-semibold leading-snug text-[#2F2B28]">{doc.name}</div>
+                    <div className="mt-0.5 text-xs text-[#73706C]">
                       {doc.category} · {doc.district}, {doc.state}
                     </div>
-                    <div className="mt-1 text-xs text-wildbook-muted">
+                    <div className="mt-1 text-xs text-[#73706C]">
                       {doc.area_display} · Best time: {doc.year_visit}
                     </div>
 
                     {isSelected && (
-                      <div className="mt-2 flex flex-col gap-2 border-t border-black/10 pt-2 text-xs text-wildbook-muted">
+                      <div className="mt-2 flex flex-col gap-2 border-t border-[#E3DDD8]/70 pt-2 text-xs text-[#73706C]">
                         <div>
-                          <span className="font-semibold text-wildbook-text">Habitat:</span>{" "}
+                          <span className="font-semibold text-[#2F2B28]">Habitat:</span>{" "}
                           {doc.habitat}
                         </div>
                         <div>
-                          <span className="font-semibold text-wildbook-text">Bio zone:</span>{" "}
+                          <span className="font-semibold text-[#2F2B28]">Bio zone:</span>{" "}
                           {doc.bio_zone}
                         </div>
                         <TagList label="Wildlife" items={doc.animals} />
@@ -387,23 +386,23 @@ function MapResultsPanel({
       </div>
 
       {status === "success" && totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-black/10 px-3 py-2 sm:px-4">
+        <div className="flex items-center justify-between border-t border-[#E3DDD8]/70 px-3 py-2 sm:px-4">
           <button
             type="button"
             disabled={safePage <= 1}
             onClick={onPrevPage}
-            className="rounded-lg px-2 py-1 text-sm text-wildbook-teal hover:underline disabled:cursor-not-allowed disabled:text-wildbook-muted/50 disabled:no-underline"
+            className="rounded-lg px-2 py-1 text-sm text-[#0B6E66] hover:underline disabled:cursor-not-allowed disabled:text-[#73706C]/50 disabled:no-underline"
           >
             Prev
           </button>
-          <div className="text-xs text-wildbook-muted">
+          <div className="text-xs text-[#73706C]">
             Page {safePage} / {totalPages}
           </div>
           <button
             type="button"
             disabled={safePage >= totalPages}
             onClick={onNextPage}
-            className="rounded-lg px-2 py-1 text-sm text-wildbook-teal hover:underline disabled:cursor-not-allowed disabled:text-wildbook-muted/50 disabled:no-underline"
+            className="rounded-lg px-2 py-1 text-sm text-[#0B6E66] hover:underline disabled:cursor-not-allowed disabled:text-[#73706C]/50 disabled:no-underline"
           >
             Next
           </button>
@@ -624,7 +623,7 @@ export function MapSection() {
         {/* `isolate` scopes Leaflet's internal z-indexes so the map never paints over the navbar. */}
         <div
           id="map"
-          className="relative isolate h-[300px] w-full scroll-mt-28 overflow-hidden rounded-xl border border-black/10 bg-white/40 shadow-[0_20px_60px_rgba(0,0,0,0.08)] sm:h-[380px] sm:rounded-2xl md:h-[520px] lg:h-[680px]"
+          className="relative isolate h-[300px] w-full scroll-mt-28 overflow-hidden rounded-xl border border-[#E3DDD8]/70 bg-[#F3EEE9]/50 shadow-[0_16px_48px_rgba(47,43,40,0.08)] sm:h-[380px] sm:rounded-2xl md:h-[520px] lg:h-[680px]"
         >
           <MapContainer
             center={DEFAULT_CENTER}
@@ -727,11 +726,11 @@ export function MapSection() {
                 type="button"
                 onClick={() => setIsResultsOpen(true)}
                 aria-label="Expand results"
-                className="pointer-events-auto flex items-center gap-2 rounded-full border border-black/10 bg-white/90 px-4 py-2 text-sm font-semibold text-wildbook-text shadow-lg backdrop-blur transition-colors hover:bg-white"
+                className="pointer-events-auto flex items-center gap-2 rounded-full border border-[#E3DDD8]/80 bg-[#F8F6F3]/92 px-4 py-2 text-sm font-semibold text-[#2F2B28] shadow-[0_6px_20px_rgba(47,43,40,0.10)] backdrop-blur-md transition-colors hover:bg-[#FBF9F6]"
               >
                 <ChevronIcon direction="left" />
                 Results
-                <span className="rounded-full bg-wildbook-teal/10 px-2 py-0.5 text-xs text-wildbook-teal">
+                <span className="rounded-full bg-[#0B6E66]/12 px-2 py-0.5 text-xs text-[#0B6E66]">
                   {formatNumber(filteredDocs.length)}
                 </span>
               </button>
@@ -762,11 +761,11 @@ export function MapSection() {
               type="button"
               onClick={() => setIsResultsOpen(true)}
               aria-label="Expand results"
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-black/10 bg-white/95 px-4 py-3 text-sm font-semibold text-wildbook-text shadow-md backdrop-blur transition-colors hover:bg-white sm:rounded-2xl"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#E3DDD8]/80 bg-[#F8F6F3]/92 px-4 py-3 text-sm font-semibold text-[#2F2B28] shadow-[0_6px_20px_rgba(47,43,40,0.10)] backdrop-blur-md transition-colors hover:bg-[#FBF9F6] sm:rounded-2xl"
             >
               <ChevronIcon direction="left" />
               View results
-              <span className="rounded-full bg-wildbook-teal/10 px-2 py-0.5 text-xs text-wildbook-teal">
+              <span className="rounded-full bg-[#0B6E66]/12 px-2 py-0.5 text-xs text-[#0B6E66]">
                 {formatNumber(filteredDocs.length)}
               </span>
             </button>

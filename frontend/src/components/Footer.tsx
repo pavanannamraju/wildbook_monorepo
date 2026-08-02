@@ -149,7 +149,9 @@ export function Footer() {
                 </p>
                 <a
                   className="font-['Nunito'] text-[14px] leading-6 font-medium text-[#fafafa] transition-colors hover:text-white sm:text-[15px] lg:text-[18px]"
-                  href="tel:+917483735393"
+                  href="https://wa.me/917483735393"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   +91 7483 73 53 93
                 </a>
