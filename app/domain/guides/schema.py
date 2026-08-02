@@ -178,7 +178,7 @@ class GuideResponse(BaseModel):
 
     guide_id: str
     full_name: str
-    email: EmailStr
+    email: EmailStr | None = None
     phone_number: str | None = None
     profile_image_url: str | None = Field(default=None, max_length=2048)
     has_profile_photo: bool = False

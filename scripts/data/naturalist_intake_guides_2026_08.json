@@ -1,0 +1,966 @@
+{
+  "_meta": {
+    "description": "Naturalist Google Form intake → wildbook_v1 guides insert package",
+    "database": "wildbook_v1",
+    "import_order": [
+      "reference_locations",
+      "reference_focus_areas",
+      "reference_expertise",
+      "reference_certifications",
+      "guides"
+    ],
+    "notes": [
+      "bio.summary holds the third-person card copy.",
+      "naturalist_profile.summary holds the first-person form intro.",
+      "intake preserves full form answers including Drive photo links (photos not downloaded).",
+      "status=PUBLISHED and verification_status=VERIFIED so they appear in explore.",
+      "Aneesh catalog email is aneeshpoduval99@gmail.com; form login email kept in intake.form_email."
+    ]
+  },
+  "reference_locations": [
+    {
+      "_id": "loc-nashik",
+      "name": "Nashik",
+      "city": "Nashik",
+      "state": "Maharashtra",
+      "country": "India",
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    },
+    {
+      "_id": "loc-udaipur",
+      "name": "Udaipur",
+      "city": "Udaipur",
+      "state": "Rajasthan",
+      "country": "India",
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    },
+    {
+      "_id": "loc-nagpur",
+      "name": "Nagpur",
+      "city": "Nagpur",
+      "state": "Maharashtra",
+      "country": "India",
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    }
+  ],
+  "reference_focus_areas": [
+    {
+      "_id": "focus-reptiles",
+      "name": "Reptiles and Amphibians",
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    },
+    {
+      "_id": "focus-nocturnal",
+      "name": "Nocturnal natural history",
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    },
+    {
+      "_id": "focus-marine",
+      "name": "Marine and coastal ecology",
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    },
+    {
+      "_id": "focus-stargazing",
+      "name": "Stargazing",
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    }
+  ],
+  "reference_expertise": [
+    {
+      "_id": "exp-mammals",
+      "slug": "mammals",
+      "name": "Mammals",
+      "category": "wildlife",
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    },
+    {
+      "_id": "exp-insects",
+      "slug": "insects",
+      "name": "Insects",
+      "category": "wildlife",
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    },
+    {
+      "_id": "exp-nocturnal",
+      "slug": "nocturnal-walks",
+      "name": "Nocturnal walks",
+      "category": "nature",
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    },
+    {
+      "_id": "exp-education",
+      "slug": "educational-sessions",
+      "name": "Educational Sessions",
+      "category": "education",
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    },
+    {
+      "_id": "exp-nature-walks",
+      "slug": "nature-walks",
+      "name": "Nature Walks",
+      "category": "nature",
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    }
+  ],
+  "reference_certifications": [
+    {
+      "_id": "cert-tns-shraddha-2026",
+      "name": "Certified Naturalist",
+      "issuer": "The Naturalist School Bangalore",
+      "year": 2026,
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    },
+    {
+      "_id": "cert-redcross-shraddha-2026",
+      "name": "First Aid responder",
+      "issuer": "Red Cross",
+      "year": 2026,
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    },
+    {
+      "_id": "cert-tns-suhas-2024",
+      "name": "Certified Naturalist",
+      "issuer": "The Naturalist School and Skill India",
+      "year": 2024,
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    },
+    {
+      "_id": "cert-redcross-suhas-2024",
+      "name": "Certified First Aid Senior Professional",
+      "issuer": "Red Cross",
+      "year": 2024,
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    },
+    {
+      "_id": "cert-tns-kabir-2026",
+      "name": "Certified Naturalist course (750 hours)",
+      "issuer": "The Naturalist School",
+      "year": 2026,
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    },
+    {
+      "_id": "cert-nature-guide-nayanika-2022",
+      "name": "Certified Nature Guide",
+      "issuer": "NSDC, The Naturalist School, Karnataka Forest Department",
+      "year": 2022,
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    },
+    {
+      "_id": "cert-tns-nayanika-2026",
+      "name": "Certified Naturalist",
+      "issuer": "NSDC, The Naturalist School",
+      "year": 2026,
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    },
+    {
+      "_id": "cert-firstaid-nayanika-2022",
+      "name": "Standard First Aid, CPR, and AED",
+      "issuer": "First Aid training",
+      "year": 2022,
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    },
+    {
+      "_id": "cert-skillindia-aneesh-2026",
+      "name": "Naturalist Certificate",
+      "issuer": "Skill India / The Naturalist School Bangalore",
+      "year": 2026,
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    },
+    {
+      "_id": "cert-redcross-aneesh-2026",
+      "name": "First Aid Certificate",
+      "issuer": "Red Cross",
+      "year": 2026,
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      }
+    }
+  ],
+  "guides": [
+    {
+      "_id": "41f6b367-0e98-526f-b882-1b7cbf1e0091",
+      "full_name": "Shraddha Kashelani",
+      "email": "sthira.earth@gmail.com",
+      "phone_number": "9422307588",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-nashik",
+      "location_base_description": "Nashik, Maharashtra — Borgad, Anjaneri, Pandavleni, Gangapur Dam, Nandur Madhmeshwar, Bhandardara & Kalsubai-Harishchandragad, Tringalwadi & Kavnai",
+      "language_ids": [
+        "lang-en",
+        "lang-hi",
+        "lang-mr"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-herping",
+        "exp-insects",
+        "exp-flora",
+        "exp-nature-walks",
+        "exp-education",
+        "exp-conservation"
+      ],
+      "role": "NATURALIST",
+      "years_of_experience": 0,
+      "naturalist_profile": {
+        "focus_area_ids": [
+          "focus-mammals",
+          "focus-birds",
+          "focus-reptiles",
+          "focus-insects",
+          "focus-flora",
+          "focus-nocturnal"
+        ],
+        "certification_ids": [
+          "cert-tns-shraddha-2026",
+          "cert-redcross-shraddha-2026"
+        ],
+        "years_field_experience": 0,
+        "summary": "Growing up herping, observing insects, and climbing trees on Tiwai Hill in the Sahyadris, my journey as a naturalist stems from a lifelong wonder. As an environmental educator, I help children and adults reconnect with the wild through storytelling, art, nature journaling, and scientific engagement—focusing closely on birds, trees, reptiles, and insects. I also design immersive school excursions centered on biodiversity, hands-on skills, and learning alongside local communities. When exploring with me, expect a sensory, slow-paced journey through mountain trails and lush forests. Together, we step away from daily hustle, learn to truly observe, and cultivate a deep, lasting connection with the natural world."
+      },
+      "bio": {
+        "summary": "Growing up herping, observing insects, and climbing trees on Tiwai Hill in the Sahyadris, Shraddha’s journey as a naturalist began with lifelong wonder. As an environmental educator, she helps children and adults reconnect with the wild through storytelling, art, nature journaling, and scientific engagement. She also designs immersive school excursions centred on biodiversity, hands-on skills, and learning alongside local communities. Exploring with Shraddha is a sensory, slow-paced journey through mountain trails and lush forests, where the aim is not to rush towards a sighting but to notice what is already around you. Her walks invite people to step away from the daily hustle, sharpen their observation, and cultivate a deeper, more lasting connection with the natural world.",
+        "education": null,
+        "career_transition": null,
+        "philosophy": "To be in communion with nature means to observe without judgment, to look without the clutter of the mind, and to listen with your whole being."
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": true,
+      "created_at": {
+        "$date": "2026-07-31T12:54:11.000Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "full_name_normalized": "shraddha kashelani",
+      "search_text": "shraddha kashelani growing up herping, observing insects, and climbing trees on tiwai hill in the sahyadris, shraddha’s journey as a naturalist began with lifelong wonder. as an environmental educator, she helps children and adults reconnect with the wild through storytelling, art, nature journaling, and scientific engagement. she also designs immersive school excursions centred on biodiversity, hands-on skills, and learning alongside local communities. exploring with shraddha is a sensory, slow-paced journey thro nashik, maharashtra — borgad, anjaneri, pandavleni, gangapur dam, nandur madhmeshwar, bhandardara & kalsubai-harishchandragad, tringalwadi & kavnai",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "google_form_naturalist_intake",
+        "submitted_at": "2026-07-31T12:54:11+05:30",
+        "birth_date": "2001-01-14",
+        "gender": "Female",
+        "state": "Maharashtra",
+        "city": "Nashik",
+        "form_email": "sthira.earth@gmail.com",
+        "instagram": "Sthira.Earth",
+        "instagram_url": "https://share.google/Rk0pmC1w6rlGkSB6o",
+        "years_active_bucket": "Less than 1 year",
+        "guided_walk_hours_12m": "800 hrs",
+        "experiences_count_12m": "More than 100",
+        "wildlife_groups": [
+          "Mammals",
+          "Birds",
+          "Reptiles and Amphibians",
+          "Insects",
+          "Flora",
+          "Nocturnal natural history"
+        ],
+        "experience_types_prepared": [
+          "Birdwatching",
+          "Nature Walks",
+          "Herping",
+          "Butterfly or Insect Walks",
+          "Tree and flora walks",
+          "Nocturnal walks",
+          "Conservation Experiences",
+          "Village or Community Experiences",
+          "Educational Sessions"
+        ],
+        "regions_available": "Nashik: Borgad Conservation Reserve, Anjaneri Hill Reserve Forest, Chamar Leni / Pandavleni Hills Base, Gangapur Dam Backwaters & Someshwar Forest Trail, Nandur Madhmeshwar Bird Sanctuary, Bhandardara & Kalsubai-Harishchandragad Wildlife Sanctuary, Tringalwadi & Kavnai Fort Forests",
+        "audiences": [
+          "Families",
+          "Children and Students",
+          "Senior citizens",
+          "Birders",
+          "Other Naturalists",
+          "First-time Wildlife Travellers",
+          "International travellers",
+          "Corporate or institutional groups"
+        ],
+        "may_tag_instagram": true,
+        "may_request_introduction": true,
+        "homestay_status": "No, but I am planning to start one",
+        "homestay_details": null,
+        "homestay_address": null,
+        "list_homestay_on_wildbook": true,
+        "photo_drive_urls": [
+          "https://drive.google.com/open?id=1naIbdtN2BHRtKspTk_bRbQ9Ks01frzOd",
+          "https://drive.google.com/open?id=1hjeTuluF1D3f2Yyg1RhnpDd3llmrFE0b",
+          "https://drive.google.com/open?id=14FbM-suFmhJ5QkXaoJKNrnabjSrXmCSw",
+          "https://drive.google.com/open?id=1c00A8HauIIHNO7LB7nyYVYRWdu4Uwmd8",
+          "https://drive.google.com/open?id=1Tywz7F0aETjb-n_bp-2y77uZ0Jy4AUIx"
+        ],
+        "certification_text": "Certified Naturalist / The Naturalist School Bangalore / 2026",
+        "first_aid": true,
+        "first_aid_details": "First Aid responder, Red cross, 2026",
+        "consent": true
+      }
+    },
+    {
+      "_id": "291f163d-e222-5c70-9722-4b753f4f25e0",
+      "full_name": "Suhas Saya",
+      "email": "suhassaya@gmail.com",
+      "phone_number": "8971569977",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-bengaluru",
+      "location_base_description": "Bangalore, Mysore, Western Ghats, and national parks/sanctuaries across Karnataka, Madhya Pradesh, Maharashtra, Uttarakhand, Himachal, Jammu and Kashmir",
+      "language_ids": [
+        "lang-en",
+        "lang-hi",
+        "lang-kn"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-herping",
+        "exp-insects",
+        "exp-flora",
+        "exp-nature-walks",
+        "exp-nocturnal",
+        "exp-education",
+        "exp-wildlife"
+      ],
+      "role": "NATURALIST",
+      "years_of_experience": 2,
+      "naturalist_profile": {
+        "focus_area_ids": [
+          "focus-birds",
+          "focus-reptiles",
+          "focus-insects",
+          "focus-flora",
+          "focus-nocturnal"
+        ],
+        "certification_ids": [
+          "cert-tns-suhas-2024",
+          "cert-redcross-suhas-2024"
+        ],
+        "years_field_experience": 2,
+        "summary": "My journey as a naturalist began in the mountains, where years of trekking gradually transformed into a deeper curiosity about the life that surrounds us. Today, I am a Certified Naturalist who finds endless fascination in the worlds of insects, spiders, birds and the interconnections in our incredible world. I spend much of my time leading nature walks across forests, parks, and urban green spaces, helping people slow down, observe, and discover the extraordinary in the ordinary. Whether it's spotting a tiny jumping spider, listening to bird calls, or uncovering the hidden lives of insects, I hope every walk leaves people with a deeper connection to nature and a renewed sense of wonder, curiosity to learn more of the biodiversity around us."
+      },
+      "bio": {
+        "summary": "Suhas’s journey as a naturalist began in the mountains, where years of trekking gradually grew into a deeper curiosity about the life surrounding him. He is endlessly fascinated by the small, often overlooked worlds that exist alongside us and enjoys helping people discover the extraordinary within the ordinary. His walks encourage guests to slow down, listen closely, and observe with patience, whether that means noticing a tiny jumping spider, following a bird call, or uncovering the hidden lives of insects. For Suhas, every outing is an invitation to look beyond the obvious. He hopes people return from each walk with renewed wonder, a stronger connection to nature, and the curiosity to keep learning about the biodiversity around them.",
+        "education": null,
+        "career_transition": null,
+        "philosophy": "We will conserve only what we love; we will love only what we understand; and we will understand only what we are taught or know of"
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": true,
+      "created_at": {
+        "$date": "2026-07-31T16:06:48.000Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "full_name_normalized": "suhas saya",
+      "search_text": "suhas saya suhas’s journey as a naturalist began in the mountains, where years of trekking gradually grew into a deeper curiosity about the life surrounding him. he is endlessly fascinated by the small, often overlooked worlds that exist alongside us and enjoys helping people discover the extraordinary within the ordinary. his walks encourage guests to slow down, listen closely, and observe with patience, whether that means noticing a tiny jumping spider, following a bird call, or uncovering the hidden liv bangalore, mysore, western ghats, and national parks/sanctuaries across karnataka, madhya pradesh, maharashtra, uttarakhand, himachal, jammu and kashmir",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "google_form_naturalist_intake",
+        "submitted_at": "2026-07-31T16:06:48+05:30",
+        "birth_date": "1991-10-02",
+        "gender": "Male",
+        "state": "Karnataka",
+        "city": "Bangalore",
+        "form_email": "suhassaya@gmail.com",
+        "instagram": "suhassaya",
+        "instagram_url": "https://www.instagram.com/suhassaya/",
+        "years_active_bucket": "1–2 years",
+        "guided_walk_hours_12m": "130 hours",
+        "experiences_count_12m": "51-100",
+        "wildlife_groups": [
+          "Birds",
+          "Reptiles and Amphibians",
+          "Insects",
+          "Flora",
+          "Nocturnal natural history"
+        ],
+        "experience_types_prepared": [
+          "Wildlife Safaris",
+          "Birdwatching",
+          "Nature Walks",
+          "Butterfly or Insect Walks",
+          "Tree and flora walks",
+          "Nocturnal walks",
+          "Village or Community Experiences",
+          "Educational Sessions",
+          "Talks and workshops"
+        ],
+        "regions_available": "Bangalore, Mysore, Western Ghats, National Parks/Sanctuaries in Karnataka, Madhya Pradesh, Maharashtra, Uttarakhand, Himachal, Jammu and Kashmir",
+        "audiences": [
+          "Families",
+          "Children and Students",
+          "Senior citizens",
+          "Birders",
+          "Other Naturalists",
+          "First-time Wildlife Travellers",
+          "International travellers"
+        ],
+        "may_tag_instagram": true,
+        "may_request_introduction": true,
+        "homestay_status": "No, I do not run a homestay",
+        "homestay_details": null,
+        "homestay_address": null,
+        "list_homestay_on_wildbook": null,
+        "photo_drive_urls": [
+          "https://drive.google.com/open?id=1wV14W_o6-yojtJebMz4McJUbhitge87q",
+          "https://drive.google.com/open?id=1n6NQKvSIEF1GkG4fJoniH9cnPF4sOqs1",
+          "https://drive.google.com/open?id=1knd8DDmDVYsfgzgsW0_QkFeCWKrld6P2",
+          "https://drive.google.com/open?id=1HV1HqIMbataz7I17xG7ANrqwdK6OlSfH",
+          "https://drive.google.com/open?id=1qjfUCAkfPFmSK5gjWO0Cp4AOf5lvff1y"
+        ],
+        "certification_text": "Certified Naturalist, The Naturalist School and Skill India, 2024",
+        "first_aid": true,
+        "first_aid_details": "Certified First Aid Senior Professional, Red Cross, 2024",
+        "consent": true
+      }
+    },
+    {
+      "_id": "0149395c-c611-5d6c-ab91-d8caa33169bd",
+      "full_name": "Kabir Jethi",
+      "email": "jethikabir@gmail.com",
+      "phone_number": "7852017588",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-udaipur",
+      "location_base_description": "Udaipur, Rajasthan (also associates with Tathastu Bandhavgarh)",
+      "language_ids": [
+        "lang-en"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-wildlife",
+        "exp-flora",
+        "exp-nature-walks",
+        "exp-mammals"
+      ],
+      "role": "NATURALIST",
+      "years_of_experience": 0,
+      "naturalist_profile": {
+        "focus_area_ids": [
+          "focus-mammals",
+          "focus-birds",
+          "focus-reptiles",
+          "focus-flora"
+        ],
+        "certification_ids": [
+          "cert-tns-kabir-2026"
+        ],
+        "years_field_experience": 0,
+        "summary": "Growing up in Udaipur, surrounded by the ancient Aravalli hills and quiet lakes, my connection to the wild began with a pair of binoculars. Birdwatching quickly became more than a hobby it ignited a deep, lifelong fascination with avian life. That curiosity pulled me beyond Rajasthan, leading me on treks through the Aravallis and into the high mountain ecosystems of Himachal Pradesh. Becoming a naturalist was a natural evolution of that journey. Today, I weave storytelling into field observation to help people notice the intricate flora and fauna around them. My goal is simple: to help people slow down, see the wild through a fresh lens, and cultivate a genuine kinship with the natural world"
+      },
+      "bio": {
+        "summary": "Growing up surrounded by ancient hills and quiet lakes, Kabir’s connection with the wild began with a pair of binoculars. Birdwatching soon became more than a hobby, sparking a lasting fascination that drew him across rugged trails and into high mountain ecosystems. Becoming a naturalist was a natural evolution of that journey. Today, Kabir combines field observation with storytelling to help people notice the intricate life unfolding around them. His approach is calm, curious, and rooted in the belief that meaningful encounters begin when we slow down. While exploring with him, guests are encouraged to look beyond the obvious, see familiar landscapes through a fresh lens, and develop a genuine sense of kinship with the natural world.",
+        "education": null,
+        "career_transition": null,
+        "philosophy": "If an animal kills me it's not their fault"
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": true,
+      "created_at": {
+        "$date": "2026-07-31T23:59:38.000Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "full_name_normalized": "kabir jethi",
+      "search_text": "kabir jethi growing up surrounded by ancient hills and quiet lakes, kabir’s connection with the wild began with a pair of binoculars. birdwatching soon became more than a hobby, sparking a lasting fascination that drew him across rugged trails and into high mountain ecosystems. becoming a naturalist was a natural evolution of that journey. today, kabir combines field observation with storytelling to help people notice the intricate life unfolding around them. his approach is calm, curious, and rooted in the udaipur, rajasthan (also associates with tathastu bandhavgarh)",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "google_form_naturalist_intake",
+        "submitted_at": "2026-07-31T23:59:38+05:30",
+        "birth_date": "2002-07-10",
+        "gender": "Male",
+        "state": "Rajasthan",
+        "city": "Udaipur",
+        "form_email": "jethikabir@gmail.com",
+        "instagram": "kabirjethi",
+        "instagram_url": "https://www.instagram.com/kabirjethi?igsh=ZnpqanhncGZudmxh",
+        "years_active_bucket": "Less than 1 year",
+        "guided_walk_hours_12m": "40-50",
+        "experiences_count_12m": "10-25",
+        "wildlife_groups": [
+          "Mammals",
+          "Birds",
+          "Reptiles and Amphibians",
+          "Flora"
+        ],
+        "experience_types_prepared": [
+          "Wildlife Safaris",
+          "Birdwatching",
+          "Nature Walks",
+          "Tree and flora walks",
+          "Village or Community Experiences"
+        ],
+        "regions_available": "Udaipur Rajasthan",
+        "audiences": [
+          "Families",
+          "Birders",
+          "Other Naturalists",
+          "First-time Wildlife Travellers",
+          "International travellers"
+        ],
+        "may_tag_instagram": true,
+        "may_request_introduction": true,
+        "homestay_status": "I work with a hotel",
+        "homestay_details": "Tathastu - Bandhavgarh",
+        "homestay_address": "Tathastu Bandhavgarh https://share.google/WC5wzdde16VH5HKAs",
+        "list_homestay_on_wildbook": true,
+        "photo_drive_urls": [
+          "https://drive.google.com/open?id=1xUaRFhQh71YrtOkVG-D_rDXxbpkd6tSL"
+        ],
+        "certification_text": "The Naturalist School - Certified Naturalist course 750 hours learning (march-june 2026)",
+        "first_aid": true,
+        "first_aid_details": null,
+        "consent": true
+      }
+    },
+    {
+      "_id": "fa54d7d3-7cd4-5834-a129-1616bddb9325",
+      "full_name": "Nayanika Bhatia",
+      "email": "nayanika.work@gmail.com",
+      "phone_number": "9930112620",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-nagpur",
+      "location_base_description": "Nagpur — Gorewada Biopark, Ambazajhari Biodiversity Park, Aura Conservation Park, Koradi Lake, Sonegaon Lake, Pench, Tadoba",
+      "language_ids": [
+        "lang-en",
+        "lang-hi"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-wildlife",
+        "exp-insects",
+        "exp-flora",
+        "exp-nature-walks",
+        "exp-education",
+        "exp-mammals"
+      ],
+      "role": "NATURALIST",
+      "years_of_experience": 4,
+      "naturalist_profile": {
+        "focus_area_ids": [
+          "focus-mammals",
+          "focus-birds",
+          "focus-insects",
+          "focus-flora",
+          "focus-nocturnal"
+        ],
+        "certification_ids": [
+          "cert-nature-guide-nayanika-2022",
+          "cert-tns-nayanika-2026",
+          "cert-firstaid-nayanika-2022"
+        ],
+        "years_field_experience": 4,
+        "summary": "I am a naturalist based in Nagpur with over four years of field experience in the landscapes of Central India. I have conducted more than 120 guided nature walks across urban parks, forests, and wetlands, introducing people to the region's biodiversity. As an Ataavi Bird Expert, I have completed 10 guided birding walks and am comfortable with scientific birding, including bird identification and field observation. My walks are interactive, informative, and designed to help participants build a deeper connection with nature while developing their observation skills."
+      },
+      "bio": {
+        "summary": "Nayanika’s work as a naturalist is rooted in years of field experience across the varied landscapes of Central India. Through guided walks in parks, forests, and wetlands, she introduces people to the biodiversity that often exists just beyond everyday attention. Her approach blends scientific observation with an engaging, accessible style, helping participants understand not only what they are seeing, but how to notice more for themselves. Her walks are interactive, informative, and designed to build confidence in the field. Rather than simply delivering facts, Nayanika encourages questions, careful listening, and patient observation. Guests can expect to leave with sharper natural-history skills, a deeper appreciation of their surroundings, and a stronger personal connection with the living world.",
+        "education": null,
+        "career_transition": null,
+        "philosophy": "The earth has music for those who listen."
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": true,
+      "created_at": {
+        "$date": "2026-08-01T14:44:21.000Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "full_name_normalized": "nayanika bhatia",
+      "search_text": "nayanika bhatia nayanika’s work as a naturalist is rooted in years of field experience across the varied landscapes of central india. through guided walks in parks, forests, and wetlands, she introduces people to the biodiversity that often exists just beyond everyday attention. her approach blends scientific observation with an engaging, accessible style, helping participants understand not only what they are seeing, but how to notice more for themselves. her walks are interactive, informative, and designed to nagpur — gorewada biopark, ambazajhari biodiversity park, aura conservation park, koradi lake, sonegaon lake, pench, tadoba",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "google_form_naturalist_intake",
+        "submitted_at": "2026-08-01T14:44:21+05:30",
+        "birth_date": "1994-09-01",
+        "gender": "Female",
+        "state": "Maharashtra",
+        "city": "Nagpur",
+        "form_email": "nayanika.work@gmail.com",
+        "instagram": "naturenika",
+        "instagram_url": "https://www.instagram.com/naturenika/",
+        "years_active_bucket": "3–5 years",
+        "guided_walk_hours_12m": "100+ hours",
+        "experiences_count_12m": "26-50",
+        "wildlife_groups": [
+          "Mammals",
+          "Birds",
+          "Insects",
+          "Flora",
+          "Nocturnal natural history"
+        ],
+        "experience_types_prepared": [
+          "Wildlife Safaris",
+          "Birdwatching",
+          "Nature Walks",
+          "Butterfly or Insect Walks",
+          "Tree and flora walks",
+          "Village or Community Experiences",
+          "Educational Sessions",
+          "Talks and workshops"
+        ],
+        "regions_available": "Nagpur - Gorewada Biopark, Ambazajhari Biodiversity Park, Aura Conservation Park, Koradi Lake, Sonegaon Lake, Pench, Tadoba",
+        "audiences": [
+          "Families",
+          "Children and Students",
+          "Senior citizens",
+          "Birders",
+          "Other Naturalists",
+          "First-time Wildlife Travellers",
+          "International travellers",
+          "Corporate or institutional groups"
+        ],
+        "may_tag_instagram": true,
+        "may_request_introduction": true,
+        "homestay_status": "No, but I can help arrange local stays",
+        "homestay_details": null,
+        "homestay_address": null,
+        "list_homestay_on_wildbook": false,
+        "photo_drive_urls": [
+          "https://drive.google.com/open?id=1mMzgEZFZE_7RPBoIXQpP6gptxRyIGV8u",
+          "https://drive.google.com/open?id=1B80QMlepEOOhVi18YiMK687yqioN81qK",
+          "https://drive.google.com/open?id=1zMnDu38z5VejRR_0xC4lAWUJrYAMaPwU",
+          "https://drive.google.com/open?id=1Xa78rJqWzLaxbna611adxJvQWUUTjeOr"
+        ],
+        "certification_text": "Certified Nature Guide 2022 - NSDC, The Naturalist School, Karnataka Forest Department; Certified Naturalist 2026 - NSDC, The Naturalist School",
+        "first_aid": true,
+        "first_aid_details": "Standard First Aid, CPR, and AED, 2022",
+        "consent": true
+      }
+    },
+    {
+      "_id": "3e094edf-0992-5c8f-912f-d10cfb185a02",
+      "full_name": "Aneesh",
+      "email": "aneeshpoduval99@gmail.com",
+      "phone_number": "7057533226",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-pune",
+      "location_base_description": "In and around Bangalore, Coorg, Nagarhole Tiger Reserve, Brahmagiri Wildlife Sanctuary (base: Pune)",
+      "language_ids": [
+        "lang-en",
+        "lang-hi"
+      ],
+      "expertise_ids": [
+        "exp-wildlife",
+        "exp-birds",
+        "exp-herping",
+        "exp-insects",
+        "exp-flora",
+        "exp-photo",
+        "exp-nature-walks",
+        "exp-nocturnal",
+        "exp-education"
+      ],
+      "role": "NATURALIST",
+      "years_of_experience": 0,
+      "naturalist_profile": {
+        "focus_area_ids": [
+          "focus-mammals",
+          "focus-birds",
+          "focus-reptiles",
+          "focus-insects",
+          "focus-flora",
+          "focus-marine",
+          "focus-nocturnal",
+          "focus-stargazing"
+        ],
+        "certification_ids": [
+          "cert-skillindia-aneesh-2026",
+          "cert-redcross-aneesh-2026"
+        ],
+        "years_field_experience": 0,
+        "summary": "Hi, I'm Aneesh! I'm a naturalist and outdoor educator who believes that the best classroom is the outdoors. Growing up in Pune, I spent much of my time exploring the Sahyadri ranges, where my love for nature first took root. In 2024, I left my corporate career to pursue that passion full-time by joining Indiahikes as a trek leader. There, I learned wilderness first aid, outdoor facilitation, storytelling, and stargazing while leading Himalayan treks to Deoriatal–Chandrashila. My journey then took me to the Andaman Islands, where I worked as a Naturalist and Stargazing Instructor with Seashell Resorts. Along with introducing guests to the night sky, I also led marine walks, helping people discover the fascinating life of the intertidal zone. To strengthen my knowledge, I earned my Naturalist Certification from the Naturalist School, Bangalore, which eventually led me to my current role as a Naturalist at The Leela Coorg. When I'm not guiding guests, you'll probably find me photographing wildlife, birdwatching, herping, or assisting researchers and conservationists in the field. I love sharing stories that help people slow down, look closer, and connect with the incredible world of nature."
+      },
+      "bio": {
+        "summary": "Aneesh is a naturalist and outdoor educator who believes the best classroom is outdoors. His love for nature took root while exploring the Sahyadris and eventually led him to leave a corporate career for a life in the field. As a trek leader, he developed skills in outdoor facilitation, storytelling, wilderness response, and stargazing while guiding journeys in the Himalayas. His path later carried him to the Andaman Islands, where he introduced guests to the night sky and the fascinating life of the intertidal zone. Today, he continues to guide, photograph wildlife, and assist researchers and conservationists whenever possible. Aneesh enjoys sharing stories that help people slow down, look closer, and form a more meaningful connection with nature.",
+        "education": null,
+        "career_transition": null,
+        "philosophy": "Wood is the rarest material in the universe."
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": true,
+      "created_at": {
+        "$date": "2026-08-01T18:13:38.000Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T10:00:00Z"
+      },
+      "full_name_normalized": "aneesh",
+      "search_text": "aneesh aneesh is a naturalist and outdoor educator who believes the best classroom is outdoors. his love for nature took root while exploring the sahyadris and eventually led him to leave a corporate career for a life in the field. as a trek leader, he developed skills in outdoor facilitation, storytelling, wilderness response, and stargazing while guiding journeys in the himalayas. his path later carried him to the andaman islands, where he introduced guests to the night sky and the fascinating life o in and around bangalore, coorg, nagarhole tiger reserve, brahmagiri wildlife sanctuary (base: pune)",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "google_form_naturalist_intake",
+        "submitted_at": "2026-08-01T18:13:38+05:30",
+        "birth_date": "1999-02-08",
+        "gender": "Male",
+        "state": "Maharashtra",
+        "city": "Pune",
+        "form_email": "aneesh.raghu@gmail.com",
+        "contact_email": "aneeshpoduval99@gmail.com",
+        "instagram": "dawn_of_starfall",
+        "instagram_url": "https://www.instagram.com/dawn_of_starfall/",
+        "years_active_bucket": "Less than 1 year",
+        "guided_walk_hours_12m": "263",
+        "experiences_count_12m": "26-50",
+        "wildlife_groups": [
+          "Mammals",
+          "Birds",
+          "Reptiles and Amphibians",
+          "Insects",
+          "Flora",
+          "Marine and coastal ecology",
+          "Nocturnal natural history",
+          "Stargazing"
+        ],
+        "experience_types_prepared": [
+          "Wildlife Safaris",
+          "Birdwatching",
+          "Nature Walks",
+          "Butterfly or Insect Walks",
+          "Tree and flora walks",
+          "Nocturnal walks",
+          "Wildlife Photography Tours",
+          "Educational Sessions",
+          "Talks and workshops"
+        ],
+        "regions_available": "In and around Bangalore, Coorg, Nagarhole Tiger Reserve, Brahmagiri Wildlife Sanctuary.",
+        "audiences": [
+          "Families",
+          "Children and Students",
+          "Senior citizens",
+          "Birders",
+          "Photographers",
+          "Other Naturalists",
+          "First-time Wildlife Travellers",
+          "International travellers"
+        ],
+        "may_tag_instagram": true,
+        "may_request_introduction": true,
+        "homestay_status": "No, I do not run a homestay",
+        "homestay_details": null,
+        "homestay_address": null,
+        "list_homestay_on_wildbook": true,
+        "photo_drive_urls": [
+          "https://drive.google.com/open?id=1B8SDDhbZGPTICiBY_piYrClWn9_6Qlx1",
+          "https://drive.google.com/open?id=1rxgjxgEqFpQjBkM8fjWadYFEf1DCwtrD",
+          "https://drive.google.com/open?id=1PQ9YWAvTyznJB-utKddzq3-f-5l-0zhp",
+          "https://drive.google.com/open?id=1wJOuVQpHBYh-QF1m1UmCRK7u3bohbFfA",
+          "https://drive.google.com/open?id=1UvYJC6G7YiDnaoZENA-2pyetvmbgbctG"
+        ],
+        "certification_text": "Naturalist Certificate from Skill India (2026)",
+        "first_aid": true,
+        "first_aid_details": "First Aid Certificate from Red Cross (2026)",
+        "consent": true
+      }
+    }
+  ]
+}

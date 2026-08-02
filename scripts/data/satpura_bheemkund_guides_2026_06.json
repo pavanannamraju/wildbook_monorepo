@@ -1,0 +1,1594 @@
+{
+  "_meta": {
+    "description": "Satpura Bheemkund Gate Forest Dept guides → wildbook_test",
+    "database": "wildbook_test",
+    "count": 18,
+    "notes": [
+      "role=GUIDE (no naturalist_profile)",
+      "bio.summary = third-person card copy",
+      "Rajan email kept as submitted (hmail.com)",
+      "Photos not included — add later under scripts/data/guide_photos/<slug>/",
+      "Missing fields (e.g. email) are omitted/null — never fabricated placeholders.",
+      "Sandeep Marskole has no email in source data; email field left unset."
+    ]
+  },
+  "reference_locations": [
+    {
+      "_id": "loc-betul-satpura",
+      "name": "Satpura (Bheemkund Gate)",
+      "city": "Betul",
+      "state": "Madhya Pradesh",
+      "country": "India",
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      }
+    }
+  ],
+  "reference_languages": [
+    {
+      "_id": "lang-gondi",
+      "code": "gon",
+      "name": "Gondi",
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      }
+    }
+  ],
+  "reference_expertise": [
+    {
+      "_id": "exp-big-cats",
+      "slug": "big-cats",
+      "name": "Big Cats",
+      "category": "wildlife",
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      }
+    },
+    {
+      "_id": "exp-herbivores",
+      "slug": "herbivores",
+      "name": "Herbivores",
+      "category": "wildlife",
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      }
+    },
+    {
+      "_id": "exp-forest-trees",
+      "slug": "forest-trees",
+      "name": "Forest Trees",
+      "category": "nature",
+      "is_active": true,
+      "created_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      }
+    }
+  ],
+  "guides": [
+    {
+      "_id": "ef04f8eb-edef-51b1-ab46-82eacc902498",
+      "full_name": "Surendra Wadiwa",
+      "email": "wadiwasurendra85@gmail.com",
+      "phone_number": "6261022630",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-betul-satpura",
+      "location_base_description": "Dhasai, Betul — Satpura Tiger Reserve, Bheemkund Gate",
+      "language_ids": [
+        "lang-hi",
+        "lang-gondi"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-big-cats",
+        "exp-wildlife",
+        "exp-forest-trees",
+        "exp-flora",
+        "exp-herbivores",
+        "exp-mammals"
+      ],
+      "role": "GUIDE",
+      "years_of_experience": 6,
+      "naturalist_profile": null,
+      "bio": {
+        "summary": "Surendra Wadiwa brings both guiding experience and a strong working connection with Satpura’s forests. Before becoming a registered guide at Bheemkund Gate in 2020, he worked as a forest guard in Satpura for six years from 2013. He focuses on birds, big cats, forest trees and herbivores, guides in Hindi and Gondi, and can assist with safari bookings, local arrangements and nature walks.",
+        "education": null,
+        "career_transition": "In 2013 worked as a forest guard satpura for 6 years.",
+        "philosophy": null
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": false,
+      "created_at": {
+        "$date": "2026-06-02T10:38:01Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "full_name_normalized": "surendra wadiwa",
+      "search_text": "surendra wadiwa surendra wadiwa brings both guiding experience and a strong working connection with satpura’s forests. before becoming a registered guide at bheemkund gate in 2020, he worked as a forest guard in satpura for six years from 2013. he focuses on birds, big cats, forest trees and herbivores, guides in hindi and gondi, and can assist with safari bookings, local arrangements and nature walks. dhasai, betul — satpura tiger reserve, bheemkund gate satpura bheemkund betul",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "satpura_bheemkund_guide_intake",
+        "submitted_at": "2026-06-02T16:08:01+05:30",
+        "submitted_by": "anuragkomailkaro@gmail.com",
+        "birth_date": "1989-10-04",
+        "gender": "Male",
+        "state": "Madhya Pradesh",
+        "district": "Betul",
+        "village": "Dhasai",
+        "park": "Satpura",
+        "gate": "Bheemkund Gate",
+        "forest_dept_registered": true,
+        "guiding_since_year": 2020,
+        "wildlife_interests": [
+          "Birds",
+          "Big Cats",
+          "Forest Trees",
+          "Herbivores"
+        ],
+        "guides_international_travellers": false,
+        "first_aid": true,
+        "instagram": "@wadiwasunil",
+        "homestay_status": "No, but I am planning to start one",
+        "notes": "In 2013 worked as a forest guard satpura for 6 years.",
+        "consent": true,
+        "email_missing": false
+      }
+    },
+    {
+      "_id": "4028a19f-8282-59c6-82f3-5823993f3dd4",
+      "full_name": "Sandeep Marskole",
+      "phone_number": "6268936403",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-betul-satpura",
+      "location_base_description": "Dhasai, Betul — Satpura Tiger Reserve, Bheemkund Gate",
+      "language_ids": [
+        "lang-hi",
+        "lang-gondi"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-big-cats",
+        "exp-wildlife",
+        "exp-forest-trees",
+        "exp-flora",
+        "exp-herbivores",
+        "exp-mammals"
+      ],
+      "role": "GUIDE",
+      "years_of_experience": 6,
+      "naturalist_profile": null,
+      "bio": {
+        "summary": "Sandeep Marskole is a Forest Department-registered guide from Dhasai who began guiding at Bheemkund Gate in 2020. Before becoming a guide, he worked as a Van Shramik for six years, from 2014 to 2020. He specialises in birds, big cats, forest trees and herbivores, speaks Hindi and Gondi, has first-aid training, and can assist with safari bookings, local stays and nature walks.",
+        "education": null,
+        "career_transition": "Worked as van shramik for 6 years from 2014 to 2020.",
+        "philosophy": null
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": false,
+      "created_at": {
+        "$date": "2026-06-06T09:58:31Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "full_name_normalized": "sandeep marskole",
+      "search_text": "sandeep marskole sandeep marskole is a forest department-registered guide from dhasai who began guiding at bheemkund gate in 2020. before becoming a guide, he worked as a van shramik for six years, from 2014 to 2020. he specialises in birds, big cats, forest trees and herbivores, speaks hindi and gondi, has first-aid training, and can assist with safari bookings, local stays and nature walks. dhasai, betul — satpura tiger reserve, bheemkund gate satpura bheemkund betul",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "satpura_bheemkund_guide_intake",
+        "submitted_at": "2026-06-06T15:28:31+05:30",
+        "submitted_by": "anuragkomailkaro@gmail.com",
+        "birth_date": "1982-08-08",
+        "gender": "Male",
+        "state": "Madhya Pradesh",
+        "district": "Betul",
+        "village": "Dhasai",
+        "park": "Satpura",
+        "gate": "Bheemkund Gate",
+        "forest_dept_registered": true,
+        "guiding_since_year": 2020,
+        "wildlife_interests": [
+          "Birds",
+          "Big Cats",
+          "Forest Trees",
+          "Herbivores"
+        ],
+        "guides_international_travellers": false,
+        "first_aid": true,
+        "instagram": null,
+        "homestay_status": "No, but I can help arrange local stays",
+        "notes": "Worked as van shramik for 6 years from 2014 to 2020.",
+        "consent": true,
+        "email_missing": true
+      }
+    },
+    {
+      "_id": "2c02a1c3-c738-5347-bbc9-92d5cfe27bb1",
+      "full_name": "Sujeet Uikey",
+      "email": "sujeetuikey44@gmail.com",
+      "phone_number": "7772930605",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-betul-satpura",
+      "location_base_description": "Bhatana, Betul — Satpura Tiger Reserve, Bheemkund Gate",
+      "language_ids": [
+        "lang-hi",
+        "lang-gondi"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-big-cats",
+        "exp-wildlife",
+        "exp-forest-trees",
+        "exp-flora",
+        "exp-herbivores",
+        "exp-mammals"
+      ],
+      "role": "GUIDE",
+      "years_of_experience": 6,
+      "naturalist_profile": null,
+      "bio": {
+        "summary": "Sujeet Uikey is a Forest Department-registered guide operating from Bheemkund Gate in Satpura. Guiding since 2020, he is particularly interested in birds, big cats, forest trees and herbivores. He guides in Hindi and Gondi, has experience hosting international travellers, holds first-aid training, and can assist guests with both safari permits and vehicle bookings.",
+        "education": null,
+        "career_transition": null,
+        "philosophy": null
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": false,
+      "created_at": {
+        "$date": "2026-06-01T10:02:51Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "full_name_normalized": "sujeet uikey",
+      "search_text": "sujeet uikey sujeet uikey is a forest department-registered guide operating from bheemkund gate in satpura. guiding since 2020, he is particularly interested in birds, big cats, forest trees and herbivores. he guides in hindi and gondi, has experience hosting international travellers, holds first-aid training, and can assist guests with both safari permits and vehicle bookings. bhatana, betul — satpura tiger reserve, bheemkund gate satpura bheemkund betul",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "satpura_bheemkund_guide_intake",
+        "submitted_at": "2026-06-01T15:32:51+05:30",
+        "submitted_by": "anuragkomailkaro@gmail.com",
+        "birth_date": "1998-12-16",
+        "gender": "Male",
+        "state": "Madhya Pradesh",
+        "district": "Betul",
+        "village": "Bhatana",
+        "park": "Satpura",
+        "gate": "Bheemkund Gate",
+        "forest_dept_registered": true,
+        "guiding_since_year": 2020,
+        "wildlife_interests": [
+          "Birds",
+          "Big Cats",
+          "Forest Trees",
+          "Herbivores"
+        ],
+        "guides_international_travellers": true,
+        "first_aid": true,
+        "instagram": "@Jeet_satpura_750",
+        "homestay_status": "No, but I am planning to start one",
+        "notes": null,
+        "consent": true,
+        "email_missing": false
+      }
+    },
+    {
+      "_id": "07ab2aaa-5dfa-5e17-95ff-8ad4025450c6",
+      "full_name": "Harichand Uikey",
+      "email": "harichanuikey788@gmail.com",
+      "phone_number": "8964947173",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-betul-satpura",
+      "location_base_description": "Dhasai, Betul — Satpura Tiger Reserve, Bheemkund Gate",
+      "language_ids": [
+        "lang-hi",
+        "lang-gondi"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-big-cats",
+        "exp-wildlife",
+        "exp-forest-trees",
+        "exp-flora",
+        "exp-herbivores",
+        "exp-mammals"
+      ],
+      "role": "GUIDE",
+      "years_of_experience": 6,
+      "naturalist_profile": null,
+      "bio": {
+        "summary": "Harichand Uikey is a registered guide from Dhasai who has been guiding at Satpura’s Bheemkund Gate since 2020. He previously worked with the Forest Department and brings that field experience into his understanding of birds, big cats, forest trees and herbivores. Harichand guides in Hindi and Gondi, has first-aid training, and can assist with safari bookings and nearby local stays.",
+        "education": null,
+        "career_transition": "Worked with forest department prior to guide.",
+        "philosophy": null
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": false,
+      "created_at": {
+        "$date": "2026-06-06T10:17:57Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "full_name_normalized": "harichand uikey",
+      "search_text": "harichand uikey harichand uikey is a registered guide from dhasai who has been guiding at satpura’s bheemkund gate since 2020. he previously worked with the forest department and brings that field experience into his understanding of birds, big cats, forest trees and herbivores. harichand guides in hindi and gondi, has first-aid training, and can assist with safari bookings and nearby local stays. dhasai, betul — satpura tiger reserve, bheemkund gate satpura bheemkund betul",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "satpura_bheemkund_guide_intake",
+        "submitted_at": "2026-06-06T15:47:57+05:30",
+        "submitted_by": "anuragkomailkaro@gmail.com",
+        "birth_date": "1994-03-05",
+        "gender": "Male",
+        "state": "Madhya Pradesh",
+        "district": "Betul",
+        "village": "Dhasai",
+        "park": "Satpura",
+        "gate": "Bheemkund Gate",
+        "forest_dept_registered": true,
+        "guiding_since_year": 2020,
+        "wildlife_interests": [
+          "Birds",
+          "Big Cats",
+          "Forest Trees",
+          "Herbivores"
+        ],
+        "guides_international_travellers": false,
+        "first_aid": true,
+        "instagram": "@harichand.uikey.9",
+        "homestay_status": "No, but I can help arrange local stays",
+        "notes": "Worked with forest department prior to guide.",
+        "consent": true,
+        "email_missing": false
+      }
+    },
+    {
+      "_id": "8f854c62-00c9-5a42-8db8-30ae73fe91a2",
+      "full_name": "Ravindra Wadiwa",
+      "email": "wadiwaravindra52@gmail.com",
+      "phone_number": "7879399225",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-betul-satpura",
+      "location_base_description": "Dhasai, Betul — Satpura Tiger Reserve, Bheemkund Gate",
+      "language_ids": [
+        "lang-hi",
+        "lang-gondi"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-big-cats",
+        "exp-wildlife",
+        "exp-forest-trees",
+        "exp-flora",
+        "exp-herbivores",
+        "exp-mammals"
+      ],
+      "role": "GUIDE",
+      "years_of_experience": 6,
+      "naturalist_profile": null,
+      "bio": {
+        "summary": "Ravindra Wadiwa is a registered Satpura guide who has been guiding from Bheemkund Gate since 2020. His areas of interest include birds, big cats, forest trees and herbivores, and he guides in Hindi and Gondi. Ravindra has experience guiding international travellers and can assist with safari permits and vehicles. He is also developing Into the Wild, a homestay near the safari gate, planned to open in October 2026.",
+        "education": null,
+        "career_transition": "Homestay is Under Construction. October 2026 Launch. Homestay: Into the wild, Dhasai Village Main Road.",
+        "philosophy": null
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": false,
+      "created_at": {
+        "$date": "2026-06-01T10:16:31Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "full_name_normalized": "ravindra wadiwa",
+      "search_text": "ravindra wadiwa ravindra wadiwa is a registered satpura guide who has been guiding from bheemkund gate since 2020. his areas of interest include birds, big cats, forest trees and herbivores, and he guides in hindi and gondi. ravindra has experience guiding international travellers and can assist with safari permits and vehicles. he is also developing into the wild, a homestay near the safari gate, planned to open in october 2026. dhasai, betul — satpura tiger reserve, bheemkund gate satpura bheemkund betul",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "satpura_bheemkund_guide_intake",
+        "submitted_at": "2026-06-01T15:46:31+05:30",
+        "submitted_by": "anuragkomailkaro@gmail.com",
+        "birth_date": "2000-01-04",
+        "gender": "Male",
+        "state": "Madhya Pradesh",
+        "district": "Betul",
+        "village": "Dhasai",
+        "park": "Satpura",
+        "gate": "Bheemkund Gate",
+        "forest_dept_registered": true,
+        "guiding_since_year": 2020,
+        "wildlife_interests": [
+          "Birds",
+          "Big Cats",
+          "Forest Trees",
+          "Herbivores"
+        ],
+        "guides_international_travellers": true,
+        "first_aid": false,
+        "instagram": "@jungle_safari_satpura_donald",
+        "homestay_status": "Yes, I own a homestay",
+        "notes": "Homestay is Under Construction. October 2026 Launch. Homestay: Into the wild, Dhasai Village Main Road.",
+        "consent": true,
+        "email_missing": false
+      }
+    },
+    {
+      "_id": "393ea1fc-4142-5c38-a47b-fdc8be22f6d3",
+      "full_name": "Narendra Wadiwa",
+      "email": "narendrawadiwa3@gmail.com",
+      "phone_number": "9301466645",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-betul-satpura",
+      "location_base_description": "Dhasai, Betul — Satpura Tiger Reserve, Bheemkund Gate",
+      "language_ids": [
+        "lang-hi",
+        "lang-gondi"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-big-cats",
+        "exp-wildlife",
+        "exp-forest-trees",
+        "exp-flora",
+        "exp-herbivores",
+        "exp-mammals"
+      ],
+      "role": "GUIDE",
+      "years_of_experience": 6,
+      "naturalist_profile": null,
+      "bio": {
+        "summary": "Narendra Wadiwa is a Forest Department-registered guide based around Bheemkund Gate in Satpura. He has been guiding since 2020 and focuses on birds, big cats, forest trees and herbivores. Fluent in Hindi and Gondi, Narendra has experience guiding international travellers and can help guests understand and navigate the safari-booking process. He can also offer guided nature walks on request.",
+        "education": null,
+        "career_transition": null,
+        "philosophy": null
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": false,
+      "created_at": {
+        "$date": "2026-06-01T10:30:28Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "full_name_normalized": "narendra wadiwa",
+      "search_text": "narendra wadiwa narendra wadiwa is a forest department-registered guide based around bheemkund gate in satpura. he has been guiding since 2020 and focuses on birds, big cats, forest trees and herbivores. fluent in hindi and gondi, narendra has experience guiding international travellers and can help guests understand and navigate the safari-booking process. he can also offer guided nature walks on request. dhasai, betul — satpura tiger reserve, bheemkund gate satpura bheemkund betul",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "satpura_bheemkund_guide_intake",
+        "submitted_at": "2026-06-01T16:00:28+05:30",
+        "submitted_by": "anuragkomailkaro@gmail.com",
+        "birth_date": "1993-03-02",
+        "gender": "Male",
+        "state": "Madhya Pradesh",
+        "district": "Betul",
+        "village": "Dhasai",
+        "park": "Satpura",
+        "gate": "Bheemkund Gate",
+        "forest_dept_registered": true,
+        "guiding_since_year": 2020,
+        "wildlife_interests": [
+          "Birds",
+          "Big Cats",
+          "Forest Trees",
+          "Herbivores"
+        ],
+        "guides_international_travellers": true,
+        "first_aid": false,
+        "instagram": "@narendra_wadiwa",
+        "homestay_status": "No, but I am planning to start one",
+        "notes": null,
+        "consent": true,
+        "email_missing": false
+      }
+    },
+    {
+      "_id": "6747ebd8-88a8-5f66-9762-e7450fc42cd7",
+      "full_name": "Aashish Uikey",
+      "email": "aashishbagmare1993@gmail.com",
+      "phone_number": "8225805105",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-betul-satpura",
+      "location_base_description": "Dhasai, Betul — Satpura Tiger Reserve, Bheemkund Gate",
+      "language_ids": [
+        "lang-hi",
+        "lang-gondi"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-big-cats",
+        "exp-wildlife",
+        "exp-forest-trees",
+        "exp-flora",
+        "exp-herbivores",
+        "exp-mammals"
+      ],
+      "role": "GUIDE",
+      "years_of_experience": 6,
+      "naturalist_profile": null,
+      "bio": {
+        "summary": "Aashish Uikey is a Forest Department-registered guide based in Dhasai and has been guiding at Bheemkund Gate since 2020. He focuses on birds, big cats, forest trees and herbivores and guides in Hindi and Gondi. Aashish can assist guests with safari permits and vehicle bookings, offer nature walks on request, and help connect travellers with a homestay operated by his family nearby.",
+        "education": null,
+        "career_transition": "Someone from his family runs a homestay nearby.",
+        "philosophy": null
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": false,
+      "created_at": {
+        "$date": "2026-06-02T10:21:02Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "full_name_normalized": "aashish uikey",
+      "search_text": "aashish uikey aashish uikey is a forest department-registered guide based in dhasai and has been guiding at bheemkund gate since 2020. he focuses on birds, big cats, forest trees and herbivores and guides in hindi and gondi. aashish can assist guests with safari permits and vehicle bookings, offer nature walks on request, and help connect travellers with a homestay operated by his family nearby. dhasai, betul — satpura tiger reserve, bheemkund gate satpura bheemkund betul",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "satpura_bheemkund_guide_intake",
+        "submitted_at": "2026-06-02T15:51:02+05:30",
+        "submitted_by": "anuragkomailkaro@gmail.com",
+        "birth_date": "1993-05-05",
+        "gender": "Male",
+        "state": "Madhya Pradesh",
+        "district": "Betul",
+        "village": "Dhasai",
+        "park": "Satpura",
+        "gate": "Bheemkund Gate",
+        "forest_dept_registered": true,
+        "guiding_since_year": 2020,
+        "wildlife_interests": [
+          "Birds",
+          "Big Cats",
+          "Forest Trees",
+          "Herbivores"
+        ],
+        "guides_international_travellers": false,
+        "first_aid": false,
+        "instagram": "@aashishuikey8165",
+        "homestay_status": "No, but I can help arrange local stays",
+        "notes": "Someone from his family runs a homestay nearby.",
+        "consent": true,
+        "email_missing": false
+      }
+    },
+    {
+      "_id": "98671be4-f24d-5749-b03d-3a9828601864",
+      "full_name": "Umesh Ganjam",
+      "email": "umeshganjam83@gmail.com",
+      "phone_number": "8926039435",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-betul-satpura",
+      "location_base_description": "Dhasai, Betul — Satpura Tiger Reserve, Bheemkund Gate",
+      "language_ids": [
+        "lang-hi",
+        "lang-gondi"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-big-cats",
+        "exp-wildlife",
+        "exp-forest-trees",
+        "exp-flora",
+        "exp-herbivores",
+        "exp-mammals"
+      ],
+      "role": "GUIDE",
+      "years_of_experience": 6,
+      "naturalist_profile": null,
+      "bio": {
+        "summary": "Umesh Ganjam is a registered guide from Dhasai who has been operating at Satpura’s Bheemkund Gate since 2020. His interests span birds, big cats, forest trees and herbivores, and he guides in Hindi and Gondi. Umesh can help arrange both safari permits and vehicles, assist with nearby local stays, and organise a guided nature walk when required.",
+        "education": null,
+        "career_transition": null,
+        "philosophy": null
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": false,
+      "created_at": {
+        "$date": "2026-06-02T10:27:32Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "full_name_normalized": "umesh ganjam",
+      "search_text": "umesh ganjam umesh ganjam is a registered guide from dhasai who has been operating at satpura’s bheemkund gate since 2020. his interests span birds, big cats, forest trees and herbivores, and he guides in hindi and gondi. umesh can help arrange both safari permits and vehicles, assist with nearby local stays, and organise a guided nature walk when required. dhasai, betul — satpura tiger reserve, bheemkund gate satpura bheemkund betul",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "satpura_bheemkund_guide_intake",
+        "submitted_at": "2026-06-02T15:57:32+05:30",
+        "submitted_by": "anuragkomailkaro@gmail.com",
+        "birth_date": "1994-09-10",
+        "gender": "Male",
+        "state": "Madhya Pradesh",
+        "district": "Betul",
+        "village": "Dhasai",
+        "park": "Satpura",
+        "gate": "Bheemkund Gate",
+        "forest_dept_registered": true,
+        "guiding_since_year": 2020,
+        "wildlife_interests": [
+          "Birds",
+          "Big Cats",
+          "Forest Trees",
+          "Herbivores"
+        ],
+        "guides_international_travellers": false,
+        "first_aid": false,
+        "instagram": "@umeshganjam83",
+        "homestay_status": "No, but I can help arrange local stays",
+        "notes": null,
+        "consent": true,
+        "email_missing": false
+      }
+    },
+    {
+      "_id": "fea6aa58-b7fa-55af-8b3a-df7c7fb75ac3",
+      "full_name": "Rohit Bhalavi",
+      "email": "bhalavirohit704@gmail.com",
+      "phone_number": "7697677311",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-betul-satpura",
+      "location_base_description": "Dhasai, Betul — Satpura Tiger Reserve, Bheemkund Gate",
+      "language_ids": [
+        "lang-hi",
+        "lang-gondi"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-big-cats",
+        "exp-wildlife",
+        "exp-forest-trees",
+        "exp-flora",
+        "exp-herbivores",
+        "exp-mammals"
+      ],
+      "role": "GUIDE",
+      "years_of_experience": 6,
+      "naturalist_profile": null,
+      "bio": {
+        "summary": "Rohit Bhalavi is a registered guide based in Dhasai and has been guiding travellers at Satpura’s Bheemkund Gate since 2020. His interests include birds, big cats, forest trees and herbivores. He guides in Hindi and Gondi, holds first-aid training, and can assist guests with arranging their safari permits and vehicles.",
+        "education": null,
+        "career_transition": null,
+        "philosophy": null
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": false,
+      "created_at": {
+        "$date": "2026-06-06T10:07:24Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "full_name_normalized": "rohit bhalavi",
+      "search_text": "rohit bhalavi rohit bhalavi is a registered guide based in dhasai and has been guiding travellers at satpura’s bheemkund gate since 2020. his interests include birds, big cats, forest trees and herbivores. he guides in hindi and gondi, holds first-aid training, and can assist guests with arranging their safari permits and vehicles. dhasai, betul — satpura tiger reserve, bheemkund gate satpura bheemkund betul",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "satpura_bheemkund_guide_intake",
+        "submitted_at": "2026-06-06T15:37:24+05:30",
+        "submitted_by": "anuragkomailkaro@gmail.com",
+        "birth_date": "1997-12-15",
+        "gender": "Male",
+        "state": "Madhya Pradesh",
+        "district": "Betul",
+        "village": "Dhasai",
+        "park": "Satpura",
+        "gate": "Bheemkund Gate",
+        "forest_dept_registered": true,
+        "guiding_since_year": 2020,
+        "wildlife_interests": [
+          "Birds",
+          "Big Cats",
+          "Forest Trees",
+          "Herbivores"
+        ],
+        "guides_international_travellers": false,
+        "first_aid": true,
+        "instagram": "@rohit_bhalavi_45",
+        "homestay_status": "No, I do not run a homestay",
+        "notes": null,
+        "consent": true,
+        "email_missing": false
+      }
+    },
+    {
+      "_id": "2135cf75-a48f-5838-93fe-7b7d6a5078bd",
+      "full_name": "Rajan Uikey",
+      "email": "Rk045595@hmail.com",
+      "phone_number": "9179234005",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-betul-satpura",
+      "location_base_description": "Punji, Betul — Satpura Tiger Reserve, Bheemkund Gate",
+      "language_ids": [
+        "lang-hi",
+        "lang-gondi"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-big-cats",
+        "exp-wildlife",
+        "exp-forest-trees",
+        "exp-flora",
+        "exp-herbivores",
+        "exp-mammals"
+      ],
+      "role": "GUIDE",
+      "years_of_experience": 6,
+      "naturalist_profile": null,
+      "bio": {
+        "summary": "Rajan Uikey is a Forest Department-registered guide from Punji who has been operating at Bheemkund Gate since 2020. His interests cover birds, big cats, forest trees and herbivores, and he guides in Hindi and Gondi. Rajan has first-aid training, can assist with both safari permits and vehicle bookings, and can help travellers arrange nearby local accommodation.",
+        "education": null,
+        "career_transition": null,
+        "philosophy": null
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": false,
+      "created_at": {
+        "$date": "2026-06-06T10:11:53Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "full_name_normalized": "rajan uikey",
+      "search_text": "rajan uikey rajan uikey is a forest department-registered guide from punji who has been operating at bheemkund gate since 2020. his interests cover birds, big cats, forest trees and herbivores, and he guides in hindi and gondi. rajan has first-aid training, can assist with both safari permits and vehicle bookings, and can help travellers arrange nearby local accommodation. punji, betul — satpura tiger reserve, bheemkund gate satpura bheemkund betul",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "satpura_bheemkund_guide_intake",
+        "submitted_at": "2026-06-06T15:41:53+05:30",
+        "submitted_by": "anuragkomailkaro@gmail.com",
+        "birth_date": "1992-05-02",
+        "gender": "Male",
+        "state": "Madhya Pradesh",
+        "district": "Betul",
+        "village": "Punji",
+        "park": "Satpura",
+        "gate": "Bheemkund Gate",
+        "forest_dept_registered": true,
+        "guiding_since_year": 2020,
+        "wildlife_interests": [
+          "Birds",
+          "Big Cats",
+          "Forest Trees",
+          "Herbivores"
+        ],
+        "guides_international_travellers": false,
+        "first_aid": true,
+        "instagram": null,
+        "homestay_status": "No, but I can help arrange local stays",
+        "notes": null,
+        "consent": true,
+        "email_missing": false
+      }
+    },
+    {
+      "_id": "e87054ff-7143-5816-9ff4-a0808560d924",
+      "full_name": "Nathuram Yadav",
+      "email": "nathuramy786@gmail.com",
+      "phone_number": "9343619259",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-betul-satpura",
+      "location_base_description": "Naya Sridhana, Betul — Satpura Tiger Reserve, Bheemkund Gate",
+      "language_ids": [
+        "lang-hi"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-big-cats",
+        "exp-wildlife",
+        "exp-forest-trees",
+        "exp-flora",
+        "exp-herbivores",
+        "exp-mammals"
+      ],
+      "role": "GUIDE",
+      "years_of_experience": 6,
+      "naturalist_profile": null,
+      "bio": {
+        "summary": "Nathuram Yadav is a registered guide operating from Bheemkund Gate in Satpura since 2020. He has a keen interest in birds, big cats, forest trees and herbivores and guides in Hindi. Nathuram has first-aid training and previously worked as a Van Shramik during 2018–19, giving him additional practical experience of working within the forest landscape.",
+        "education": null,
+        "career_transition": "Worked as van shramik for 2 years. 2018-19",
+        "philosophy": null
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": false,
+      "created_at": {
+        "$date": "2026-06-06T09:49:58Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "full_name_normalized": "nathuram yadav",
+      "search_text": "nathuram yadav nathuram yadav is a registered guide operating from bheemkund gate in satpura since 2020. he has a keen interest in birds, big cats, forest trees and herbivores and guides in hindi. nathuram has first-aid training and previously worked as a van shramik during 2018–19, giving him additional practical experience of working within the forest landscape. naya sridhana, betul — satpura tiger reserve, bheemkund gate satpura bheemkund betul",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "satpura_bheemkund_guide_intake",
+        "submitted_at": "2026-06-06T15:19:58+05:30",
+        "submitted_by": "anuragkomailkaro@gmail.com",
+        "birth_date": "1985-06-11",
+        "gender": "Male",
+        "state": "Madhya Pradesh",
+        "district": "Betul",
+        "village": "Naya Sridhana",
+        "park": "Satpura",
+        "gate": "Bheemkund Gate",
+        "forest_dept_registered": true,
+        "guiding_since_year": 2020,
+        "wildlife_interests": [
+          "Birds",
+          "Big Cats",
+          "Forest Trees",
+          "Herbivores"
+        ],
+        "guides_international_travellers": false,
+        "first_aid": true,
+        "instagram": null,
+        "homestay_status": "No, I do not run a homestay",
+        "notes": "Worked as van shramik for 2 years. 2018-19",
+        "consent": true,
+        "email_missing": false
+      }
+    },
+    {
+      "_id": "b559cd33-9643-5664-be41-13c0ef0e2447",
+      "full_name": "Durgesh Yadav",
+      "email": "dy898540@gmail.com",
+      "phone_number": "6266059009",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-betul-satpura",
+      "location_base_description": "Naya Sridhana, Betul — Satpura Tiger Reserve, Bheemkund Gate",
+      "language_ids": [
+        "lang-hi"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-big-cats",
+        "exp-wildlife",
+        "exp-forest-trees",
+        "exp-flora",
+        "exp-herbivores",
+        "exp-mammals"
+      ],
+      "role": "GUIDE",
+      "years_of_experience": 6,
+      "naturalist_profile": null,
+      "bio": {
+        "summary": "Durgesh Yadav is a Forest Department-registered guide from Naya Sridhana who has been guiding at Bheemkund Gate since 2020. His interests include birds, big cats, forest trees and herbivores. Durgesh guides in Hindi, has first-aid and safety training, and can assist travellers with both safari permits and vehicle bookings.",
+        "education": null,
+        "career_transition": null,
+        "philosophy": null
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": false,
+      "created_at": {
+        "$date": "2026-06-06T09:42:12Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "full_name_normalized": "durgesh yadav",
+      "search_text": "durgesh yadav durgesh yadav is a forest department-registered guide from naya sridhana who has been guiding at bheemkund gate since 2020. his interests include birds, big cats, forest trees and herbivores. durgesh guides in hindi, has first-aid and safety training, and can assist travellers with both safari permits and vehicle bookings. naya sridhana, betul — satpura tiger reserve, bheemkund gate satpura bheemkund betul",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "satpura_bheemkund_guide_intake",
+        "submitted_at": "2026-06-06T15:12:12+05:30",
+        "submitted_by": "anuragkomailkaro@gmail.com",
+        "birth_date": "1999-04-14",
+        "gender": "Male",
+        "state": "Madhya Pradesh",
+        "district": "Betul",
+        "village": "Naya Sridhana",
+        "park": "Satpura",
+        "gate": "Bheemkund Gate",
+        "forest_dept_registered": true,
+        "guiding_since_year": 2020,
+        "wildlife_interests": [
+          "Birds",
+          "Big Cats",
+          "Forest Trees",
+          "Herbivores"
+        ],
+        "guides_international_travellers": false,
+        "first_aid": true,
+        "instagram": null,
+        "homestay_status": "No, I do not run a homestay",
+        "notes": null,
+        "consent": true,
+        "email_missing": false
+      }
+    },
+    {
+      "_id": "30387d07-5aea-5867-8c69-1d8569cf6b1c",
+      "full_name": "Adeesh Marskole",
+      "email": "adishmarskole96@gmail.com",
+      "phone_number": "7999514285",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-betul-satpura",
+      "location_base_description": "Kailee, Betul — Satpura Tiger Reserve, Bheemkund Gate",
+      "language_ids": [
+        "lang-hi",
+        "lang-gondi"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-big-cats",
+        "exp-wildlife",
+        "exp-forest-trees",
+        "exp-flora",
+        "exp-herbivores",
+        "exp-mammals"
+      ],
+      "role": "GUIDE",
+      "years_of_experience": 1,
+      "naturalist_profile": null,
+      "bio": {
+        "summary": "Adeesh Marskole is a Forest Department-registered guide from Kailee, operating at Bheemkund Gate in Satpura since 2025. His guiding interests cover birds, big cats, forest trees and herbivores. Adeesh guides in Hindi and Gondi and can help travellers understand the process of arranging their safari bookings before they enter the forest.",
+        "education": null,
+        "career_transition": null,
+        "philosophy": null
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": false,
+      "created_at": {
+        "$date": "2026-06-01T11:02:35Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "full_name_normalized": "adeesh marskole",
+      "search_text": "adeesh marskole adeesh marskole is a forest department-registered guide from kailee, operating at bheemkund gate in satpura since 2025. his guiding interests cover birds, big cats, forest trees and herbivores. adeesh guides in hindi and gondi and can help travellers understand the process of arranging their safari bookings before they enter the forest. kailee, betul — satpura tiger reserve, bheemkund gate satpura bheemkund betul",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "satpura_bheemkund_guide_intake",
+        "submitted_at": "2026-06-01T16:32:35+05:30",
+        "submitted_by": "anuragkomailkaro@gmail.com",
+        "birth_date": "1993-09-23",
+        "gender": "Male",
+        "state": "Madhya Pradesh",
+        "district": "Betul",
+        "village": "Kailee",
+        "park": "Satpura",
+        "gate": "Bheemkund Gate",
+        "forest_dept_registered": true,
+        "guiding_since_year": 2025,
+        "wildlife_interests": [
+          "Birds",
+          "Big Cats",
+          "Forest Trees",
+          "Herbivores"
+        ],
+        "guides_international_travellers": false,
+        "first_aid": false,
+        "instagram": "@adish.marskole",
+        "homestay_status": "No, I do not run a homestay",
+        "notes": null,
+        "consent": true,
+        "email_missing": false
+      }
+    },
+    {
+      "_id": "8d1b5882-4b98-51de-9c79-ee999c2fd471",
+      "full_name": "Raju Uikey",
+      "email": "rajviyanuikey@gmail.com",
+      "phone_number": "6268180718",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-betul-satpura",
+      "location_base_description": "Kailee, Betul — Satpura Tiger Reserve, Bheemkund Gate",
+      "language_ids": [
+        "lang-hi",
+        "lang-gondi"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-big-cats",
+        "exp-wildlife",
+        "exp-forest-trees",
+        "exp-flora"
+      ],
+      "role": "GUIDE",
+      "years_of_experience": 1,
+      "naturalist_profile": null,
+      "bio": {
+        "summary": "Raju Uikey is a Forest Department-registered guide operating from Bheemkund Gate in Satpura. Guiding since 2025, his interests include birds, big cats and forest trees. He speaks Hindi and Gondi, can guide travellers through the safari-booking process, and can also help them identify suitable local-stay options around the destination.",
+        "education": null,
+        "career_transition": null,
+        "philosophy": null
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": false,
+      "created_at": {
+        "$date": "2026-06-01T11:22:20Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "full_name_normalized": "raju uikey",
+      "search_text": "raju uikey raju uikey is a forest department-registered guide operating from bheemkund gate in satpura. guiding since 2025, his interests include birds, big cats and forest trees. he speaks hindi and gondi, can guide travellers through the safari-booking process, and can also help them identify suitable local-stay options around the destination. kailee, betul — satpura tiger reserve, bheemkund gate satpura bheemkund betul",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "satpura_bheemkund_guide_intake",
+        "submitted_at": "2026-06-01T16:52:20+05:30",
+        "submitted_by": "anuragkomailkaro@gmail.com",
+        "birth_date": "1991-09-25",
+        "gender": "Male",
+        "state": "Madhya Pradesh",
+        "district": "Betul",
+        "village": "Kailee",
+        "park": "Satpura",
+        "gate": "Bheemkund Gate",
+        "forest_dept_registered": true,
+        "guiding_since_year": 2025,
+        "wildlife_interests": [
+          "Birds",
+          "Big Cats",
+          "Forest Trees"
+        ],
+        "guides_international_travellers": false,
+        "first_aid": false,
+        "instagram": "@rjvityanuikey_s_t_r_park",
+        "homestay_status": "No, but I can help arrange local stays",
+        "notes": null,
+        "consent": true,
+        "email_missing": false
+      }
+    },
+    {
+      "_id": "41c3df43-55dc-5cba-a567-f44de21f677d",
+      "full_name": "Khemchand Uikey",
+      "email": "khemuikey@gmail.com",
+      "phone_number": "7049822531",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-betul-satpura",
+      "location_base_description": "Kailee, Betul — Satpura Tiger Reserve, Bheemkund Gate",
+      "language_ids": [
+        "lang-hi",
+        "lang-gondi"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-big-cats",
+        "exp-wildlife"
+      ],
+      "role": "GUIDE",
+      "years_of_experience": 1,
+      "naturalist_profile": null,
+      "bio": {
+        "summary": "Khemchand Uikey is a Forest Department-registered guide from Kailee who began guiding at Bheemkund Gate in 2025. His principal areas of interest are birds and big cats, and he guides travellers in Hindi and Gondi. Khemchand can assist with safari permits and vehicle bookings and can also help visitors locate suitable local-stay options around Satpura.",
+        "education": null,
+        "career_transition": null,
+        "philosophy": null
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": false,
+      "created_at": {
+        "$date": "2026-06-07T05:57:27Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "full_name_normalized": "khemchand uikey",
+      "search_text": "khemchand uikey khemchand uikey is a forest department-registered guide from kailee who began guiding at bheemkund gate in 2025. his principal areas of interest are birds and big cats, and he guides travellers in hindi and gondi. khemchand can assist with safari permits and vehicle bookings and can also help visitors locate suitable local-stay options around satpura. kailee, betul — satpura tiger reserve, bheemkund gate satpura bheemkund betul",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "satpura_bheemkund_guide_intake",
+        "submitted_at": "2026-06-07T11:27:27+05:30",
+        "submitted_by": "anuragkomailkaro@gmail.com",
+        "birth_date": "1994-04-01",
+        "gender": "Male",
+        "state": "Madhya Pradesh",
+        "district": "Betul",
+        "village": "Kailee",
+        "park": "Satpura",
+        "gate": "Bheemkund Gate",
+        "forest_dept_registered": true,
+        "guiding_since_year": 2025,
+        "wildlife_interests": [
+          "Birds",
+          "Big Cats"
+        ],
+        "guides_international_travellers": false,
+        "first_aid": false,
+        "instagram": "@khemuikey750",
+        "homestay_status": "No, but I can help arrange local stays",
+        "notes": null,
+        "consent": true,
+        "email_missing": false
+      }
+    },
+    {
+      "_id": "e5092d4e-2be5-5224-9135-8a84a5339c00",
+      "full_name": "Vishal Marskole",
+      "email": "vishalmarskole2022@gmail.com",
+      "phone_number": "6260268677",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-betul-satpura",
+      "location_base_description": "Kailee, Betul — Satpura Tiger Reserve, Bheemkund Gate",
+      "language_ids": [
+        "lang-hi",
+        "lang-gondi"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-big-cats",
+        "exp-wildlife",
+        "exp-forest-trees",
+        "exp-flora"
+      ],
+      "role": "GUIDE",
+      "years_of_experience": 1,
+      "naturalist_profile": null,
+      "bio": {
+        "summary": "Vishal Marskole is a registered Satpura guide from Kailee who began operating from Bheemkund Gate in 2025. His areas of interest include birds, big cats and forest trees. Guiding in Hindi and Gondi, Vishal offers travellers a locally rooted way to discover Satpura and can provide guidance on how to arrange the required safari bookings.",
+        "education": null,
+        "career_transition": null,
+        "philosophy": null
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": false,
+      "created_at": {
+        "$date": "2026-06-01T11:30:34Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "full_name_normalized": "vishal marskole",
+      "search_text": "vishal marskole vishal marskole is a registered satpura guide from kailee who began operating from bheemkund gate in 2025. his areas of interest include birds, big cats and forest trees. guiding in hindi and gondi, vishal offers travellers a locally rooted way to discover satpura and can provide guidance on how to arrange the required safari bookings. kailee, betul — satpura tiger reserve, bheemkund gate satpura bheemkund betul",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "satpura_bheemkund_guide_intake",
+        "submitted_at": "2026-06-01T17:00:34+05:30",
+        "submitted_by": "anuragkomailkaro@gmail.com",
+        "birth_date": "1999-09-05",
+        "gender": "Male",
+        "state": "Madhya Pradesh",
+        "district": "Betul",
+        "village": "Kailee",
+        "park": "Satpura",
+        "gate": "Bheemkund Gate",
+        "forest_dept_registered": true,
+        "guiding_since_year": 2025,
+        "wildlife_interests": [
+          "Birds",
+          "Big Cats",
+          "Forest Trees"
+        ],
+        "guides_international_travellers": false,
+        "first_aid": false,
+        "instagram": "@vishal_kabaddi_lover_11",
+        "homestay_status": "No, I do not run a homestay",
+        "notes": null,
+        "consent": true,
+        "email_missing": false
+      }
+    },
+    {
+      "_id": "369d1ed3-808d-56d5-85a5-cae5f2bfe84b",
+      "full_name": "Rahul Marskole",
+      "email": "rahulmarskole7604@gmail.com",
+      "phone_number": "9131889240",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-betul-satpura",
+      "location_base_description": "Kailee, Betul — Satpura Tiger Reserve, Bheemkund Gate",
+      "language_ids": [
+        "lang-hi",
+        "lang-gondi"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-big-cats",
+        "exp-wildlife",
+        "exp-forest-trees",
+        "exp-flora"
+      ],
+      "role": "GUIDE",
+      "years_of_experience": 1,
+      "naturalist_profile": null,
+      "bio": {
+        "summary": "Rahul Marskole is a registered guide from Kailee who began guiding at Satpura’s Bheemkund Gate in 2025. His interests include birds, big cats and forest trees, and he conducts his experiences in Hindi and Gondi. Rahul brings a local perspective to the forest and its wildlife, making him a suitable companion for travellers looking to explore the landscape through the eyes of someone from the region.",
+        "education": null,
+        "career_transition": "Photograph missing",
+        "philosophy": null
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": false,
+      "created_at": {
+        "$date": "2026-06-01T10:53:37Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "full_name_normalized": "rahul marskole",
+      "search_text": "rahul marskole rahul marskole is a registered guide from kailee who began guiding at satpura’s bheemkund gate in 2025. his interests include birds, big cats and forest trees, and he conducts his experiences in hindi and gondi. rahul brings a local perspective to the forest and its wildlife, making him a suitable companion for travellers looking to explore the landscape through the eyes of someone from the region. kailee, betul — satpura tiger reserve, bheemkund gate satpura bheemkund betul",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "satpura_bheemkund_guide_intake",
+        "submitted_at": "2026-06-01T16:23:37+05:30",
+        "submitted_by": "anuragkomailkaro@gmail.com",
+        "birth_date": "2000-06-05",
+        "gender": "Male",
+        "state": "Madhya Pradesh",
+        "district": "Betul",
+        "village": "Kailee",
+        "park": "Satpura",
+        "gate": "Bheemkund Gate",
+        "forest_dept_registered": true,
+        "guiding_since_year": 2025,
+        "wildlife_interests": [
+          "Birds",
+          "Big Cats",
+          "Forest Trees"
+        ],
+        "guides_international_travellers": false,
+        "first_aid": false,
+        "instagram": "@rahul_marskole3684",
+        "homestay_status": "No, I do not run a homestay",
+        "notes": "Photograph missing",
+        "consent": true,
+        "email_missing": false
+      }
+    },
+    {
+      "_id": "d85607fb-df53-5828-acd5-fdaf5b8016c5",
+      "full_name": "Pankaj Dhurve",
+      "email": "dhurvepankaj348@gmail.com",
+      "phone_number": "9301620982",
+      "profile_image_url": null,
+      "has_profile_photo": false,
+      "primary_location_id": "loc-betul-satpura",
+      "location_base_description": "Kailee, Betul — Satpura Tiger Reserve, Bheemkund Gate",
+      "language_ids": [
+        "lang-hi",
+        "lang-gondi"
+      ],
+      "expertise_ids": [
+        "exp-birds",
+        "exp-big-cats",
+        "exp-wildlife"
+      ],
+      "role": "GUIDE",
+      "years_of_experience": 1,
+      "naturalist_profile": null,
+      "bio": {
+        "summary": "Pankaj Dhurve is a registered wildlife guide from Kailee who joined the guiding community at Satpura’s Bheemkund Gate in 2025. He is especially interested in birds and big cats and guides travellers in Hindi and Gondi. His local familiarity offers visitors a grounded introduction to the wildlife and forest landscape surrounding Bheemkund.",
+        "education": null,
+        "career_transition": null,
+        "philosophy": null
+      },
+      "contact": {
+        "platform": "Wildbook",
+        "response_time": "within_24_hours",
+        "type": "platform"
+      },
+      "status": "PUBLISHED",
+      "verification_status": "VERIFIED",
+      "is_active": true,
+      "is_deleted": false,
+      "schema_version": 1,
+      "is_naturalist": false,
+      "created_at": {
+        "$date": "2026-06-01T11:10:07Z"
+      },
+      "updated_at": {
+        "$date": "2026-08-02T11:00:00Z"
+      },
+      "full_name_normalized": "pankaj dhurve",
+      "search_text": "pankaj dhurve pankaj dhurve is a registered wildlife guide from kailee who joined the guiding community at satpura’s bheemkund gate in 2025. he is especially interested in birds and big cats and guides travellers in hindi and gondi. his local familiarity offers visitors a grounded introduction to the wildlife and forest landscape surrounding bheemkund. kailee, betul — satpura tiger reserve, bheemkund gate satpura bheemkund betul",
+      "min_price_amount": null,
+      "max_price_amount": null,
+      "currency": null,
+      "experience_types": [],
+      "max_rating": null,
+      "total_reviews_count": 0,
+      "from_price": null,
+      "intake": {
+        "source": "satpura_bheemkund_guide_intake",
+        "submitted_at": "2026-06-01T16:40:07+05:30",
+        "submitted_by": "anuragkomailkaro@gmail.com",
+        "birth_date": "2003-03-04",
+        "gender": "Male",
+        "state": "Madhya Pradesh",
+        "district": "Betul",
+        "village": "Kailee",
+        "park": "Satpura",
+        "gate": "Bheemkund Gate",
+        "forest_dept_registered": true,
+        "guiding_since_year": 2025,
+        "wildlife_interests": [
+          "Birds",
+          "Big Cats"
+        ],
+        "guides_international_travellers": false,
+        "first_aid": false,
+        "instagram": "@mr_lacky_bhai_990",
+        "homestay_status": "No, I do not run a homestay",
+        "notes": null,
+        "consent": true,
+        "email_missing": false
+      }
+    }
+  ]
+}

@@ -202,7 +202,7 @@ class CatalogService:
         return GuideResponse(
             guide_id=doc["_id"],
             full_name=doc["full_name"],
-            email=doc["email"],
+            email=doc.get("email"),
             phone_number=doc.get("phone_number"),
             profile_image_url=doc.get("profile_image_url"),
             has_profile_photo=bool(doc.get("has_profile_photo")),

@@ -41,8 +41,12 @@ def _try_create_index(create_fn, *, label: str) -> None:
 def _ensure_guide_indexes(store: CatalogStore) -> None:
     # Best-effort only. Existing catalog data may have duplicate null slugs, so a
     # unique (guide_id, slug) index must never block app startup.
+    # Sparse so guides without an email (common in field intake) don't collide
+    # on the unique index — missing/null emails are allowed more than once.
     _try_create_index(
-        lambda: store.guides.create_index([("email", 1)], unique=True, name="uniq_guide_email"),
+        lambda: store.guides.create_index(
+            [("email", 1)], unique=True, sparse=True, name="uniq_guide_email"
+        ),
         label="uniq_guide_email",
     )
     _try_create_index(
