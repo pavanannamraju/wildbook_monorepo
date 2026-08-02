@@ -206,7 +206,7 @@ class ExpertsAdapterService:
         return CursorPage(items=items, next_cursor=next_cursor, total_count=total)
 
     async def get_filter_options(self, *, correlation_id: str | None) -> ExpertFilterOptions:
-        references = await self._catalog.list_references(correlation_id=correlation_id)
+        references = await self._catalog.list_published_filter_options(correlation_id=correlation_id)
         return ExpertFilterOptions(
             locations=_as_filter_options(references.get("locations")),
             languages=_as_filter_options(references.get("languages")),

@@ -71,6 +71,9 @@ class LocalCatalog:
     async def list_references(self, *, correlation_id: str | None) -> dict[str, Any]:
         return await asyncio.to_thread(self._catalog.list_references)
 
+    async def list_published_filter_options(self, *, correlation_id: str | None) -> dict[str, Any]:
+        return await asyncio.to_thread(self._catalog.list_published_filter_options)
+
     async def resolve_references(
         self, *, kind: str, names: list[str], correlation_id: str | None
     ) -> list[dict[str, str]]:

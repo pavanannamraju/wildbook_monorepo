@@ -35,6 +35,26 @@ class CatalogStore:
         docs = self._db[collection_name].find({"_id": {"$in": ids}, "is_active": True})
         return {doc["_id"]: doc for doc in docs}
 
+    def find_references_by_ids(
+        self, collection_name: str, ids: list[str]
+    ) -> dict[str, dict[str, Any]]:
+        if not ids:
+            return {}
+        docs = self._db[collection_name].find({"_id": {"$in": ids}})
+        return {doc["_id"]: doc for doc in docs}
+
+    def distinct_published_guide_values(self, field: str) -> list[Any]:
+        return list(
+            self.guides.distinct(
+                field,
+                {
+                    "is_deleted": False,
+                    "is_active": True,
+                    "status": "PUBLISHED",
+                },
+            )
+        )
+
     def get_active_reference(
         self, collection_name: str, ref_id: str
     ) -> dict[str, Any] | None:

@@ -212,14 +212,17 @@ export function ExpertsFilterPanel({ open, value, onClose, onApply }: ExpertsFil
         <div className="flex gap-3 border-t border-[#2F2B28]/10 px-6 py-5">
           <button
             type="button"
-            onClick={() =>
-              setDraft({
+            onClick={() => {
+              const cleared = {
                 primaryLocationId: null,
                 languageIds: [],
                 expertiseIds: [],
                 minRating: null,
-              })
-            }
+              };
+              setDraft(cleared);
+              onApply(cleared);
+              onClose();
+            }}
             className="h-12 flex-1 rounded-[4px] border border-[#73706C] font-['Nunito'] font-medium text-[15px] text-[#2F2B28] hover:bg-black/5"
           >
             Clear

@@ -10,6 +10,11 @@ from pymongo.errors import DuplicateKeyError
 
 from app.domain.guides.app_errors import AppError
 from app.domain.guides.catalog_store import CatalogStore
+from app.domain.guides.location_aliases import (
+    canonicalize_location_id,
+    canonical_location_display_name,
+    resolve_canonical_location_from_name,
+)
 from app.domain.guides.schema import (
     CancellationPolicyTemplateResponse,
     CertificationRef,
@@ -359,11 +364,65 @@ class CatalogService:
             result[key] = [{**{k: v for k, v in doc.items() if k != "_id"}, "id": doc["_id"]} for doc in docs]
         return result
 
+    def list_published_filter_options(self) -> dict[str, list[dict[str, str]]]:
+        """Filter choices derived from published guides only (full catalog, not filtered subset)."""
+        raw_location_ids = [
+            value
+            for value in self._store.distinct_published_guide_values("primary_location_id")
+            if isinstance(value, str) and value
+        ]
+        language_ids = [
+            value
+            for value in self._store.distinct_published_guide_values("language_ids")
+            if isinstance(value, str) and value
+        ]
+        expertise_ids = [
+            value
+            for value in self._store.distinct_published_guide_values("expertise_ids")
+            if isinstance(value, str) and value
+        ]
+
+        location_docs = self._store.find_references_by_ids("reference_locations", raw_location_ids)
+        language_docs = self._store.find_references_by_ids("reference_languages", language_ids)
+        expertise_docs = self._store.find_references_by_ids("reference_expertise", expertise_ids)
+
+        locations_by_canonical: dict[str, dict[str, str]] = {}
+        for location_id in raw_location_ids:
+            canonical_id = canonicalize_location_id(location_id) or location_id
+            if canonical_id in locations_by_canonical:
+                continue
+            source = location_docs.get(canonical_id) or location_docs.get(location_id) or {}
+            display_name = canonical_location_display_name(
+                canonical_id,
+                fallback_name=str(source.get("name", "")) if source else None,
+            )
+            if not display_name:
+                continue
+            locations_by_canonical[canonical_id] = {"id": canonical_id, "name": display_name}
+
+        languages = [
+            {"id": doc_id, "name": str(doc["name"])}
+            for doc_id, doc in language_docs.items()
+            if isinstance(doc.get("name"), str) and doc["name"]
+        ]
+        expertise = [
+            {"id": doc_id, "name": str(doc["name"])}
+            for doc_id, doc in expertise_docs.items()
+            if isinstance(doc.get("name"), str) and doc["name"]
+        ]
+
+        return {
+            "locations": sorted(locations_by_canonical.values(), key=lambda item: item["name"].casefold()),
+            "languages": sorted(languages, key=lambda item: item["name"].casefold()),
+            "expertise": sorted(expertise, key=lambda item: item["name"].casefold()),
+        }
+
     def resolve_references(self, kind: str, names: list[str]) -> list[dict[str, str]]:
         """Map free-text names to reference ids, creating any that don't exist.
 
         Matching is case- and whitespace-insensitive so "Birding" and "birding "
         resolve to the same reference instead of creating duplicates.
+        Location aliases (e.g. Bangalore → Bengaluru) resolve to the canonical id.
         """
         spec = _RESOLVABLE_REFERENCES.get(kind)
         if spec is None:
@@ -389,6 +448,19 @@ class CatalogService:
             if normalized in seen_normalized:
                 continue
             seen_normalized.add(normalized)
+
+            if kind == "locations":
+                alias_match = resolve_canonical_location_from_name(display_name)
+                if alias_match is not None:
+                    canonical_id, canonical_name = alias_match
+                    existing_canonical = self._store.find_references_by_ids(
+                        collection_name, [canonical_id]
+                    ).get(canonical_id)
+                    if existing_canonical is not None:
+                        resolved.append({"id": canonical_id, "name": str(existing_canonical.get("name", canonical_name))})
+                    else:
+                        resolved.append({"id": canonical_id, "name": canonical_name})
+                    continue
 
             match = by_normalized.get(normalized)
             if match is not None:

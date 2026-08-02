@@ -7,6 +7,11 @@ from fastapi import status
 
 from app.domain.guides.app_errors import AppError
 from app.domain.guides.catalog_store import CatalogStore
+from app.domain.guides.location_aliases import (
+    canonicalize_location_id,
+    canonical_location_display_name,
+    expand_location_filter_ids,
+)
 from app.domain.guides.search_fields import offering_summary, published_offerings
 
 
@@ -141,7 +146,11 @@ class GuideSearchService:
             "status": "PUBLISHED",
         }
         if primary_location_id:
-            mongo_filter["primary_location_id"] = primary_location_id
+            location_ids = expand_location_filter_ids(primary_location_id)
+            if len(location_ids) == 1:
+                mongo_filter["primary_location_id"] = location_ids[0]
+            else:
+                mongo_filter["primary_location_id"] = {"$in": location_ids}
         if role:
             mongo_filter["role"] = role.upper()
         resolved_languages = self._merge_id_filters(language_id, language_ids)
@@ -213,8 +222,16 @@ class GuideSearchService:
         max_highlights: int = 3,
     ) -> dict[str, Any]:
         guide_id = doc["_id"]
-        location_doc = self._store.get_active_reference(
-            "reference_locations", doc.get("primary_location_id", "")
+        raw_location_id = str(doc.get("primary_location_id", "") or "")
+        canonical_location_id = canonicalize_location_id(raw_location_id) or raw_location_id
+        location_lookup_ids = [canonical_location_id]
+        if raw_location_id and raw_location_id != canonical_location_id:
+            location_lookup_ids.append(raw_location_id)
+        location_docs_by_id = self._store.find_references_by_ids(
+            "reference_locations", location_lookup_ids
+        )
+        location_doc = location_docs_by_id.get(canonical_location_id) or location_docs_by_id.get(
+            raw_location_id
         )
         language_docs = self._store.find_active_references(
             "reference_languages", doc.get("language_ids", [])
@@ -224,10 +241,14 @@ class GuideSearchService:
         )
         location = {}
         if location_doc:
+            display_name = canonical_location_display_name(
+                canonical_location_id,
+                fallback_name=str(location_doc.get("name", "")),
+            ) or str(location_doc.get("name", ""))
             location = {
-                "id": location_doc["_id"],
-                "name": location_doc["name"],
-                "city": location_doc["city"],
+                "id": canonical_location_id,
+                "name": display_name,
+                "city": display_name,
                 "state": location_doc.get("state"),
                 "country": location_doc.get("country"),
             }
