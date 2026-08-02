@@ -138,6 +138,7 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
     <>
       <nav>
       <GlassCard
+        id="site-navbar-glass"
         className={`w-full! overflow-visible! ${isLight ? "" : "bg-transparent!"}`}
         borderRadius={0}
         blur={isLight ? 10 : 10}

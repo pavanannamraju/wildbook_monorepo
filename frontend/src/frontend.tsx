@@ -9,6 +9,30 @@ declare global {
   }
 }
 
+/**
+ * crypto.randomUUID is only guaranteed in secure contexts (HTTPS / localhost).
+ * Deployments served over http://<ip>:port need a fallback or GlassCard crashes.
+ */
+function ensureRandomUUID(): void {
+  const cryptoObj = globalThis.crypto as Crypto | undefined;
+  if (!cryptoObj || typeof cryptoObj.randomUUID === "function") return;
+
+  Object.defineProperty(cryptoObj, "randomUUID", {
+    configurable: true,
+    writable: true,
+    value: function randomUUID(): `${string}-${string}-${string}-${string}-${string}` {
+      const bytes = new Uint8Array(16);
+      cryptoObj.getRandomValues(bytes);
+      bytes[6] = (bytes[6]! & 0x0f) | 0x40;
+      bytes[8] = (bytes[8]! & 0x3f) | 0x80;
+      const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+      return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}` as `${string}-${string}-${string}-${string}-${string}`;
+    },
+  });
+}
+
+ensureRandomUUID();
+
 const elem = document.getElementById("root")!;
 
 async function bootstrap() {

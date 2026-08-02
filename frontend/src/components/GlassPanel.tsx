@@ -45,6 +45,7 @@ export default function GlassPanel({
 }: GlassPanelProps) {
   return (
       <GlassCard
+        id="glass-panel"
         blur={blur}
         distortion={distortion}
         flexibility={0}
