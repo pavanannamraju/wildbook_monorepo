@@ -26,7 +26,6 @@ import { PageErrorState } from "../components/common/PageErrorState";
 import { ShareLinkModal } from "../components/common/ShareLinkModal";
 import { ExpertAvatar } from "../components/common/ExpertAvatar";
 import { ExperienceDetailModal } from "../components/experts/ExperienceDetailModal";
-import { StarRating } from "../components/common/StarRating";
 import { StickyTopNavbar } from "../components/common/StickyTopNavbar";
 
 function roleLabel(role: string): string {
@@ -44,7 +43,13 @@ function durationLabel(experience: ExperienceDetail): string {
 
 /** Next calendar day as YYYY-MM-DD (local), for end-date min constraints. */
 function dayAfterIso(isoDate: string): string {
-  const [year, month, day] = isoDate.split("-").map(Number);
+  const parts = isoDate.split("-").map(Number);
+  const year = parts[0];
+  const month = parts[1];
+  const day = parts[2];
+  if (year == null || month == null || day == null) {
+    return isoDate;
+  }
   const date = new Date(year, month - 1, day);
   date.setDate(date.getDate() + 1);
   const yyyy = date.getFullYear();
@@ -143,7 +148,6 @@ export function ExpertDetailPage() {
   const fieldEntries = (expert.field_entries_full ?? []).filter(
     (item) => item.media_type === "image" && item.media_url,
   );
-  const reviewsCount = experiences[0]?.reviews_count ?? 0;
   const groupSizeValue = groupSize === "custom" ? customGroupSize.trim() : groupSize;
   const firstName = expert.name.split(" ")[0];
 
@@ -258,23 +262,6 @@ export function ExpertDetailPage() {
                 <p className="font-['Nunito'] font-bold text-[16px] uppercase text-[#73706C]">
                   {primaryRole}
                 </p>
-              </div>
-
-              {/* Rating row */}
-              <div className="rounded-[4px] bg-[rgba(11,110,102,0.05)] px-[16px] py-[8px]">
-                <div className="flex items-center gap-[4px]">
-                  <StarRating
-                    rating={expert.experience_rating_max ?? 0}
-                    size={32}
-                    className="inline-flex gap-[4px] text-[#f0c165]"
-                  />
-                  <span className="font-['Nunito'] font-bold text-[22px] leading-[28px] text-[#2F2B28]">
-                    {(expert.experience_rating_max ?? 0).toFixed(1)}
-                  </span>
-                  <span className="font-['Nunito'] font-light text-[22px] leading-[28px] text-[#73706C]">
-                    ({reviewsCount} Reviews)
-                  </span>
-                </div>
               </div>
 
               {/* Homestay card — only if data exists */}
@@ -710,39 +697,31 @@ export function ExpertDetailPage() {
 
                   <div className="flex flex-col gap-[8px]">
                     <span className={labelClass}>Travel dates <span className="text-[#D34747]">*</span></span>
-                    <div
-                      className="grid grid-cols-2 gap-[8px] rounded-[4px] bg-[#F6F4F0] p-[6px]"
-                      role="group"
-                      aria-label="Travel dates preference"
-                    >
-                      <button
-                        type="button"
-                        onClick={() => setDatesPreference("fixed")}
-                        aria-pressed={datesPreference === "fixed"}
-                        className={`h-[52px] rounded-[4px] font-['Nunito'] text-[16px] font-semibold transition-colors md:text-[18px] ${
-                          datesPreference === "fixed"
-                            ? "bg-[#0B6E66] text-white"
-                            : "bg-transparent text-[#2F2B28] hover:bg-black/5"
-                        }`}
-                      >
-                        Fixed dates
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setDatesPreference("flexible");
-                          setStartDate("");
-                          setEndDate("");
-                        }}
-                        aria-pressed={datesPreference === "flexible"}
-                        className={`h-[52px] rounded-[4px] font-['Nunito'] text-[16px] font-semibold transition-colors md:text-[18px] ${
-                          datesPreference === "flexible"
-                            ? "bg-[#0B6E66] text-white"
-                            : "bg-transparent text-[#2F2B28] hover:bg-black/5"
-                        }`}
-                      >
-                        I&apos;m flexible
-                      </button>
+                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2" role="radiogroup" aria-label="Travel dates preference">
+                      <label className="flex cursor-pointer items-center gap-3 font-['Nunito'] text-[16px] text-[#2F2B28]">
+                        <input
+                          type="radio"
+                          name="travel-dates-preference"
+                          checked={datesPreference === "fixed"}
+                          onChange={() => setDatesPreference("fixed")}
+                          className="size-4 accent-[#0B6E66]"
+                        />
+                        <span>Fixed dates</span>
+                      </label>
+                      <label className="flex cursor-pointer items-center gap-3 font-['Nunito'] text-[16px] text-[#2F2B28]">
+                        <input
+                          type="radio"
+                          name="travel-dates-preference"
+                          checked={datesPreference === "flexible"}
+                          onChange={() => {
+                            setDatesPreference("flexible");
+                            setStartDate("");
+                            setEndDate("");
+                          }}
+                          className="size-4 accent-[#0B6E66]"
+                        />
+                        <span>I&apos;m flexible</span>
+                      </label>
                     </div>
                     {datesPreference === "flexible" ? (
                       <p className="font-['Nunito'] text-[14px] text-[#73706C]">

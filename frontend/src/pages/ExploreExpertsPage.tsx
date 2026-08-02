@@ -23,7 +23,6 @@ import { PageLoader } from "../components/PageLoader";
 import { ShareLinkModal } from "../components/common/ShareLinkModal";
 import { StickyHeader } from "../components/StickyHeader";
 import { ExpertAvatar } from "../components/common/ExpertAvatar";
-import { StarRating } from "../components/common/StarRating";
 import {
   ExpertsFilterPanel,
   type ExpertsPanelFilters,
@@ -86,8 +85,7 @@ export function ExploreExpertsPage() {
   const activeFilterCount =
     (panelFilters.primaryLocationId ? 1 : 0) +
     panelFilters.languageIds.length +
-    panelFilters.expertiseIds.length +
-    (panelFilters.minRating != null ? 1 : 0);
+    panelFilters.expertiseIds.length;
 
   const totalPages = stats.totalPages;
   const currentPage = stats.currentPage;
@@ -317,7 +315,6 @@ export function ExploreExpertsPage() {
               const languages = languageValues.slice(0, 4).join(", ");
               const tagValues = expert.expertise_names.length > 0 ? expert.expertise_names : expert.expertise_ids;
               const tags = tagValues.slice(0, 3);
-              const reviewCount = expert.experience_snapshots[0]?.reviews_count ?? 0;
 
               return (
                 <article
@@ -403,27 +400,14 @@ export function ExploreExpertsPage() {
                       ))}
                     </div>
 
-                    {/* Bottom: rating + CTA button */}
-                    <div className="flex flex-col gap-[12px]">
-                      <div className="flex gap-[16px] items-center">
-                        <StarRating
-                          rating={expert.experience_rating_max ?? 0}
-                          size={24}
-                          className="inline-flex gap-[8px] text-[#f0c165]"
-                        />
-                        <span className="font-['Nunito'] font-light text-[13px] lg:text-[18px] leading-[24px] text-[#73706C]">
-                          ({reviewCount})
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleViewDetails(expertPath)}
-                        className="inline-flex h-[48px] w-full items-center justify-center gap-[10px] rounded-[4px] bg-[#0B6E66] font-['Nunito'] font-medium text-[14px] lg:text-[18px] text-[#FAFAFA] hover:bg-[#074A46] transition-colors"
-                      >
-                        View More
-                        <ArrowRightIcon size={24} />
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleViewDetails(expertPath)}
+                      className="inline-flex h-[48px] w-full items-center justify-center gap-[10px] rounded-[4px] bg-[#0B6E66] font-['Nunito'] font-medium text-[14px] lg:text-[18px] text-[#FAFAFA] hover:bg-[#074A46] transition-colors"
+                    >
+                      View More
+                      <ArrowRightIcon size={24} />
+                    </button>
                   </div>
                 </article>
               );

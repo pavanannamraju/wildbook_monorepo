@@ -22,13 +22,6 @@ type ExpertsFilterPanelProps = {
   onApply: (next: ExpertsPanelFilters) => void;
 };
 
-const RATING_OPTIONS: Array<{ label: string; value: number | null }> = [
-  { label: "Any rating", value: null },
-  { label: "3.0 & up", value: 3 },
-  { label: "4.0 & up", value: 4 },
-  { label: "4.5 & up", value: 4.5 },
-];
-
 const EMPTY_OPTIONS: ExpertFilterOptions = {
   locations: [],
   languages: [],
@@ -125,8 +118,7 @@ export function ExpertsFilterPanel({ open, value, onClose, onApply }: ExpertsFil
   const activeCount =
     (draft.primaryLocationId ? 1 : 0) +
     draft.languageIds.length +
-    draft.expertiseIds.length +
-    (draft.minRating != null ? 1 : 0);
+    draft.expertiseIds.length;
 
   return createPortal(
     <div className="fixed inset-0 z-1200 flex justify-end">
@@ -191,35 +183,6 @@ export function ExpertsFilterPanel({ open, value, onClose, onApply }: ExpertsFil
                 </option>
               ))}
             </select>
-          </fieldset>
-
-          <fieldset>
-            <legend className="font-['Nunito'] font-bold text-[15px] text-[#2F2B28]">Rating</legend>
-            <div className="mt-3 space-y-2">
-              {RATING_OPTIONS.map((option) => {
-                const checked = draft.minRating === option.value;
-                return (
-                  <label
-                    key={option.label}
-                    className="flex cursor-pointer items-center gap-3 font-['Nunito'] text-[14px] text-[#2F2B28]"
-                  >
-                    <input
-                      type="radio"
-                      name="min-rating"
-                      checked={checked}
-                      onChange={() =>
-                        setDraft((prev) => ({
-                          ...prev,
-                          minRating: option.value,
-                        }))
-                      }
-                      className="size-4 accent-[#0B6E66]"
-                    />
-                    <span>{option.label}</span>
-                  </label>
-                );
-              })}
-            </div>
           </fieldset>
 
           <CheckboxList

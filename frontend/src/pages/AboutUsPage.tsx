@@ -41,7 +41,7 @@ export function AboutUsPage() {
         </div>
       </section>
 
-      <section className="page-px mx-auto w-full max-w-[1696px] py-16 md:py-20">
+      <section className="page-px mx-auto w-full max-w-[1696px] py-4 md:pt-16 md:pb-0">
         <div className="space-y-6">
           <p className="text-[16px] leading-[1.33] font-bold text-[#2F2B28] md:text-[20px]">
             Wildlife travel today is often fragmented and misunderstood. Many journeys into the
@@ -80,35 +80,6 @@ export function AboutUsPage() {
             - encouraging journeys that are more informed, more immersive, and ultimately more
             supportive of the ecosystems and communities that make these experiences possible.
           </p>
-        </div>
-      </section>
-
-      <section className="page-px pb-16 md:pb-20">
-        <div className="mx-auto w-full max-w-[1696px] overflow-hidden rounded-[20px] bg-[#EBE7E3] px-5 py-10 md:px-12 md:py-12">
-          <div className="mx-auto max-w-[1120px]">
-            <p className="text-[16px] font-bold text-(--color-wildbook-accent) md:text-[20px]">
-              What we&apos;re working towards
-            </p>
-            <p className="mt-2 text-[16px] font-bold text-[#2F2B28] md:text-[20px]">
-              What we&apos;ve been building so far — a snapshot of our progress and early milestones.
-            </p>
-
-            <div className="mt-10 flex flex-col gap-8 sm:flex-row sm:justify-between">
-              {PROGRESS_ITEMS.map((item) => (
-                <article key={item.title} className="max-w-[280px] space-y-4 sm:flex-1">
-                  <div className="space-y-2">
-                    <p className="font-['Montserrat'] text-[44px] leading-[0.9] font-semibold text-[#73706C] md:text-[60px]">
-                      {item.value}
-                    </p>
-                    <h2 className="font-['Montserrat'] text-[12px] leading-8 text-[#2F2B28] md:text-[16px]">
-                      {item.title}
-                    </h2>
-                  </div>
-                  <p className="text-[14px] leading-7 font-bold text-[#73706C]">{item.subtitle}</p>
-                </article>
-              ))}
-            </div>
-          </div>
         </div>
       </section>
     </main>

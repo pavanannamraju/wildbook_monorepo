@@ -12,9 +12,9 @@ import { StickyTopNavbar } from "../components/common/StickyTopNavbar";
 
 const SIGHTINGS = [
   { label: "Explore Experts", done: true },
-  { label: "Expert enquiry", done: true },
+  { label: "Expert Enquiry", done: true },
   { label: "Curated Experiences by Experts", done: false },
-  { label: "Expert field log", done: false },
+  { label: "Expert Field Log", done: false },
   { label: "Homestays", done: false },
   { label: "Shared Safaris", done: false },
 ] as const;
@@ -54,19 +54,24 @@ export function PageScaffold({ title }: PageScaffoldProps) {
       <StickyTopNavbar variant="dark" />
 
       <main className="flex flex-1 flex-col items-center justify-center px-5 py-16">
-        <div className="w-full max-w-[560px]">
+        <div className="w-full max-w-[1024px]">
           <div className="mb-8 flex justify-center">
-            <div className="relative">
+            <div className="relative h-24 w-24">
               <div className="absolute -inset-4 rounded-full bg-[#9BCDB2]/20 blur-xl" />
-              <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-[#9BCDB2]/30 ring-4 ring-[#9BCDB2]/20">
+              <div className="relative z-[1] flex h-24 w-24 items-center justify-center rounded-full bg-[#9BCDB2]/30 ring-4 ring-[#9BCDB2]/20">
                 <BinocularsIcon size={44} weight="duotone" className="text-[#0B6E66]" />
               </div>
-              <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-[#D2A44A]" />
-              <span className="absolute -bottom-2 left-2 h-2 w-2 rounded-full bg-[#9BCDB2]" />
+              <div
+                className="pointer-events-none absolute inset-[-2px] animate-orbit"
+                aria-hidden="true"
+              >
+                <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full bg-[#D2A44A]" />
+                <span className="absolute -bottom-1 left-1.5 h-2 w-2 rounded-full bg-[#9BCDB2]" />
+              </div>
             </div>
           </div>
 
-          <div className="text-center">
+          <div className="text-center mb-16">
             <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#9A9691]">
               Stay very still — it&apos;s almost here
             </p>
@@ -74,21 +79,14 @@ export function PageScaffold({ title }: PageScaffoldProps) {
               className="mb-4 text-[38px] font-extrabold tracking-[-0.03em] text-[#3B372F] md:text-[48px]"
               style={{ fontFamily: '"Montserrat", sans-serif' }}
             >
-              Something wild
-              <br />
-              is stirring.
+              Something wild is stirring.
             </h1>
             <p className="mx-auto mb-2 max-w-[400px] text-[15px] leading-relaxed text-[#73706C]">
-              <span className="font-semibold text-[#3B372F]">{title}</span> is still in the field —
-              our trackers have picked up fresh signs, and it&apos;s only a matter of time before it
-              steps into the open.
-            </p>
-            <p className="mx-auto mb-10 max-w-[400px] text-[15px] leading-relaxed text-[#73706C]">
-              Leave your email and we&apos;ll ping you the moment it&apos;s spotted.
+            Our trackers have picked up fresh signs. A new feature has been spotted nearby, and it's only a matter of time before it steps into the open.
             </p>
           </div>
-
-          <div className="mb-10 rounded-[12px] border border-[#E3DDD8] bg-white p-5">
+    
+          {/* <div className="mb-10 rounded-[12px] border border-[#E3DDD8] bg-white p-5">
             <p className="mb-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#9A9691]">
               <BirdIcon size={14} className="text-[#0B6E66]" />
               What&apos;s in the field log
@@ -118,10 +116,10 @@ export function PageScaffold({ title }: PageScaffoldProps) {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
 
           {!submitted ? (
-            <form onSubmit={(event) => void handleSubmit(event)} className="mb-6">
+            <form onSubmit={(event) => void handleSubmit(event)} className="mb-6 max-w-[560px] mx-auto">
               <p className="mb-3 text-center text-sm font-semibold text-[#3B372F]">
                 Get notified when {title.toLowerCase()} is spotted
               </p>

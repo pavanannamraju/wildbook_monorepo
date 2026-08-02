@@ -68,7 +68,12 @@ export function ShareLinkModal({ isOpen, title = "Share link", path, onClose }: 
             className="inline-flex h-11 shrink-0 items-center gap-2 rounded bg-[#0B6E66] px-3 text-[13px] text-white hover:bg-[#08554f]"
           >
             {copied ? <CheckIcon size={16} /> : <CopyIcon size={16} />}
-            {copied ? "Copied" : "Copy"}
+            <span className="inline-grid place-items-center">
+              <span className="invisible col-start-1 row-start-1" aria-hidden="true">
+                Copied
+              </span>
+              <span className="col-start-1 row-start-1">{copied ? "Copied" : "Copy"}</span>
+            </span>
           </button>
         </div>
       </div>

@@ -36,6 +36,7 @@ import { fetchExpertById, type ExpertDetail } from "../../api/experts";
 import { useAuth } from "../../auth/AuthProvider";
 import { StickyTopNavbar } from "../../components/common/StickyTopNavbar";
 import { PageErrorState } from "../../components/common/PageErrorState";
+import { UserAvatar } from "../../components/common/UserAvatar";
 import { WORLD_LANGUAGES } from "../../data/languages";
 import {
   PRESET_AVATARS,
@@ -205,49 +206,6 @@ function SectionTitle({
           {title}
         </h2>
       </div>
-    </div>
-  );
-}
-
-function UserAvatar({
-  initials,
-  color = "#C8DED5",
-  large = false,
-  imageUrl,
-  alt = "",
-  loading = false,
-}: {
-  initials: string;
-  color?: string;
-  large?: boolean;
-  imageUrl?: string | null;
-  alt?: string;
-  loading?: boolean;
-}) {
-  const sizeClass = large ? "h-24 w-24 text-xl ring-4" : "h-11 w-11 text-sm ring-2";
-  if (loading) {
-    return (
-      <div
-        className={`${sizeClass} shrink-0 animate-pulse rounded-full bg-[#E3DDD8] ring-white`}
-        aria-hidden="true"
-      />
-    );
-  }
-  if (imageUrl) {
-    return (
-      <img
-        src={imageUrl}
-        alt={alt}
-        className={`${sizeClass} shrink-0 rounded-full bg-[#E8E2DC] object-cover ring-white`}
-      />
-    );
-  }
-  return (
-    <div
-      style={{ backgroundColor: color }}
-      className={`${sizeClass} flex shrink-0 items-center justify-center rounded-full font-['Montserrat'] font-bold text-[#3B372F] ring-white`}
-    >
-      {initials}
     </div>
   );
 }
@@ -613,7 +571,7 @@ function EmptyState({ children }: { children: ReactNode }) {
 }
 
 export function AccountPage() {
-  const { logout } = useAuth();
+  const { logout, setProfile } = useAuth();
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -650,6 +608,7 @@ export function AccountPage() {
 
   function applyUser(current: CurrentUser) {
     setUser(current);
+    setProfile(current);
     setFullName(current.full_name ?? "");
     setPhoneNumber(current.phone_number ?? "");
     setDateOfBirth(current.date_of_birth ?? "");
@@ -907,17 +866,16 @@ export function AccountPage() {
             <div className="absolute -right-8 -top-20 h-64 w-64 rounded-full border-[24px] border-[#9BCDB2]/15" />
             <div className="absolute left-[44%] top-10 h-36 w-3 -rotate-[24deg] bg-[#9BCDB2]/20" />
             <div className="absolute left-[52%] top-2 h-48 w-4 rotate-[38deg] bg-[#9BCDB2]/15" />
-            <div className="absolute bottom-5 left-7 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#9BCDB2]/80">
-              <CompassIcon size={13} /> Your wild side, well kept
-            </div>
           </div>
 
-          <div className="relative flex flex-col gap-5 bg-[#F8F6F3] px-7 pb-6 pt-0 md:flex-row md:items-end">
-            <div className="-mt-12 shrink-0">
+          <div className="relative flex flex-col gap-5 overflow-visible bg-[#F8F6F3] px-7 pb-6 pt-0 md:flex-row md:items-end">
+            <div className="-mt-12 shrink-0 overflow-visible">
               <UserAvatar
                 initials={avatarInitials}
                 imageUrl={profileAvatarSrc}
                 large
+                ring
+                overflowTop={avatarType === "preset"}
                 alt={displayName}
                 loading={!user}
               />
@@ -1023,11 +981,17 @@ export function AccountPage() {
                     data-avatar-type="preset"
                     data-avatar-key={avatar.key}
                     onClick={() => void handleSelectPresetAvatar(avatar.key)}
-                    className={`rounded-full p-0.5 transition-transform hover:scale-110 disabled:opacity-60 ${
+                    className={`overflow-visible rounded-full p-0.5 transition-transform hover:scale-110 disabled:opacity-60 ${
                       selected ? "ring-2 ring-[#0B6E66] ring-offset-2" : ""
                     }`}
                   >
-                    <UserAvatar initials={avatar.label.slice(0, 2)} imageUrl={avatar.src} alt={avatar.label} />
+                    <UserAvatar
+                      initials={avatar.label.slice(0, 2)}
+                      imageUrl={avatar.src}
+                      alt={avatar.label}
+                      overflowTop
+                      ring
+                    />
                   </button>
                 );
               })}
@@ -1302,6 +1266,7 @@ export function AccountPage() {
                     <UserAvatar
                       initials="WB"
                       color={bookingsTab === "past" ? "#E3DDD8" : "#C8DED5"}
+                      ring
                     />
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
@@ -1380,6 +1345,7 @@ export function AccountPage() {
                         initials={person.initials}
                         color={person.color}
                         imageUrl={person.imageUrl}
+                        ring
                       />
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-[#3B372F]">{person.name}</p>

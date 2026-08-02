@@ -24,7 +24,7 @@ const teamMembers = [
   },
   {
     name: "Sai Pavan Annamaraju",
-    role: "IT Professional",
+    role: "IT Consultant",
     image: Pavan,
     offsetUp: false,
   },

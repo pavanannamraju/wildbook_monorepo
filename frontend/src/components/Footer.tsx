@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import logoLight from "../assets/Logo Dark.png";
 import {
   EnvelopeSimpleIcon,
@@ -8,7 +9,26 @@ import {
 import { Link } from "react-router-dom";
 import footerTop from "../assets/Mask group (1).svg";
 
+const CONTACT_EMAIL = "hello@wildbook.in";
+
 export function Footer() {
+  const [emailCopied, setEmailCopied] = useState(false);
+
+  useEffect(() => {
+    if (!emailCopied) return;
+    const timer = window.setTimeout(() => setEmailCopied(false), 1500);
+    return () => window.clearTimeout(timer);
+  }, [emailCopied]);
+
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(CONTACT_EMAIL);
+      setEmailCopied(true);
+    } catch {
+      setEmailCopied(false);
+    }
+  };
+
   return (
     <footer className="mt-20 mx-auto w-full max-w-[1920px] overflow-hidden bg-[#F6F4F0]">
       <img src={footerTop} alt="" aria-hidden="true" className="block w-full h-auto select-none" />
@@ -22,7 +42,7 @@ export function Footer() {
                 <img src={logoLight} alt="Wildbook" className="h-10 lg:h-[56px] w-auto" />
               </Link>
               <p className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#fafafa] max-w-[380px]">
-                We connect travellers with trusted guides, naturalists, and responsible operators
+                We connect travellers with trusted guides, naturalists, and wildlife experts
                 so every journey becomes an informed, immersive encounter that sustains places
                 and people.
               </p>
@@ -48,11 +68,6 @@ export function Footer() {
                 <li>
                   <Link className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#fafafa] hover:text-white transition-colors" to="/experts">
                     Explore Experts
-                  </Link>
-                </li>
-                <li>
-                  <Link className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#fafafa] hover:text-white transition-colors" to="/#map">
-                    Map
                   </Link>
                 </li>
                 <li>
@@ -131,9 +146,19 @@ export function Footer() {
                 <a href="#" className="text-[#fafafa] hover:text-white transition-colors" aria-label="LinkedIn">
                   <LinkedinLogoIcon size={32} />
                 </a> */}
-                <a href="mailto:hello@wildbook.in" className="text-[#fafafa] hover:text-white transition-colors" aria-label="Email">
+                <button
+                  type="button"
+                  onClick={() => void copyEmail()}
+                  className="relative text-[#fafafa] hover:text-white transition-colors"
+                  aria-label={emailCopied ? "Email copied" : `Copy ${CONTACT_EMAIL}`}
+                >
                   <EnvelopeSimpleIcon size={32} />
-                </a>
+                  {emailCopied ? (
+                    <span className="absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap font-['Nunito'] text-[12px] text-[#F0C165]">
+                      Copied
+                    </span>
+                  ) : null}
+                </button>
               </div>
               <div className="mt-[24px] flex flex-col gap-[10px]">
                 <p className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#fafafa]">
@@ -141,9 +166,9 @@ export function Footer() {
                 </p>
                 <a
                   className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#fafafa] hover:text-white transition-colors"
-                  href="tel:+918296567683"
+                  href="tel:+917483735393"
                 >
-                  +91 74837 35393
+                  +91 7483 73 53 93
                 </a>
               </div>
             </div>
