@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import bannerImage from "../assets/Banner Image_V2.png";
+import bannerImage from "../assets/Banner Image_V2.jpg";
 import Navbar from "./Navbar";
 import { useNavigate } from "react-router-dom";
 import { ArrowRightIcon } from "@phosphor-icons/react";
