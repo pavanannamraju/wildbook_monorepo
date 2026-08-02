@@ -13,7 +13,6 @@ import {
 import expertsDesktop from "../assets/heroes/experts-desktop.png";
 import expertsMobile from "../assets/heroes/experts-mobile.png";
 import expertsTablet from "../assets/heroes/experts-tablet.png";
-import heroImage from "../assets/Banner_Image_Experts_V2.jpg";
 import { addBookmark, removeBookmark } from "../api/bookmarks";
 import { useAuth } from "../auth/AuthProvider";
 import { LoginModalContent } from "../components/auth/LoginModalContent";
@@ -221,7 +220,6 @@ export function ExploreExpertsPage() {
           mobileSrc={expertsMobile}
           tabletSrc={expertsTablet}
           desktopSrc={expertsDesktop}
-          largeSrc={heroImage}
           alt=""
         />
 
@@ -232,12 +230,14 @@ export function ExploreExpertsPage() {
           <div className="flex flex-1 items-center page-px py-6 max-md:justify-center max-md:text-center sm:py-8 md:py-10 lg:py-12">
             <div className="max-w-[452px]">
               <h1
-                className="font-['Montserrat'] font-medium leading-[1.1] text-[42px] text-[#EDE8E2]/90 sm:text-[52px] md:text-[62px] lg:text-[70px]"
+                className="font-['Montserrat'] font-medium leading-[1.1] text-[38px] text-[#EDE8E2]/90 sm:text-[52px] md:text-[62px] lg:text-[70px]"
                 style={{ textShadow: "0px 1px 2px rgba(0,0,0,0.25)" }}
               >
                 Connect with Wildlife Experts
               </h1>
-              <p className="mt-2.5 font-['Nunito'] font-bold text-[14px] leading-[1.4] text-[#9bcdb2] sm:mt-4 sm:text-[16px] md:text-[18px] lg:text-[24px] lg:leading-[32px]">
+              <p
+                style={{ textShadow: "0px 1px 2px rgba(0,0,0,0.5)" }}
+                className="mx-4 mt-2.5 font-['Nunito'] font-bold text-[14px] leading-[1.4] text-[#fafafa] sm:mx-0 sm:mt-4 sm:text-[16px] md:text-[18px] lg:text-[24px] lg:leading-[32px]">
                 Explore and connect with our growing network of guides and naturalists, helping
                 travelers access local knowledge across India’s wildlife destinations.
               </p>
@@ -331,7 +331,7 @@ export function ExploreExpertsPage() {
           <PageLoader />
         ) : isListRefreshing ? (
           <div
-            className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4"
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 min-[1000px]:grid-cols-3 xl:grid-cols-4"
             aria-busy="true"
             aria-label="Loading experts"
           >
@@ -341,7 +341,7 @@ export function ExploreExpertsPage() {
           </div>
         ) : (
           <div
-            className="relative grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4"
+            className="relative grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 min-[1000px]:grid-cols-3 xl:grid-cols-4"
             aria-busy={false}
           >
             {paged.map((expert) => {

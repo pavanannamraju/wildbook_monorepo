@@ -48,28 +48,30 @@ export function WhatWeDo() {
       <div className="flex flex-col gap-5 md:gap-6 lg:flex-row lg:gap-6">
         {/* Expert Connect */}
         <div className="flex shrink-0 flex-col overflow-hidden rounded-xl bg-[#F3EEE9] shadow-[0_1px_4px_rgba(47,43,40,0.14)] sm:rounded-2xl lg:w-1/2">
-          <div className="relative h-[200px] shrink-0 sm:h-[260px] md:h-[300px] lg:h-[364px]">
-            <img
-              src={ExpertConnectImage}
-              alt="Guide walking with a traveller in the forest"
-              className="absolute inset-0 h-full w-full object-cover object-bottom"
-            />
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage:
-                  "linear-gradient(90deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 50%), linear-gradient(180deg, rgba(0,0,0,0) 15%, rgba(0,0,0,0.4) 100%)",
-              }}
-            />
-            <div className="absolute top-4 left-4 sm:top-4 sm:left-4 md:top-6 md:left-6 lg:top-[37px] lg:left-12">
-              <StatusTag variant="live">Live Now</StatusTag>
+          <div className="h-[200px] shrink-0 p-4 sm:h-[260px] md:h-[300px] lg:h-[364px]">
+            <div className="relative h-full w-full overflow-hidden rounded-t-[8px]">
+              <img
+                src={ExpertConnectImage}
+                alt="Guide walking with a traveller in the forest"
+                className="absolute inset-0 h-full w-full object-cover object-bottom"
+              />
+              <div
+                className="absolute inset-0"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(90deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 50%), linear-gradient(180deg, rgba(0,0,0,0) 15%, rgba(0,0,0,0.4) 100%)",
+                }}
+              />
+              <div className="absolute top-4 left-4 sm:top-4 sm:left-4 md:top-6 md:left-6 lg:top-[37px] lg:left-12">
+                <StatusTag variant="live">Live Now</StatusTag>
+              </div>
+              <p
+                className="absolute right-4 bottom-4 left-4 text-[20px] leading-[1.2] tracking-[0.4px] text-[#E3DDD8] uppercase sm:right-4 sm:bottom-4 sm:left-4 sm:text-[22px] md:text-[26px] lg:right-12 lg:bottom-6 lg:left-12 lg:text-[32px]"
+                style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 500 }}
+              >
+                Expert Connect
+              </p>
             </div>
-            <p
-              className="absolute right-4 bottom-4 left-4 text-[20px] leading-[1.2] tracking-[0.4px] text-[#E3DDD8] uppercase sm:right-4 sm:bottom-4 sm:left-4 sm:text-[22px] md:text-[26px] lg:right-12 lg:bottom-6 lg:left-12 lg:text-[32px]"
-              style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 500 }}
-            >
-              Expert Connect
-            </p>
           </div>
 
           <div className="flex flex-col gap-3 p-4 sm:gap-4 sm:p-6 md:p-8 lg:gap-4 lg:p-12">

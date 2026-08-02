@@ -29,7 +29,7 @@ export const Hero = forwardRef<HTMLElement>(function Hero(_, ref) {
         <Navbar variant="light" />
 
         <div className="flex flex-1 flex-col justify-center page-px py-8 max-md:items-center max-md:text-center sm:py-10 md:py-11 lg:py-12">
-          <p className="font-['Nunito'] font-bold text-[14px] leading-snug text-[#AB863F] sm:text-[18px] sm:leading-7 md:text-[20px] lg:text-[24px] lg:leading-8">
+          <p className="font-['Nunito'] font-bold text-[14px] leading-snug text-[#F0C165] sm:text-[18px] sm:leading-7 md:text-[20px] lg:text-[24px] lg:leading-8">
             Bringing India’s wildlife ecosystem together
           </p>
 
