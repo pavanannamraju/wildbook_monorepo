@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { upsertEmailSignupProfile } from "../../api/auth";
 import logoDark from "../../assets/Logo Dark.png";
 import { useAuth } from "../../auth/AuthProvider";
-import heroImage from "../../assets/Login_Modal_Image.png";
+import heroImage from "../../assets/Login_Modal_Image.jpg";
 import googleIcon from "../../assets/gmail.svg";
 import emailIcon from "../../assets/Email.svg";
 type ExploreTab = "login" | "signup";
@@ -163,7 +163,7 @@ function EmailAuthForm({
       ) : null}
       <button
         type="submit"
-        className="h-14 w-full rounded bg-(--color-wildbook-teal) text-[18px] leading-none font-semibold text-white disabled:opacity-60"
+        className="h-12 w-full rounded bg-(--color-wildbook-teal) text-[16px] leading-none font-semibold text-white disabled:opacity-60 sm:h-14 sm:text-[18px]"
         disabled={submitting}
       >
         {submitting ? "Please wait..." : mode === "login" ? "Login with Email" : "Create account"}
@@ -207,7 +207,7 @@ function ExploreAuthView({ onSuccess }: ExploreAuthViewProps) {
       <div className="grid h-13 grid-cols-2 gap-2 rounded bg-[#ecebe7] p-1">
         <button
           type="button"
-          className={`rounded text-[18px] leading-none font-medium ${
+          className={`rounded text-[16px] leading-none font-medium sm:text-[18px] ${
             tab === "login" ? "bg-[#cbe6dc] text-[#0b6e66]" : "text-[#777]"
           }`}
           onClick={() => setTab("login")}
@@ -216,7 +216,7 @@ function ExploreAuthView({ onSuccess }: ExploreAuthViewProps) {
         </button>
         <button
           type="button"
-          className={`rounded text-[18px] leading-none font-medium ${
+          className={`rounded text-[16px] leading-none font-medium sm:text-[18px] ${
             tab === "signup" ? "bg-[#cbe6dc] text-[#0b6e66]" : "text-[#777]"
           }`}
           onClick={() => setTab("signup")}
@@ -226,7 +226,7 @@ function ExploreAuthView({ onSuccess }: ExploreAuthViewProps) {
       </div>
 
       <div className="space-y-1 pt-1">
-        <p className="text-[18px] font-semibold text-[#121212]">
+        <p className="text-[16px] font-semibold text-[#121212] sm:text-[18px]">
           {isSignup ? "Create your wildbook account" : "Welcome back"}
         </p>
         <p className="text-[14px] leading-snug text-[#6b6b6b]">
@@ -238,7 +238,7 @@ function ExploreAuthView({ onSuccess }: ExploreAuthViewProps) {
 
       <button
         type="button"
-        className={`flex h-16 w-full items-center justify-start gap-3 rounded px-6 text-[20px] leading-none font-medium ${
+        className={`flex h-12 w-full items-center justify-start gap-3 rounded px-4 text-[16px] leading-none font-medium sm:h-16 sm:px-6 sm:text-[20px] ${
           isSignup
             ? "bg-(--color-wildbook-teal) text-white"
             : "border border-black/8 bg-white text-[#2f2b28]"
@@ -254,7 +254,7 @@ function ExploreAuthView({ onSuccess }: ExploreAuthViewProps) {
       </button>
       <button
         type="button"
-        className={`flex h-16 w-full items-center justify-start gap-3 rounded px-6 text-[20px] leading-none font-medium ${
+        className={`flex h-12 w-full items-center justify-start gap-3 rounded px-4 text-[16px] leading-none font-medium sm:h-16 sm:px-6 sm:text-[20px] ${
           isSignup
             ? "border border-(--color-wildbook-teal) bg-white text-(--color-wildbook-teal)"
             : "border border-black/8 bg-white text-[#2f2b28]"
@@ -282,10 +282,10 @@ export function LoginModalContent({ onClose, onSuccess }: LoginModalContentProps
         <img src={HERO_IMAGE_URL} alt="Wild landscape" className="absolute inset-0 h-full w-full object-cover object-bottom" />
         <div className="absolute inset-0 p-12 text-white">
           <img src={logoDark} alt="wildbook" className="mb-10 w-auto" />
-          <h3 className="max-w-[420px] text-[48px]" style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300, lineHeight: '1.1' }}>
+          <h3 className="max-w-[420px] text-[32px] sm:text-[40px] lg:text-[48px]" style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300, lineHeight: '1.1' }}>
             Your Gateway to the Wild
           </h3>
-          <p className="mt-2 max-w-[430px] leading-tight text-white/90" style={{fontSize: "20px"}}>
+          <p className="mt-2 max-w-[430px] text-[16px] leading-tight text-white/90 sm:text-[18px] lg:text-[20px]">
             Sign in to explore, connect, and be part of a growing wildlife community.
           </p>
         </div>
@@ -293,7 +293,7 @@ export function LoginModalContent({ onClose, onSuccess }: LoginModalContentProps
 
       <div className="w-full overflow-y-auto bg-[#f7f6f2] px-9 py-9 lg:w-[53%]">
         <header className="mb-6 flex items-center justify-between">
-          <h2 className="text-[24px] leading-[0.95] font-bold text-[#121212]">{title}</h2>
+          <h2 className="text-[20px] leading-[0.95] font-bold text-[#121212] sm:text-[22px] md:text-[24px]">{title}</h2>
           {onClose ? (
             <button type="button" onClick={onClose} aria-label="Close login popup" className="text-[#4a4a4a]">
               <XIcon size={34} />

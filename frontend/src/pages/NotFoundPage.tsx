@@ -18,7 +18,7 @@ export function NotFoundPage() {
           <FootprintsIcon size={22} className="mb-4 rotate-[-6deg] text-[#9BCDB2]/40" />
           <FootprintsIcon size={18} className="mb-7 text-[#9BCDB2]/25" />
           <span
-            className="mx-4 text-[100px] font-black leading-none tracking-[-0.04em] text-[#0B6E66]/10 select-none md:text-[120px]"
+            className="mx-2 text-[64px] font-black leading-none tracking-[-0.04em] text-[#0B6E66]/10 select-none sm:mx-4 sm:text-[88px] md:text-[110px] lg:text-[120px]"
             style={{ fontFamily: '"Montserrat", sans-serif' }}
           >
             404
@@ -36,12 +36,12 @@ export function NotFoundPage() {
           Error 404 — Trail gone cold
         </p>
         <h1
-          className="mb-4 text-[36px] font-extrabold tracking-[-0.03em] text-[#3B372F] md:text-[44px]"
+          className="mb-4 text-[26px] font-extrabold tracking-[-0.03em] text-[#3B372F] sm:text-[32px] md:text-[40px] lg:text-[44px]"
           style={{ fontFamily: '"Montserrat", sans-serif' }}
         >
           Even our trackers lost the scent.
         </h1>
-        <p className="mb-10 max-w-[440px] text-[15px] leading-relaxed text-[#73706C]">
+        <p className="mb-10 max-w-[440px] text-[14px] leading-relaxed text-[#73706C] sm:text-[15px] md:text-[16px]">
         This page has wandered deep into the forest — possibly spooked by a tiger. Our best naturalists searched for three days, but the trail seems to have gone cold.
         </p>
 

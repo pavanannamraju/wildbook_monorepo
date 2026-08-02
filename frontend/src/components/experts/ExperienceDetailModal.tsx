@@ -79,7 +79,7 @@ export function ExperienceDetailModal({ isOpen, experience, onClose }: Props) {
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
           <p
-            className="absolute bottom-[16px] left-[24px] right-[72px] text-[24px] leading-[30px] text-white"
+            className="absolute bottom-[16px] left-[24px] right-[72px] text-[18px] leading-[1.25] text-white sm:text-[20px] md:text-[24px] md:leading-[30px]"
             style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300 }}
           >
             {experience.title}
@@ -96,7 +96,7 @@ export function ExperienceDetailModal({ isOpen, experience, onClose }: Props) {
 
         <div className="flex shrink-0 flex-col gap-[20px] px-[32px] pt-[24px]">
           {experience.description && (
-            <p className="font-['Nunito'] font-normal text-[18px] leading-[28px] text-[#2F2B28]">
+            <p className="font-['Nunito'] font-normal text-[15px] sm:text-[16px] md:text-[18px] leading-[28px] text-[#2F2B28]">
               {experience.description}
             </p>
           )}

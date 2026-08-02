@@ -291,7 +291,7 @@ export function AdminInquiriesPage() {
     <div>
       <header className="mb-6">
         <h2
-          className="text-[24px] font-extrabold tracking-[-0.03em] text-(--color-wildbook-text)"
+          className="text-[18px] font-extrabold tracking-[-0.03em] text-(--color-wildbook-text) sm:text-[20px] md:text-[24px]"
           style={{ fontFamily: '"Montserrat", sans-serif' }}
         >
           Inquiries

@@ -76,12 +76,12 @@ export function PageScaffold({ title }: PageScaffoldProps) {
               Stay very still — it&apos;s almost here
             </p>
             <h1
-              className="mb-4 text-[38px] font-extrabold tracking-[-0.03em] text-[#3B372F] md:text-[48px]"
+              className="mb-4 text-[28px] font-extrabold tracking-[-0.03em] text-[#3B372F] sm:text-[34px] md:text-[42px] lg:text-[48px]"
               style={{ fontFamily: '"Montserrat", sans-serif' }}
             >
               Something wild is stirring.
             </h1>
-            <p className="mx-auto mb-2 max-w-[400px] text-[15px] leading-relaxed text-[#73706C]">
+            <p className="mx-auto mb-2 max-w-[400px] text-[14px] leading-relaxed text-[#73706C] sm:text-[15px] md:text-[16px]">
             Our trackers have picked up fresh signs. A new feature has been spotted nearby, and it's only a matter of time before it steps into the open.
             </p>
           </div>

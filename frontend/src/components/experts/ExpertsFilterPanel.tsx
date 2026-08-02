@@ -138,7 +138,7 @@ export function ExpertsFilterPanel({ open, value, onClose, onApply }: ExpertsFil
           <div>
             <h2
               id="experts-filter-title"
-              className="font-['Nunito'] font-bold text-[20px] text-[#2F2B28]"
+              className="font-['Nunito'] font-bold text-[16px] sm:text-[18px] md:text-[20px] text-[#2F2B28]"
             >
               Filters
             </h2>

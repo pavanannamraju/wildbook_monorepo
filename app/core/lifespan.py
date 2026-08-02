@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 from collections.abc import AsyncIterator
 from pathlib import Path
 
@@ -91,17 +92,44 @@ def _ensure_guide_indexes(store: CatalogStore) -> None:
     )
 
 
+def _init_firebase_admin(*, firebase_project_id: str | None) -> None:
+    """Initialize Firebase Admin for ID-token verification.
+
+    Prefer an explicit service-account file (GOOGLE_APPLICATION_CREDENTIALS).
+    Docker often creates a *directory* at the mount path when the host file is
+    missing — detect that early so auth failures are obvious in logs.
+    """
+    try:
+        firebase_admin.get_app()
+        return
+    except ValueError:
+        pass
+
+    options = {"projectId": firebase_project_id} if firebase_project_id else None
+    creds_path = Path(os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "") or "")
+    if creds_path.as_posix() and creds_path.is_dir():
+        raise RuntimeError(
+            f"GOOGLE_APPLICATION_CREDENTIALS points to a directory ({creds_path}). "
+            "On Docker this usually means the host file was missing when the volume "
+            "was first mounted. Place a service-account JSON at that path and recreate "
+            "the container."
+        )
+    if creds_path.is_file():
+        firebase_admin.initialize_app(credentials.Certificate(str(creds_path)), options)
+        logger.info("Firebase Admin initialized from %s", creds_path)
+        return
+
+    firebase_admin.initialize_app(credentials.ApplicationDefault(), options)
+    logger.info("Firebase Admin initialized via Application Default Credentials.")
+
+
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
 
     if settings.auth_required:
         if not settings.firebase_project_id:
             logger.warning("AUTH_REQUIRED=true but FIREBASE_PROJECT_ID is not configured.")
-        try:
-            firebase_admin.get_app()
-        except ValueError:
-            options = {"projectId": settings.firebase_project_id} if settings.firebase_project_id else None
-            firebase_admin.initialize_app(credentials.ApplicationDefault(), options)
+        _init_firebase_admin(firebase_project_id=settings.firebase_project_id)
 
     mongo_client = None
     if settings.mongo_uri:

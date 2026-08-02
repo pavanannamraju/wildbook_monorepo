@@ -200,7 +200,7 @@ function SectionTitle({
           {eyebrow}
         </p>
         <h2
-          className="text-[18px] font-bold tracking-[-0.02em] text-[#3B372F]"
+          className="text-[16px] font-bold tracking-[-0.02em] text-[#3B372F] sm:text-[18px]"
           style={{ fontFamily: '"Montserrat", sans-serif' }}
         >
           {title}
@@ -895,7 +895,7 @@ export function AccountPage() {
                 <>
                   <div className="flex flex-wrap items-center gap-2">
                     <h1
-                      className="text-[26px] font-extrabold tracking-[-0.03em] text-[#3B372F]"
+                      className="text-[20px] font-extrabold tracking-[-0.03em] text-[#3B372F] sm:text-[22px] md:text-[26px]"
                       style={{ fontFamily: '"Montserrat", sans-serif' }}
                     >
                       {displayName}
@@ -920,7 +920,7 @@ export function AccountPage() {
             <div className="flex gap-7 border-t border-[#E3DDD8] pt-4 md:border-l md:border-t-0 md:pl-7 md:pt-0">
               <div>
                 <p
-                  className="text-[20px] font-extrabold text-[#3B372F]"
+                  className="text-[16px] font-extrabold text-[#3B372F] sm:text-[18px] md:text-[20px]"
                   style={{ fontFamily: '"Montserrat", sans-serif' }}
                 >
                   {bookings?.length ?? "—"}
@@ -929,7 +929,7 @@ export function AccountPage() {
               </div>
               <div>
                 <p
-                  className="text-[20px] font-extrabold text-[#3B372F]"
+                  className="text-[16px] font-extrabold text-[#3B372F] sm:text-[18px] md:text-[20px]"
                   style={{ fontFamily: '"Montserrat", sans-serif' }}
                 >
                   {bookmarkCards?.length ?? "—"}

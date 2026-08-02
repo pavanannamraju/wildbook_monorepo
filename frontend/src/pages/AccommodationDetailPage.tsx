@@ -134,7 +134,7 @@ export function AccommodationDetailPage() {
           <div className="absolute inset-x-0 bottom-0 p-4 md:p-6">
             <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
               <div>
-                <h1 className="text-[34px] leading-tight text-white drop-shadow">{data.name}</h1>
+                <h1 className="text-[24px] leading-tight text-white drop-shadow sm:text-[28px] md:text-[34px]">{data.name}</h1>
                 <div className="mt-2 flex flex-wrap items-center gap-3 text-white">
                   <span className="inline-flex items-center gap-1 drop-shadow">
                     <MapPinIcon size={14} />
@@ -249,7 +249,7 @@ export function AccommodationDetailPage() {
 
           <section className="order-1 space-y-8 lg:order-1">
             <div>
-              <h1 className="text-[34px] leading-tight text-[#2F2B28]">{data.name}</h1>
+              <h1 className="text-[24px] leading-tight text-[#2F2B28] sm:text-[28px] md:text-[34px]">{data.name}</h1>
               <div className="mt-2 flex flex-wrap items-center gap-3 text-[#4b4844]">
                 <span className="inline-flex items-center gap-1 rounded bg-[#e8eeea] px-2 py-1">
                   <StarIcon size={14} weight="fill" className="text-[#e3bf5d]" />
@@ -279,12 +279,12 @@ export function AccommodationDetailPage() {
 
             <div className="rounded-2xl bg-[#FBF9F6] p-6">
               <p className="text-sm font-semibold uppercase tracking-wide text-[#AB863F]">About the Homestay</p>
-              <h2 className="mt-1 text-3xl text-[#2F2B28]">{data.description?.summary ?? "A home at the forest's edge"}</h2>
+              <h2 className="mt-1 text-xl text-[#2F2B28] sm:text-2xl md:text-3xl">{data.description?.summary ?? "A home at the forest's edge"}</h2>
               <p className="mt-3 text-[#2F2B28]">{data.description?.details ?? data.about ?? "No description available."}</p>
             </div>
 
             <div>
-              <h3 className="text-[#AB863F] text-2xl font-semibold">What to Expect</h3>
+              <h3 className="text-[#AB863F] text-lg font-semibold sm:text-xl md:text-2xl">What to Expect</h3>
               <ul className="mt-3 space-y-2 text-[#2F2B28]">
                 {(data.highlights && data.highlights.length > 0 ? data.highlights : data.what_to_expect).map((item) => (
                   <li key={item}>- {item}</li>
@@ -293,7 +293,7 @@ export function AccommodationDetailPage() {
             </div>
 
             <div>
-              <h3 className="text-[#AB863F] text-2xl font-semibold">Amenities</h3>
+              <h3 className="text-[#AB863F] text-lg font-semibold sm:text-xl md:text-2xl">Amenities</h3>
               <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {(data.amenities && data.amenities.length > 0 ? data.amenities : data.amenity_names).map((item) => (
                   <span key={item} className="rounded bg-[#EDEAE4] px-3 py-2 text-sm text-[#2F2B28]">{item}</span>
@@ -302,7 +302,7 @@ export function AccommodationDetailPage() {
             </div>
 
             <div>
-              <h3 className="text-[#AB863F] text-2xl font-semibold">Gallery</h3>
+              <h3 className="text-[#AB863F] text-lg font-semibold sm:text-xl md:text-2xl">Gallery</h3>
               <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {gallery.slice(0, 6).map((media) => (
                   <img key={`${media.media_url}-${media.sort_order}`} src={media.media_url} alt={media.caption ?? data.name} className="h-44 w-full rounded object-cover" />
@@ -314,7 +314,7 @@ export function AccommodationDetailPage() {
               <p className="text-sm font-semibold uppercase tracking-wide text-[#d4be7d]">Homestay Host</p>
               <div className="mt-2 flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-3xl">{hostName}</p>
+                  <p className="text-xl sm:text-2xl md:text-3xl">{hostName}</p>
                   <p className="text-sm text-white/85">
                     {data.host?.role ?? "Forest guide and local host"}
                     {typeof data.host?.experience_years === "number" ? ` · ${data.host.experience_years} Years Experience` : ""}
@@ -334,7 +334,7 @@ export function AccommodationDetailPage() {
 
             <div className="rounded-2xl bg-[#FBF9F6] p-6">
               <p className="text-sm font-semibold uppercase tracking-wide text-[#AB863F]">Testimonials</p>
-              <h3 className="mt-1 text-3xl text-[#73706C]">What travellers say</h3>
+              <h3 className="mt-1 text-xl text-[#73706C] sm:text-2xl md:text-3xl">What travellers say</h3>
               <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-7">
                 {[
                   ["Overall Rating", data.rating?.detailed?.overall ?? 4.8],
@@ -380,7 +380,7 @@ export function AccommodationDetailPage() {
             </div>
 
             <div>
-              <h3 className="text-[#AB863F] text-2xl font-semibold">Things to Know</h3>
+              <h3 className="text-[#AB863F] text-lg font-semibold sm:text-xl md:text-2xl">Things to Know</h3>
               <div className="mt-3 grid gap-4 md:grid-cols-3">
                 <div className="rounded-2xl bg-[#FBF9F6] p-4">
                   <p className="font-semibold text-[#2F2B28]">Cancellation policy</p>

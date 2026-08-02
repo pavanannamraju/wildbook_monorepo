@@ -224,8 +224,8 @@ export function ExpertDetailPage() {
     }
   };
 
-  const inputClass = "h-[64px] w-full rounded-[4px] bg-[#F6F4F0] px-[16px] font-['Nunito'] font-normal text-[20px] text-[#2F2B28] placeholder:text-[rgba(47,43,40,0.4)] outline-none";
-  const labelClass = "font-['Nunito'] font-medium text-[18px] leading-[24px] text-[#2F2B28]";
+  const inputClass = "h-12 w-full rounded-[4px] bg-[#F6F4F0] px-3 font-['Nunito'] font-normal text-[16px] text-[#2F2B28] outline-none placeholder:text-[rgba(47,43,40,0.4)] sm:h-14 sm:px-4 sm:text-[18px] md:h-16 md:text-[20px]";
+  const labelClass = "font-['Nunito'] font-medium text-[15px] leading-6 text-[#2F2B28] sm:text-[16px] md:text-[18px] md:leading-6";
 
   return (
     <main className="mx-auto max-w-[1920px] bg-[#F6F4F0]">
@@ -254,7 +254,7 @@ export function ExpertDetailPage() {
               {/* Name + role */}
               <div className="flex flex-col gap-[8px]">
                 <h1
-                  className="text-[24px] leading-[32px] text-black"
+                  className="text-[20px] leading-snug text-black sm:text-[22px] md:text-[24px] md:leading-8"
                   style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300 }}
                 >
                   {expert.name}
@@ -274,13 +274,13 @@ export function ExpertDetailPage() {
                         Homestay by {firstName}
                       </span>
                     </div>
-                    <p className="font-['Nunito'] font-normal text-[22px] leading-[28px] text-[#2F2B28]">
+                    <p className="font-['Nunito'] font-normal text-[16px] leading-6 text-[#2F2B28] sm:text-[18px] md:text-[20px] lg:text-[22px] lg:leading-7">
                       {expert.homestay.tagline ?? `Stay at ${firstName}'s home at the forest edge.`}
                     </p>
                     {expert.homestay.accommodation_id ? (
                       <Link
                         to={`/accommodations/${encodeURIComponent(expert.homestay.accommodation_id)}`}
-                        className="flex h-[48px] w-full items-center justify-center gap-[10px] rounded-[4px] bg-[#0B6E66] font-['Nunito'] font-medium text-[18px] text-[#FAFAFA] hover:bg-[#074A46] transition-colors"
+                        className="flex h-[48px] w-full items-center justify-center gap-[10px] rounded-[4px] bg-[#0B6E66] font-['Nunito'] font-medium text-[15px] text-[#FAFAFA] sm:text-[16px] md:text-[18px] hover:bg-[#074A46] transition-colors"
                       >
                         Explore the Homestay
                         <ArrowRightIcon size={24} />
@@ -300,7 +300,7 @@ export function ExpertDetailPage() {
               <div className="flex flex-col gap-[8px]">
                 {/* Heading + actions row */}
                 <div className="flex items-center justify-between">
-                  <h2 className="font-['Nunito'] font-bold text-[28px] leading-[40px] text-[#AB863F]">
+                  <h2 className="font-['Nunito'] font-bold text-[22px] leading-snug text-[#AB863F] sm:text-[24px] md:text-[26px] lg:text-[28px] lg:leading-10">
                     About
                   </h2>
                   <div className="flex items-center gap-[4px]">
@@ -329,7 +329,7 @@ export function ExpertDetailPage() {
                   {locationLabel && (
                     <div className="flex items-center gap-[8px]">
                       <MapPinIcon size={24} className="shrink-0 text-[#2F2B28]" />
-                      <span className="font-['Nunito'] font-medium text-[18px] leading-[24px] text-[#2F2B28]">
+                      <span className="font-['Nunito'] font-medium text-[15px] leading-6 text-[#2F2B28] sm:text-[16px] md:text-[18px]">
                         {locationLabel}
                       </span>
                     </div>
@@ -340,7 +340,7 @@ export function ExpertDetailPage() {
                   {expert.experience_years != null && (
                     <div className="flex items-center gap-[8px]">
                       <BinocularsIcon size={24} className="shrink-0 text-[#2F2B28]" />
-                      <span className="font-['Nunito'] font-medium text-[18px] leading-[24px] text-[#2F2B28]">
+                      <span className="font-['Nunito'] font-medium text-[15px] leading-6 text-[#2F2B28] sm:text-[16px] md:text-[18px]">
                         {expert.experience_years} Years Experience
                       </span>
                     </div>
@@ -350,7 +350,7 @@ export function ExpertDetailPage() {
 
               {/* Bio */}
               {expert.bio?.summary && (
-                <p className="font-['Nunito'] font-normal text-[22px] leading-[28px] text-[#2F2B28] text-justify">
+                <p className="font-['Nunito'] font-normal text-[16px] leading-6 text-[#2F2B28] sm:text-[18px] md:text-[20px] lg:text-[22px] lg:leading-7 text-justify">
                   {expert.bio.summary}
                 </p>
               )}
@@ -360,14 +360,14 @@ export function ExpertDetailPage() {
                 <div className="flex flex-wrap gap-[112px]">
                   {expertiseTags.length > 0 && (
                     <div className="flex flex-col gap-[14px]">
-                      <h3 className="font-['Nunito'] font-bold text-[22px] leading-[28px] text-[#AB863F]">
+                      <h3 className="font-['Nunito'] font-bold text-[18px] leading-snug text-[#AB863F] sm:text-[20px] md:text-[22px] md:leading-7">
                         Expertise
                       </h3>
                       <div className="flex flex-wrap gap-[16px]">
                         {expertiseTags.map((tag) => (
                           <span
                             key={tag}
-                            className="rounded-[4px] bg-[rgba(155,205,178,0.5)] px-[16px] py-[8px] font-['Nunito'] font-medium text-[18px] leading-[24px] text-[#2F2B28]"
+                            className="rounded-[4px] bg-[rgba(155,205,178,0.5)] px-[16px] py-[8px] font-['Nunito'] font-medium text-[15px] leading-6 text-[#2F2B28] sm:text-[16px] md:text-[18px]"
                           >
                             {tag}
                           </span>
@@ -377,14 +377,14 @@ export function ExpertDetailPage() {
                   )}
                   {languageValues.length > 0 && (
                     <div className="flex flex-col gap-[14px]">
-                      <h3 className="font-['Nunito'] font-bold text-[22px] leading-[28px] text-[#AB863F]">
+                      <h3 className="font-['Nunito'] font-bold text-[18px] leading-snug text-[#AB863F] sm:text-[20px] md:text-[22px] md:leading-7">
                         Languages Known
                       </h3>
                       <div className="flex flex-wrap gap-[16px]">
                         {languageValues.map((lang) => (
                           <span
                             key={lang}
-                            className="rounded-[4px] bg-[#D7D2CC] px-[16px] py-[8px] font-['Nunito'] font-medium text-[18px] leading-[24px] text-[#2F2B28]"
+                            className="rounded-[4px] bg-[#D7D2CC] px-[16px] py-[8px] font-['Nunito'] font-medium text-[15px] leading-6 text-[#2F2B28] sm:text-[16px] md:text-[18px]"
                           >
                             {lang}
                           </span>
@@ -400,11 +400,11 @@ export function ExpertDetailPage() {
             {experiences.length > 0 && (
               <div className="flex flex-col gap-[16px]">
                 <div>
-                  <h3 className="font-['Nunito'] font-bold text-[24px] leading-[32px] text-[#AB863F]">
+                  <h3 className="font-['Nunito'] font-bold text-[20px] leading-snug text-[#AB863F] sm:text-[22px] md:text-[24px] md:leading-8">
                     Curated Experiences
                   </h3>
                   <p
-                    className="text-[24px] leading-[40px] text-[#73706C]"
+                    className="text-[18px] leading-snug text-[#73706C] sm:text-[20px] md:text-[24px] md:leading-10"
                     style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 350 }}
                   >
                     Journeys with {firstName}
@@ -445,7 +445,7 @@ export function ExpertDetailPage() {
                                 {/* Title + share */}
                                 <div className="flex items-center justify-between">
                                   <h4
-                                    className="text-[24px] leading-[32px] text-[#2F2B28]"
+                                    className="text-[18px] leading-snug text-[#2F2B28] sm:text-[20px] md:text-[24px] md:leading-8"
                                     style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300 }}
                                   >
                                     {item.title}
@@ -465,7 +465,7 @@ export function ExpertDetailPage() {
                                       className="overflow-hidden transition-all duration-300 ease-in-out"
                                       style={{ maxHeight: isExpanded || !canExpand ? "400px" : "58px" }}
                                     >
-                                      <p className="font-['Nunito'] font-normal text-[22px] leading-[28px] text-[#2F2B28]">
+                                      <p className="font-['Nunito'] font-normal text-[16px] leading-6 text-[#2F2B28] sm:text-[18px] md:text-[20px] lg:text-[22px] lg:leading-7">
                                         {description}
                                       </p>
                                     </div>
@@ -493,14 +493,14 @@ export function ExpertDetailPage() {
                               <div className="flex flex-wrap gap-[16px] items-center">
                                 <div className="flex items-center gap-[10px] rounded-[4px] bg-[rgba(11,110,102,0.05)] px-[16px] py-[8px]">
                                   <ClockIcon size={24} className="text-[#2F2B28]" />
-                                  <span className="font-['Nunito'] font-medium text-[18px] leading-[24px] text-[#2F2B28]">
+                                  <span className="font-['Nunito'] font-medium text-[15px] leading-6 text-[#2F2B28] sm:text-[16px] md:text-[18px]">
                                     {durationLabel(item)}
                                   </span>
                                 </div>
                                 {(item.group_size?.min != null || item.group_size?.max != null) && (
                                   <div className="flex items-center gap-[10px] rounded-[4px] bg-[rgba(11,110,102,0.05)] px-[16px] py-[8px]">
                                     <UsersThreeIcon size={24} className="text-[#2F2B28]" />
-                                    <span className="font-['Nunito'] font-medium text-[18px] leading-[24px] text-[#2F2B28]">
+                                    <span className="font-['Nunito'] font-medium text-[15px] leading-6 text-[#2F2B28] sm:text-[16px] md:text-[18px]">
                                       {item.group_size?.min ?? 1} – {item.group_size?.max ?? 1}
                                     </span>
                                   </div>
@@ -508,7 +508,7 @@ export function ExpertDetailPage() {
                                 {item.pricing?.amount != null && (
                                   <div className="flex items-center gap-[10px] rounded-[4px] bg-[rgba(11,110,102,0.05)] px-[16px] py-[8px]">
                                     <CurrencyInrIcon size={24} className="text-[#2F2B28]" />
-                                    <span className="font-['Nunito'] font-medium text-[18px] leading-[24px] text-[#2F2B28]">
+                                    <span className="font-['Nunito'] font-medium text-[15px] leading-6 text-[#2F2B28] sm:text-[16px] md:text-[18px]">
                                       {item.pricing.amount} / {item.pricing.per ?? "person"}
                                     </span>
                                   </div>
@@ -521,7 +521,7 @@ export function ExpertDetailPage() {
                           <div>
                             <button
                               type="button"
-                              className="inline-flex h-[40px] w-[192px] items-center justify-center gap-[10px] rounded-[4px] border-[0.8px] border-[#3B372F] bg-[rgba(243,239,234,0.01)] font-['Nunito'] font-medium text-[18px] text-[#3B372F] hover:bg-[#3B372F]/5 transition-colors"
+                              className="inline-flex h-[40px] w-[192px] items-center justify-center gap-[10px] rounded-[4px] border-[0.8px] border-[#3B372F] bg-[rgba(243,239,234,0.01)] font-['Nunito'] font-medium text-[15px] text-[#3B372F] sm:text-[16px] md:text-[18px] hover:bg-[#3B372F]/5 transition-colors"
                               onClick={() => setSelectedExperience(item)}
                             >
                               View Details
@@ -540,10 +540,10 @@ export function ExpertDetailPage() {
             {testimonials.length > 0 && (
               <div className="flex flex-col gap-[16px]">
                 <div>
-                  <h3 className="font-['Nunito'] font-bold text-[24px] leading-[32px] text-[#AB863F]">
+                  <h3 className="font-['Nunito'] font-bold text-[20px] leading-snug text-[#AB863F] sm:text-[22px] md:text-[24px] md:leading-8">
                     Testimonials
                   </h3>
-                  <p className="font-['Nunito'] font-bold text-[28px] leading-[40px] text-[#73706C]">
+                  <p className="font-['Nunito'] font-bold text-[20px] leading-snug text-[#73706C] sm:text-[24px] md:text-[28px] md:leading-10">
                     What travellers say
                   </p>
                 </div>
@@ -559,12 +559,12 @@ export function ExpertDetailPage() {
                             <span key={i} className="size-[32px] text-[#e3bf5d]">★</span>
                           ))}
                         </div>
-                        <p className="font-['Nunito'] font-normal text-[20px] leading-[28px] text-[#2F2B28]">
+                        <p className="font-['Nunito'] font-normal text-[16px] leading-6 text-[#2F2B28] sm:text-[18px] md:text-[20px] md:leading-7">
                           {item.content}
                         </p>
                       </div>
                       <div>
-                        <p className="font-['Nunito'] font-medium text-[18px] leading-[24px] text-[#0B6E66]">
+                        <p className="font-['Nunito'] font-medium text-[15px] leading-6 text-[#0B6E66] sm:text-[16px] md:text-[18px]">
                           {item.author_name}
                         </p>
                         {item.author_location && (
@@ -583,10 +583,10 @@ export function ExpertDetailPage() {
             {fieldEntries.length > 0 && (
               <div className="flex flex-col gap-[16px]">
                 <div>
-                  <h3 className="font-['Nunito'] font-bold text-[24px] leading-[32px] text-[#AB863F]">
+                  <h3 className="font-['Nunito'] font-bold text-[20px] leading-snug text-[#AB863F] sm:text-[22px] md:text-[24px] md:leading-8">
                     From the Field
                   </h3>
-                  <p className="font-['Nunito'] font-semibold text-[24px] leading-[32px] text-[#73706C]">
+                  <p className="font-['Nunito'] font-semibold text-[18px] leading-snug text-[#73706C] sm:text-[20px] md:text-[24px] md:leading-8">
                     Visual stories, sightings, and experiences from the ground
                   </p>
                 </div>
@@ -619,10 +619,10 @@ export function ExpertDetailPage() {
             <section className="rounded-[16px] bg-[#FBF9F6] p-[32px]">
               <div className="flex flex-col gap-[32px]">
                 <div className="flex flex-col gap-[16px]">
-                  <h3 className="font-['Nunito'] font-bold text-[24px] leading-[32px] text-[#2F2B28]">
+                  <h3 className="font-['Nunito'] font-bold text-[20px] leading-snug text-[#2F2B28] sm:text-[22px] md:text-[24px] md:leading-8">
                     Make an Enquiry via Wildbook
                   </h3>
-                  <p className="font-['Nunito'] font-normal text-[22px] leading-[28px] text-[#2F2B28] text-justify">
+                  <p className="font-['Nunito'] font-normal text-[16px] leading-6 text-[#2F2B28] sm:text-[18px] md:text-[20px] lg:text-[22px] lg:leading-7 text-justify">
                     Not sure which experience is right for you? Have a question about timing, group size, or what to expect?
                     {" "}Send {firstName} a message — Wildbook will forward your enquiry within 24 hours.
                   </p>
@@ -665,7 +665,7 @@ export function ExpertDetailPage() {
                         <select
                           value={groupSize}
                           onChange={(e) => setGroupSize(e.target.value)}
-                          className="w-full appearance-none bg-transparent font-['Nunito'] text-[20px] text-[#2F2B28] outline-none"
+                          className="w-full appearance-none bg-transparent font-['Nunito'] text-[16px] text-[#2F2B28] outline-none sm:text-[18px] md:text-[20px]"
                         >
                           <option value="1">1</option>
                           <option value="2">2</option>
@@ -745,7 +745,7 @@ export function ExpertDetailPage() {
                                 setEndDate("");
                               }
                             }}
-                            className="w-full bg-transparent pr-[40px] font-['Nunito'] text-[20px] text-[#2F2B28] outline-none [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                            className="w-full bg-transparent pr-[40px] font-['Nunito'] text-[16px] text-[#2F2B28] outline-none sm:text-[18px] md:text-[20px] [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                           />
                           <CalendarDotsIcon size={24} className="absolute right-[16px] pointer-events-none text-[#73706C]" />
                         </div>
@@ -761,7 +761,7 @@ export function ExpertDetailPage() {
                             value={endDate}
                             min={startDate ? dayAfterIso(startDate) : undefined}
                             onChange={(e) => setEndDate(e.target.value)}
-                            className="w-full bg-transparent pr-[40px] font-['Nunito'] text-[20px] text-[#2F2B28] outline-none [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                            className="w-full bg-transparent pr-[40px] font-['Nunito'] text-[16px] text-[#2F2B28] outline-none sm:text-[18px] md:text-[20px] [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                           />
                           <CalendarDotsIcon size={24} className="absolute right-[16px] pointer-events-none text-[#73706C]" />
                         </div>
@@ -779,7 +779,7 @@ export function ExpertDetailPage() {
                       rows={4}
                       value={enquiryMessage}
                       onChange={(e) => setEnquiryMessage(e.target.value)}
-                      className="w-full rounded-[4px] bg-[#F6F4F0] px-[16px] py-[14px] font-['Nunito'] font-normal text-[20px] text-[#2F2B28] placeholder:text-[rgba(47,43,40,0.4)] outline-none"
+                      className="w-full rounded-[4px] bg-[#F6F4F0] px-[16px] py-[14px] font-['Nunito'] font-normal text-[16px] text-[#2F2B28] outline-none placeholder:text-[rgba(47,43,40,0.4)] sm:text-[18px] md:text-[20px]"
                     />
                     {submitAttempted && validationErrors.enquiryMessage && (
                       <p className="text-[12px] text-red-600">{validationErrors.enquiryMessage}</p>
@@ -792,7 +792,7 @@ export function ExpertDetailPage() {
                     type="button"
                     onClick={() => void handleSubmitInquiry()}
                     disabled={submitStatus === "submitting" || !isFormValid}
-                    className="h-[56px] w-full rounded-[4px] bg-[#0B6E66] font-['Nunito'] font-medium text-[18px] text-[#FAFAFA] hover:bg-[#074A46] disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                    className="h-[56px] w-full rounded-[4px] bg-[#0B6E66] font-['Nunito'] font-medium text-[15px] text-[#FAFAFA] sm:text-[16px] md:text-[18px] hover:bg-[#074A46] disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
                   >
                     {submitStatus === "submitting" ? "Submitting..." : "Submit Enquiry"}
                   </button>

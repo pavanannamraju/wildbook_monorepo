@@ -148,7 +148,7 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
         backgroundColor={isLight ? "#00000000" : "#f3eee9"}
         distortion={0}
       >
-        <div className="flex w-full items-center justify-between gap-4 px-[88px]">
+        <div className="flex w-full items-center justify-between gap-3 page-px sm:gap-4">
           {/* Logo */}
           <Link to="/" className="flex shrink-0 items-center" aria-label="Wildbook home">
             <img
@@ -261,7 +261,7 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
             mobileMenuOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          <div className="flex flex-col gap-1 border-t border-black/10 py-4 px-4">
+          <div className="flex flex-col gap-1 border-t border-black/10 py-4 page-px">
             {NAV_LINKS.map((link) => (
               <NavLink
                 key={link.label}

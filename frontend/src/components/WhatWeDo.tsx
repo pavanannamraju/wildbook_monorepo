@@ -19,8 +19,8 @@ function StatusTag({ variant, children }: { variant: "live" | "comingSoon"; chil
     <span
       className={
         variant === "live"
-          ? "animate-live-pulse inline-flex items-center justify-center h-[40px] px-[16px] rounded-[4px] bg-[#ab863f]/80 backdrop-blur-[2px] font-['Nunito'] font-semibold text-[16px] lg:text-[16px] text-[#FAFAFA]"
-          : "inline-flex items-center justify-center h-[40px] px-[16px] rounded-[4px] border border-dashed border-[#6B6B6B]/80 backdrop-blur-[2px] font-['Nunito'] font-semibold text-[16px] lg:text-[16px] text-[#6B6B6B]"
+          ? "animate-live-pulse inline-flex h-9 items-center justify-center rounded-[4px] bg-[#ab863f]/80 px-3.5 font-['Nunito'] text-[14px] font-semibold text-[#FAFAFA] backdrop-blur-[2px] sm:h-10 sm:px-4 sm:text-[16px]"
+          : "inline-flex h-9 items-center justify-center rounded-[4px] border border-dashed border-[#6B6B6B]/80 px-3.5 font-['Nunito'] text-[14px] font-semibold text-[#6B6B6B] backdrop-blur-[2px] sm:h-10 sm:px-4 sm:text-[16px]"
       }
     >
       {children}
@@ -32,25 +32,23 @@ export function WhatWeDo() {
   const navigate = useNavigate();
 
   return (
-    <section className="relative pt-16 lg:pt-20 pb-8 page-px max-w-[1920px] mx-auto">
-      {/* Section header */}
-      <div className="mb-[24px] lg:mb-[40px] flex flex-col gap-[8px]">
-        <h2 className="font-['Nunito'] font-bold text-[18px] lg:text-[24px] leading-[32px] text-[#AB863F]">
+    <section className="relative mx-auto max-w-[1920px] page-px pt-12 pb-6 sm:pt-16 sm:pb-8 lg:pt-20">
+      <div className="mb-5 flex flex-col gap-1.5 sm:mb-6 sm:gap-2 lg:mb-10">
+        <h2 className="font-['Nunito'] font-bold text-[16px] leading-snug text-[#AB863F] sm:text-[18px] sm:leading-8 md:text-[20px] lg:text-[24px]">
           This is what was never visible before.
         </h2>
         <p
-          className="text-[18px] lg:text-[22px] leading-[28px] lg:leading-[32px] text-[#2F2B28] max-w-[900px]"
+          className="max-w-[900px] text-[16px] leading-snug text-[#2F2B28] sm:text-[18px] sm:leading-7 md:text-[20px] lg:text-[22px] lg:leading-8"
           style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 600 }}
         >
           Every wildlife journey starts somewhere. Ours starts by bringing it all together.
         </p>
       </div>
 
-      {/* Offerings: Expert Connect (live) + Shared Safaris / Homestays (coming soon) */}
-      <div className="flex flex-col lg:flex-row gap-[24px]">
+      <div className="flex flex-col gap-5 md:gap-6 lg:flex-row lg:gap-6">
         {/* Expert Connect */}
-        <div className="lg:w-1/2 shrink-0 rounded-[16px] overflow-hidden bg-[#F3EEE9] flex flex-col">
-          <div className="relative h-[220px] lg:h-[364px] shrink-0">
+        <div className="flex shrink-0 flex-col overflow-hidden rounded-xl bg-[#F3EEE9] sm:rounded-2xl lg:w-1/2">
+          <div className="relative h-[200px] shrink-0 sm:h-[260px] md:h-[300px] lg:h-[364px]">
             <img
               src={ExpertConnectImage}
               alt="Guide walking with a traveller in the forest"
@@ -63,23 +61,23 @@ export function WhatWeDo() {
                   "linear-gradient(90deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 50%), linear-gradient(180deg, rgba(0,0,0,0) 15%, rgba(0,0,0,0.4) 100%)",
               }}
             />
-            <div className="absolute top-[16px] left-[16px] lg:top-[37px] lg:left-[48px]">
+            <div className="absolute top-3 left-3 sm:top-4 sm:left-4 md:top-6 md:left-6 lg:top-[37px] lg:left-12">
               <StatusTag variant="live">Live Now</StatusTag>
             </div>
             <p
-              className="absolute bottom-[16px] left-[16px] right-[16px] lg:bottom-[24px] lg:left-[48px] lg:right-[48px] uppercase tracking-[0.4px] text-[22px] lg:text-[32px] leading-[1.2] text-[#E3DDD8]"
+              className="absolute right-3 bottom-3 left-3 text-[20px] leading-[1.2] tracking-[0.4px] text-[#E3DDD8] uppercase sm:right-4 sm:bottom-4 sm:left-4 sm:text-[22px] md:text-[26px] lg:right-12 lg:bottom-6 lg:left-12 lg:text-[32px]"
               style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 500 }}
             >
               Expert Connect
             </p>
           </div>
 
-          <div className="flex flex-col gap-[16px] p-[24px] lg:p-[48px]">
-            <h3 className="font-['Nunito'] font-bold text-[22px] lg:text-[28px] leading-snug lg:leading-[40px] text-[#0B6E66]">
+          <div className="flex flex-col gap-3 p-5 sm:gap-4 sm:p-6 md:p-8 lg:gap-4 lg:p-12">
+            <h3 className="font-['Nunito'] font-bold text-[18px] leading-snug text-[#0B6E66] sm:text-[22px] md:text-[24px] lg:text-[28px] lg:leading-10">
               Begin your journey with the people who know the forest best.
             </h3>
-            <p className="font-['Nunito'] text-[16px] lg:text-[20px] leading-[24px] lg:leading-[28px] text-[#2F2B28] text-justify">
-              Naturalists and forest guides who've spent decades in the field - the birder who
+            <p className="text-justify font-['Nunito'] text-[15px] leading-6 text-[#2F2B28] sm:text-[16px] md:text-[18px] md:leading-7 lg:text-[20px]">
+              Naturalists and forest guides who&apos;ve spent decades in the field - the birder who
               knows the exact tree a hornbill returns to every March, the herping guide who can
               spot a pit viper by torchlight thirty feet off the trail -{" "}
               <span className="font-bold">
@@ -87,8 +85,9 @@ export function WhatWeDo() {
               </span>
             </p>
             <button
+              type="button"
               onClick={() => navigate("/experts")}
-              className="inline-flex items-center justify-center font-['Nunito'] font-medium text-[14px] lg:text-[18px] text-[#3B372F] border-[0.8px] border-[#3B372F] rounded-[4px] px-[24px] h-[40px] w-fit hover:bg-[#3B372F]/5 transition-colors"
+              className="inline-flex h-10 w-fit items-center justify-center rounded-[4px] border-[0.8px] border-[#3B372F] px-5 font-['Nunito'] text-[14px] font-medium text-[#3B372F] transition-colors hover:bg-[#3B372F]/5 sm:px-6 lg:text-[18px]"
             >
               Find your Expert
             </button>
@@ -96,19 +95,19 @@ export function WhatWeDo() {
         </div>
 
         {/* Shared Safaris + Homestays */}
-        <div className="lg:w-1/2 flex flex-col gap-[24px]">
+        <div className="flex flex-col gap-5 sm:gap-6 lg:w-1/2">
           {comingSoonOfferings.map((offering) => (
             <div
               key={offering.title}
-              className="relative flex-1 rounded-[16px] bg-[#F3EEE9] p-[24px] lg:p-[48px] flex flex-col gap-[16px] justify-center"
+              className="relative flex flex-1 flex-col justify-center gap-3 rounded-xl bg-[#F3EEE9] p-5 sm:gap-4 sm:rounded-2xl sm:p-6 md:p-8 lg:p-12"
             >
-              <div className="absolute top-[16px] left-[16px] lg:top-[32px] lg:left-[48px]">
+              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 md:top-6 md:left-6 lg:top-8 lg:left-12">
                 <StatusTag variant="comingSoon">Coming Soon</StatusTag>
               </div>
-              <h3 className="mt-[40px] lg:mt-[24px] font-['Nunito'] font-bold uppercase tracking-[0.32px] text-[22px] lg:text-[28x] leading-snug text-[#2F2B28]">
+              <h3 className="mt-9 font-['Nunito'] text-[18px] leading-snug font-bold tracking-[0.32px] text-[#2F2B28] uppercase sm:mt-10 sm:text-[22px] md:text-[24px] lg:mt-6 lg:text-[28px]">
                 {offering.title}
               </h3>
-              <p className="font-['Nunito'] text-[16px] lg:text-[20px] leading-[24px] lg:leading-[28px] text-[#2F2B28] text-justify">
+              <p className="text-justify font-['Nunito'] text-[15px] leading-6 text-[#2F2B28] sm:text-[16px] md:text-[18px] md:leading-7 lg:text-[20px]">
                 {offering.description}
               </p>
             </div>

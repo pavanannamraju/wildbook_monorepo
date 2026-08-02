@@ -30,7 +30,7 @@ export function AccountSettingsPage() {
 
   return (
     <div>
-      <h1 className="text-[22px] font-semibold text-(--color-wildbook-text)">Settings</h1>
+      <h1 className="text-[18px] font-semibold text-(--color-wildbook-text) sm:text-[20px] md:text-[22px]">Settings</h1>
       <p className="mt-1 text-sm text-(--color-wildbook-muted)">Manage how you sign in and your account status.</p>
 
       {user ? (

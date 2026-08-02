@@ -1,5 +1,5 @@
 import L from "leaflet";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { MapContainer, Marker, Popup, TileLayer, ZoomControl, useMap } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 
@@ -145,6 +145,271 @@ function ChevronIcon({ direction }: { direction: "left" | "right" }) {
     >
       <path d={path} />
     </svg>
+  );
+}
+
+function MapFiltersPanel({
+  query,
+  category,
+  categories,
+  resultCount,
+  showLegend,
+  onQueryChange,
+  onCategoryChange,
+  onReset,
+}: {
+  query: string;
+  category: string;
+  categories: string[];
+  resultCount: number;
+  showLegend: boolean;
+  onQueryChange: (value: string) => void;
+  onCategoryChange: (value: string) => void;
+  onReset: () => void;
+}) {
+  return (
+    <div className="rounded-xl border border-black/10 bg-white/95 p-3 shadow-lg backdrop-blur sm:rounded-2xl sm:p-4">
+      <div className="flex flex-col gap-2.5 sm:gap-3">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-3 lg:grid-cols-1">
+          <label className="flex min-w-0 flex-col gap-1">
+            <span className="text-xs font-semibold text-wildbook-muted">Search</span>
+            <input
+              value={query}
+              onChange={(e) => onQueryChange(e.target.value)}
+              placeholder="Name, state, district…"
+              className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-wildbook-teal/30"
+            />
+          </label>
+
+          <label className="flex min-w-0 flex-col gap-1">
+            <span className="text-xs font-semibold text-wildbook-muted">Category</span>
+            <select
+              value={category}
+              onChange={(e) => onCategoryChange(e.target.value)}
+              className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-wildbook-teal/30"
+            >
+              {categories.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <div className="flex items-center justify-between gap-3">
+          <div className="text-sm text-wildbook-muted">
+            <span className="font-semibold text-wildbook-text">{formatNumber(resultCount)}</span>{" "}
+            results
+          </div>
+          <button
+            type="button"
+            onClick={onReset}
+            className="shrink-0 text-sm text-wildbook-teal hover:underline"
+          >
+            Reset
+          </button>
+        </div>
+
+        {showLegend ? (
+          <div className="flex flex-col gap-1.5 border-t border-black/10 pt-3">
+            {categories
+              .filter((c) => c !== "All")
+              .map((c) => (
+                <div key={c} className="flex items-center gap-2 text-xs text-wildbook-muted">
+                  <span
+                    className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: pinColorForCategory(c) }}
+                  />
+                  {c}
+                </div>
+              ))}
+            <div className="flex items-center gap-2 text-xs text-wildbook-muted">
+              <span
+                className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                style={{ backgroundColor: SELECTED_PIN_COLOR }}
+              />
+              Selected
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-black/10 pt-2.5">
+            {categories
+              .filter((c) => c !== "All")
+              .map((c) => (
+                <div key={c} className="flex items-center gap-1.5 text-[11px] text-wildbook-muted">
+                  <span
+                    className="inline-block h-2 w-2 shrink-0 rounded-full"
+                    style={{ backgroundColor: pinColorForCategory(c) }}
+                  />
+                  {c}
+                </div>
+              ))}
+            <div className="flex items-center gap-1.5 text-[11px] text-wildbook-muted">
+              <span
+                className="inline-block h-2 w-2 shrink-0 rounded-full"
+                style={{ backgroundColor: SELECTED_PIN_COLOR }}
+              />
+              Selected
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+type MapResultsPanelProps = {
+  status: "idle" | "loading" | "success" | "error";
+  error: string | null;
+  filteredCount: number;
+  pageDocs: MapsDataDocument[];
+  selectedId: string | null;
+  selectedItemRef: RefObject<HTMLLIElement | null>;
+  safePage: number;
+  totalPages: number;
+  onSelect: (id: string) => void;
+  onCollapse?: () => void;
+  onPrevPage: () => void;
+  onNextPage: () => void;
+  className?: string;
+};
+
+function MapResultsPanel({
+  status,
+  error,
+  filteredCount,
+  pageDocs,
+  selectedId,
+  selectedItemRef,
+  safePage,
+  totalPages,
+  onSelect,
+  onCollapse,
+  onPrevPage,
+  onNextPage,
+  className = "",
+}: MapResultsPanelProps) {
+  return (
+    <div
+      className={`flex min-h-0 flex-col overflow-hidden rounded-xl border border-black/10 bg-white/95 shadow-lg backdrop-blur sm:rounded-2xl ${className}`}
+    >
+      <div className="flex items-center justify-between gap-2 border-b border-black/10 px-3 py-2.5 sm:px-4 sm:py-3">
+        <div className="font-semibold text-wildbook-text">Results</div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-wildbook-muted">{formatNumber(filteredCount)} sites</span>
+          {onCollapse ? (
+            <button
+              type="button"
+              onClick={onCollapse}
+              aria-label="Collapse results"
+              title="Collapse results"
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-wildbook-muted transition-colors hover:bg-black/5 hover:text-wildbook-text"
+            >
+              <ChevronIcon direction="right" />
+            </button>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        {status === "loading" && (
+          <ul className="flex flex-col">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <li key={i} className="border-b border-black/5 px-4 py-3 last:border-b-0">
+                <div className="h-4 w-2/3 animate-pulse rounded bg-black/10" />
+                <div className="mt-2 h-3 w-1/2 animate-pulse rounded bg-black/10" />
+                <div className="mt-2 h-3 w-2/5 animate-pulse rounded bg-black/10" />
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {status === "error" && (
+          <div className="m-4 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-900">
+            {error}
+          </div>
+        )}
+
+        {status === "success" && filteredCount === 0 && (
+          <div className="px-4 py-6 text-sm text-wildbook-muted">
+            No sites match your search. Try a different name or category.
+          </div>
+        )}
+
+        {status === "success" && filteredCount > 0 && (
+          <ul className="flex flex-col">
+            {pageDocs.map((doc) => {
+              const isSelected = doc._id.$oid === selectedId;
+              return (
+                <li
+                  key={doc._id.$oid}
+                  ref={isSelected ? selectedItemRef : undefined}
+                  className="border-b border-black/5 last:border-b-0"
+                >
+                  <button
+                    type="button"
+                    onClick={() => onSelect(doc._id.$oid)}
+                    className={`block w-full px-3 py-2.5 text-left transition-colors sm:px-4 sm:py-3 ${
+                      isSelected
+                        ? "border-l-4 border-wildbook-teal bg-wildbook-teal/15 pl-2.5 sm:pl-3"
+                        : "border-l-4 border-transparent hover:bg-black/5"
+                    }`}
+                  >
+                    <div className="font-semibold leading-snug text-wildbook-text">{doc.name}</div>
+                    <div className="mt-0.5 text-xs text-wildbook-muted">
+                      {doc.category} · {doc.district}, {doc.state}
+                    </div>
+                    <div className="mt-1 text-xs text-wildbook-muted">
+                      {doc.area_display} · Best time: {doc.year_visit}
+                    </div>
+
+                    {isSelected && (
+                      <div className="mt-2 flex flex-col gap-2 border-t border-black/10 pt-2 text-xs text-wildbook-muted">
+                        <div>
+                          <span className="font-semibold text-wildbook-text">Habitat:</span>{" "}
+                          {doc.habitat}
+                        </div>
+                        <div>
+                          <span className="font-semibold text-wildbook-text">Bio zone:</span>{" "}
+                          {doc.bio_zone}
+                        </div>
+                        <TagList label="Wildlife" items={doc.animals} />
+                        <TagList label="Flora" items={doc.plants} italic />
+                      </div>
+                    )}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+
+      {status === "success" && totalPages > 1 && (
+        <div className="flex items-center justify-between border-t border-black/10 px-3 py-2 sm:px-4">
+          <button
+            type="button"
+            disabled={safePage <= 1}
+            onClick={onPrevPage}
+            className="rounded-lg px-2 py-1 text-sm text-wildbook-teal hover:underline disabled:cursor-not-allowed disabled:text-wildbook-muted/50 disabled:no-underline"
+          >
+            Prev
+          </button>
+          <div className="text-xs text-wildbook-muted">
+            Page {safePage} / {totalPages}
+          </div>
+          <button
+            type="button"
+            disabled={safePage >= totalPages}
+            onClick={onNextPage}
+            className="rounded-lg px-2 py-1 text-sm text-wildbook-teal hover:underline disabled:cursor-not-allowed disabled:text-wildbook-muted/50 disabled:no-underline"
+          >
+            Next
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -330,270 +595,177 @@ export function MapSection() {
   };
 
   return (
-    <section className="pt-16 lg:pt-20 mx-auto max-w-[1920px] page-px">
-      <div className="flex flex-col gap-[8px] mb-6 lg:mb-[24px]">
-        <h2 className="font-['Nunito'] font-bold text-[18px] lg:text-[24px] leading-[32px] text-[#AB863F]">
+    <section className="mx-auto max-w-[1920px] page-px pt-12 sm:pt-16 lg:pt-20">
+      <div className="mb-4 flex flex-col gap-1.5 sm:mb-5 sm:gap-2 md:mb-5 lg:mb-6">
+        <h2 className="font-['Nunito'] font-bold text-[16px] leading-snug text-[#AB863F] sm:text-[18px] sm:leading-8 md:text-[20px] lg:text-[24px]">
           Find Your Next Wildlife Destination
         </h2>
-        <p className="font-['Nunito'] font-semibold text-[16px] lg:text-[24px] leading-snug lg:leading-[32px] text-[#2F2B28] max-w-3xl">
-          Navigate through national parks, uncover the best seasons, and plan meaningful wildlife experiences.
+        <p className="max-w-3xl font-['Nunito'] font-semibold text-[15px] leading-snug text-[#2F2B28] sm:text-[16px] md:text-[18px] lg:text-[24px] lg:leading-8">
+          Navigate through national parks, uncover the best seasons, and plan meaningful wildlife
+          experiences.
         </p>
       </div>
 
-      {/* `isolate` scopes Leaflet's internal z-indexes so the map never paints over the navbar. */}
-      <div
-        id="map"
-        className="relative isolate h-[560px] lg:h-[680px] w-full scroll-mt-28 overflow-hidden rounded-2xl border border-black/10 bg-white/40 shadow-[0_20px_60px_rgba(0,0,0,0.08)]"
-      >
-        <MapContainer
-          center={DEFAULT_CENTER}
-          zoom={DEFAULT_ZOOM}
-          scrollWheelZoom={false}
-          zoomControl={false}
-          className="absolute inset-0 h-full w-full"
+      {/* Mobile / tablet filters sit above the map so the map stays usable */}
+      <div className="mb-3 lg:hidden">
+        <MapFiltersPanel
+          query={query}
+          category={category}
+          categories={categories}
+          resultCount={filteredDocs.length}
+          showLegend={false}
+          onQueryChange={handleQueryChange}
+          onCategoryChange={handleCategoryChange}
+          onReset={resetFilters}
+        />
+      </div>
+
+      <div className="flex flex-col gap-3 lg:block">
+        {/* `isolate` scopes Leaflet's internal z-indexes so the map never paints over the navbar. */}
+        <div
+          id="map"
+          className="relative isolate h-[300px] w-full scroll-mt-28 overflow-hidden rounded-xl border border-black/10 bg-white/40 shadow-[0_20px_60px_rgba(0,0,0,0.08)] sm:h-[380px] sm:rounded-2xl md:h-[520px] lg:h-[680px]"
         >
-          <ZoomControl position="bottomleft" />
-          <MapViewController points={points} selectedTarget={selectedPoint} />
-          <TileLayer
-            attribution='Tiles &copy; <a href="https://www.esri.com/">Esri</a> &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community'
-            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}"
-          />
-          {status === "success" && (
-            <MarkerClusterGroup
-              chunkedLoading
-              showCoverageOnHover={false}
-              iconCreateFunction={createClusterIcon}
-            >
-              {filteredDocs.map((doc) => {
-                const position = asLatLng(doc);
-                const isSelected = doc._id.$oid === selectedId;
-                const pinColor = isSelected ? SELECTED_PIN_COLOR : pinColorForCategory(doc.category);
-                return (
-                  <Marker
-                    key={doc._id.$oid}
-                    position={position}
-                    icon={getPinIcon(pinColor, isSelected)}
-                    zIndexOffset={isSelected ? 1000 : 0}
-                    eventHandlers={{
-                      click: () => setSelectedId(doc._id.$oid),
-                    }}
-                  >
-                    <Popup>
-                      <div className="min-w-[240px]">
-                        <div className="font-semibold text-wildbook-text">{doc.name}</div>
-                        <div className="text-sm text-wildbook-muted">
-                          {doc.category} · {doc.district}, {doc.state}
-                        </div>
-                        <div className="text-sm text-wildbook-muted mt-1">
-                          {doc.area_display} · Best time: {doc.year_visit}
-                        </div>
-                        {doc.animals.length > 0 && (
-                          <div className="text-sm text-wildbook-muted mt-1">
-                            <span className="font-semibold text-wildbook-text">Wildlife:</span>{" "}
-                            {doc.animals.slice(0, 5).join(", ")}
-                            {doc.animals.length > 5 ? ` +${doc.animals.length - 5} more` : ""}
+          <MapContainer
+            center={DEFAULT_CENTER}
+            zoom={DEFAULT_ZOOM}
+            scrollWheelZoom={false}
+            zoomControl={false}
+            className="absolute inset-0 h-full w-full"
+          >
+            <ZoomControl position="bottomleft" />
+            <MapViewController points={points} selectedTarget={selectedPoint} />
+            <TileLayer
+              attribution='Tiles &copy; <a href="https://www.esri.com/">Esri</a> &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community'
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}"
+            />
+            {status === "success" && (
+              <MarkerClusterGroup
+                chunkedLoading
+                showCoverageOnHover={false}
+                iconCreateFunction={createClusterIcon}
+              >
+                {filteredDocs.map((doc) => {
+                  const position = asLatLng(doc);
+                  const isSelected = doc._id.$oid === selectedId;
+                  const pinColor = isSelected
+                    ? SELECTED_PIN_COLOR
+                    : pinColorForCategory(doc.category);
+                  return (
+                    <Marker
+                      key={doc._id.$oid}
+                      position={position}
+                      icon={getPinIcon(pinColor, isSelected)}
+                      zIndexOffset={isSelected ? 1000 : 0}
+                      eventHandlers={{
+                        click: () => setSelectedId(doc._id.$oid),
+                      }}
+                    >
+                      <Popup>
+                        <div className="min-w-[200px] max-w-[280px] sm:min-w-[240px]">
+                          <div className="font-semibold text-wildbook-text">{doc.name}</div>
+                          <div className="text-sm text-wildbook-muted">
+                            {doc.category} · {doc.district}, {doc.state}
                           </div>
-                        )}
-                      </div>
-                    </Popup>
-                  </Marker>
-                );
-              })}
-            </MarkerClusterGroup>
-          )}
-        </MapContainer>
+                          <div className="mt-1 text-sm text-wildbook-muted">
+                            {doc.area_display} · Best time: {doc.year_visit}
+                          </div>
+                          {doc.animals.length > 0 && (
+                            <div className="mt-1 text-sm text-wildbook-muted">
+                              <span className="font-semibold text-wildbook-text">Wildlife:</span>{" "}
+                              {doc.animals.slice(0, 5).join(", ")}
+                              {doc.animals.length > 5 ? ` +${doc.animals.length - 5} more` : ""}
+                            </div>
+                          )}
+                        </div>
+                      </Popup>
+                    </Marker>
+                  );
+                })}
+              </MarkerClusterGroup>
+            )}
+          </MapContainer>
 
-        {/* Left overlay: search + filters */}
-        <div className="pointer-events-none absolute left-3 top-3 z-[1000] w-[min(320px,calc(100%-5.5rem))]">
-          <div className="pointer-events-auto rounded-2xl border border-black/10 bg-white/90 p-4 shadow-lg backdrop-blur">
-            <div className="flex flex-col gap-3">
-              <label className="flex flex-col gap-1">
-                <span className="text-xs font-semibold text-wildbook-muted">Search</span>
-                <input
-                  value={query}
-                  onChange={(e) => handleQueryChange(e.target.value)}
-                  placeholder="Name, state, district…"
-                  className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-wildbook-teal/30"
-                />
-              </label>
-
-              <label className="flex flex-col gap-1">
-                <span className="text-xs font-semibold text-wildbook-muted">Category</span>
-                <select
-                  value={category}
-                  onChange={(e) => handleCategoryChange(e.target.value)}
-                  className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-wildbook-teal/30"
-                >
-                  {categories.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-wildbook-muted">
-                  <span className="font-semibold text-wildbook-text">{formatNumber(filteredDocs.length)}</span> results
-                </div>
-                <button
-                  type="button"
-                  onClick={resetFilters}
-                  className="text-sm text-wildbook-teal hover:underline"
-                >
-                  Reset
-                </button>
-              </div>
-
-              <div className="flex flex-col gap-1.5 border-t border-black/10 pt-3">
-                {categories
-                  .filter((c) => c !== "All")
-                  .map((c) => (
-                    <div key={c} className="flex items-center gap-2 text-xs text-wildbook-muted">
-                      <span
-                        className="inline-block h-2.5 w-2.5 rounded-full"
-                        style={{ backgroundColor: pinColorForCategory(c) }}
-                      />
-                      {c}
-                    </div>
-                  ))}
-                <div className="flex items-center gap-2 text-xs text-wildbook-muted">
-                  <span
-                    className="inline-block h-2.5 w-2.5 rounded-full"
-                    style={{ backgroundColor: SELECTED_PIN_COLOR }}
-                  />
-                  Selected
-                </div>
-              </div>
+          {/* Desktop: search + filters overlay */}
+          <div className="pointer-events-none absolute top-4 left-4 z-1000 hidden w-[320px] lg:block">
+            <div className="pointer-events-auto">
+              <MapFiltersPanel
+                query={query}
+                category={category}
+                categories={categories}
+                resultCount={filteredDocs.length}
+                showLegend
+                onQueryChange={handleQueryChange}
+                onCategoryChange={handleCategoryChange}
+                onReset={resetFilters}
+              />
             </div>
+          </div>
+
+          {/* Desktop: collapsible results overlay */}
+          <div className="pointer-events-none absolute inset-y-4 right-4 z-1000 hidden w-[360px] flex-col items-end justify-start lg:flex">
+            {isResultsOpen ? (
+              <div className="pointer-events-auto h-full w-full min-h-0">
+                <MapResultsPanel
+                  status={status}
+                  error={error}
+                  filteredCount={filteredDocs.length}
+                  pageDocs={pageDocs}
+                  selectedId={selectedId}
+                  selectedItemRef={selectedItemRef}
+                  safePage={safePage}
+                  totalPages={totalPages}
+                  onSelect={setSelectedId}
+                  onCollapse={() => setIsResultsOpen(false)}
+                  onPrevPage={() => setPage((p) => Math.max(1, p - 1))}
+                  onNextPage={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  className="h-full"
+                />
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsResultsOpen(true)}
+                aria-label="Expand results"
+                className="pointer-events-auto flex items-center gap-2 rounded-full border border-black/10 bg-white/90 px-4 py-2 text-sm font-semibold text-wildbook-text shadow-lg backdrop-blur transition-colors hover:bg-white"
+              >
+                <ChevronIcon direction="left" />
+                Results
+                <span className="rounded-full bg-wildbook-teal/10 px-2 py-0.5 text-xs text-wildbook-teal">
+                  {formatNumber(filteredDocs.length)}
+                </span>
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Right overlay: collapsible results */}
-        <div className="pointer-events-none absolute z-[1000] flex flex-col items-end justify-end left-3 right-3 bottom-3 h-[55%] lg:inset-y-4 lg:left-auto lg:right-4 lg:h-auto lg:w-[360px] lg:justify-start">
+        {/* Mobile / tablet: results below the map */}
+        <div className="lg:hidden">
           {isResultsOpen ? (
-            <div className="pointer-events-auto flex h-full w-full min-h-0 flex-col overflow-hidden rounded-2xl border border-black/10 bg-white/90 shadow-lg backdrop-blur">
-              <div className="flex items-center justify-between gap-2 border-b border-black/10 px-4 py-3">
-                <div className="font-semibold text-wildbook-text">Results</div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-wildbook-muted">{formatNumber(filteredDocs.length)} sites</span>
-                  <button
-                    type="button"
-                    onClick={() => setIsResultsOpen(false)}
-                    aria-label="Collapse results"
-                    title="Collapse results"
-                    className="flex h-7 w-7 items-center justify-center rounded-lg text-wildbook-muted transition-colors hover:bg-black/5 hover:text-wildbook-text"
-                  >
-                    <ChevronIcon direction="right" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="min-h-0 flex-1 overflow-y-auto">
-                {status === "loading" && (
-                  <ul className="flex flex-col">
-                    {Array.from({ length: 6 }).map((_, i) => (
-                      <li key={i} className="border-b border-black/5 px-4 py-3 last:border-b-0">
-                        <div className="h-4 w-2/3 animate-pulse rounded bg-black/10" />
-                        <div className="mt-2 h-3 w-1/2 animate-pulse rounded bg-black/10" />
-                        <div className="mt-2 h-3 w-2/5 animate-pulse rounded bg-black/10" />
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                {status === "error" && (
-                  <div className="m-4 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-900">
-                    {error}
-                  </div>
-                )}
-
-                {status === "success" && filteredDocs.length === 0 && (
-                  <div className="px-4 py-6 text-sm text-wildbook-muted">
-                    No sites match your search. Try a different name or category.
-                  </div>
-                )}
-
-                {status === "success" && filteredDocs.length > 0 && (
-                  <ul className="flex flex-col">
-                    {pageDocs.map((doc) => {
-                      const isSelected = doc._id.$oid === selectedId;
-                      return (
-                        <li
-                          key={doc._id.$oid}
-                          ref={isSelected ? selectedItemRef : undefined}
-                          className="border-b border-black/5 last:border-b-0"
-                        >
-                          <button
-                            type="button"
-                            onClick={() => setSelectedId(doc._id.$oid)}
-                            className={`block w-full px-4 py-3 text-left transition-colors ${
-                              isSelected
-                                ? "border-l-4 border-wildbook-teal bg-wildbook-teal/15 pl-3"
-                                : "border-l-4 border-transparent hover:bg-black/5"
-                            }`}
-                          >
-                            <div className="font-semibold text-wildbook-text leading-snug">{doc.name}</div>
-                            <div className="mt-0.5 text-xs text-wildbook-muted">
-                              {doc.category} · {doc.district}, {doc.state}
-                            </div>
-                            <div className="mt-1 text-xs text-wildbook-muted">
-                              {doc.area_display} · Best time: {doc.year_visit}
-                            </div>
-
-                            {isSelected && (
-                              <div className="mt-2 flex flex-col gap-2 border-t border-black/10 pt-2 text-xs text-wildbook-muted">
-                                <div>
-                                  <span className="font-semibold text-wildbook-text">Habitat:</span> {doc.habitat}
-                                </div>
-                                <div>
-                                  <span className="font-semibold text-wildbook-text">Bio zone:</span> {doc.bio_zone}
-                                </div>
-                                <TagList label="Wildlife" items={doc.animals} />
-                                <TagList label="Flora" items={doc.plants} italic />
-                              </div>
-                            )}
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </div>
-
-              {status === "success" && totalPages > 1 && (
-                <div className="flex items-center justify-between border-t border-black/10 px-4 py-2">
-                  <button
-                    type="button"
-                    disabled={safePage <= 1}
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    className="rounded-lg px-2 py-1 text-sm text-wildbook-teal disabled:cursor-not-allowed disabled:text-wildbook-muted/50 hover:underline disabled:no-underline"
-                  >
-                    Prev
-                  </button>
-                  <div className="text-xs text-wildbook-muted">
-                    Page {safePage} / {totalPages}
-                  </div>
-                  <button
-                    type="button"
-                    disabled={safePage >= totalPages}
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    className="rounded-lg px-2 py-1 text-sm text-wildbook-teal disabled:cursor-not-allowed disabled:text-wildbook-muted/50 hover:underline disabled:no-underline"
-                  >
-                    Next
-                  </button>
-                </div>
-              )}
-            </div>
+            <MapResultsPanel
+              status={status}
+              error={error}
+              filteredCount={filteredDocs.length}
+              pageDocs={pageDocs}
+              selectedId={selectedId}
+              selectedItemRef={selectedItemRef}
+              safePage={safePage}
+              totalPages={totalPages}
+              onSelect={setSelectedId}
+              onCollapse={() => setIsResultsOpen(false)}
+              onPrevPage={() => setPage((p) => Math.max(1, p - 1))}
+              onNextPage={() => setPage((p) => Math.min(totalPages, p + 1))}
+              className="h-[min(420px,55svh)] sm:h-[min(480px,50svh)] md:h-[min(520px,48svh)]"
+            />
           ) : (
             <button
               type="button"
               onClick={() => setIsResultsOpen(true)}
               aria-label="Expand results"
-              className="pointer-events-auto flex items-center gap-2 rounded-full border border-black/10 bg-white/90 px-4 py-2 text-sm font-semibold text-wildbook-text shadow-lg backdrop-blur transition-colors hover:bg-white"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-black/10 bg-white/95 px-4 py-3 text-sm font-semibold text-wildbook-text shadow-md backdrop-blur transition-colors hover:bg-white sm:rounded-2xl"
             >
               <ChevronIcon direction="left" />
-              Results
+              View results
               <span className="rounded-full bg-wildbook-teal/10 px-2 py-0.5 text-xs text-wildbook-teal">
                 {formatNumber(filteredDocs.length)}
               </span>

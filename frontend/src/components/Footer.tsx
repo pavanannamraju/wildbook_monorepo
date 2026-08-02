@@ -3,8 +3,6 @@ import logoLight from "../assets/Logo Dark.png";
 import {
   EnvelopeSimpleIcon,
   InstagramLogoIcon,
-  LinkedinLogoIcon,
-  YoutubeLogoIcon,
 } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import footerTop from "../assets/Mask group (1).svg";
@@ -30,53 +28,69 @@ export function Footer() {
   };
 
   return (
-    <footer className="mt-20 mx-auto w-full max-w-[1920px] overflow-hidden bg-[#F6F4F0]">
-      <img src={footerTop} alt="" aria-hidden="true" className="block w-full h-auto select-none" />
-      <div className="page-px-footer bg-[#0e1b15] pt-10 lg:pt-14 pb-6 lg:pb-8">
+    <footer className="mx-auto mt-12 w-full max-w-[1920px] overflow-hidden bg-[#F6F4F0] sm:mt-16 lg:mt-20">
+      <img src={footerTop} alt="" aria-hidden="true" className="block h-auto w-full select-none" />
+      <div className="page-px-footer bg-[#0e1b15] pt-8 pb-5 sm:pt-10 sm:pb-6 md:pt-12 lg:pt-14 lg:pb-8">
         {/* Main footer row */}
-        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-10 lg:gap-[80px]">
+        <div className="flex flex-col gap-8 sm:gap-10 md:flex-row md:items-start md:justify-between md:gap-12 lg:gap-20">
           {/* Left: Logo + description + copyright */}
-          <div className="flex flex-col gap-[40px] lg:gap-[56px] lg:w-[380px] shrink-0">
-            <div className="flex flex-col gap-[16px]">
+          <div className="flex shrink-0 flex-col gap-8 sm:gap-10 md:w-[280px] lg:w-[380px] lg:gap-14">
+            <div className="flex flex-col gap-3 sm:gap-4">
               <Link to="/" className="inline-flex items-center" aria-label="Wildbook home">
-                <img src={logoLight} alt="Wildbook" className="h-10 lg:h-[56px] w-auto" />
+                <img
+                  src={logoLight}
+                  alt="Wildbook"
+                  className="h-8 w-auto sm:h-10 lg:h-14"
+                />
               </Link>
-              <p className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#fafafa] max-w-[380px]">
-                We connect travellers with trusted guides, naturalists, and wildlife experts
-                so every journey becomes an informed, immersive encounter that sustains places
-                and people.
+              <p className="max-w-[380px] font-['Nunito'] text-[14px] leading-6 font-medium text-[#fafafa] sm:text-[15px] md:text-[16px] lg:text-[18px] lg:leading-6">
+                We connect travellers with trusted guides, naturalists, and wildlife experts so
+                every journey becomes an informed, immersive encounter that sustains places and
+                people.
               </p>
             </div>
-            <p className="font-['Nunito'] font-normal text-[14px] lg:text-[16px] leading-normal text-[#e2e2e2] tracking-[0.64px]">
+            <p className="font-['Nunito'] text-[13px] leading-normal font-normal tracking-[0.64px] text-[#e2e2e2] sm:text-[14px] lg:text-[16px]">
               © Copyright 2026&nbsp; |&nbsp; All Rights Reserved
             </p>
           </div>
 
           {/* Right: nav columns */}
-          <div className="flex flex-wrap sm:flex-nowrap gap-6 lg:gap-[40px] xl:gap-[64px]">
+          <div className="flex flex-wrap gap-6 sm:flex-nowrap sm:gap-8 md:gap-8 lg:gap-10 xl:gap-16">
             {/* Navigation */}
             <nav aria-label="Footer navigation" className="text-[#fafafa]">
-              <p className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#F0C165]">
+              <p className="font-['Nunito'] text-[14px] leading-6 font-medium text-[#F0C165] sm:text-[15px] lg:text-[18px]">
                 Navigation
               </p>
-              <ul className="mt-[18px] flex flex-col gap-[10px]">
+              <ul className="mt-4 flex flex-col gap-2 sm:mt-[18px] sm:gap-2.5">
                 <li>
-                  <Link className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#fafafa] hover:text-white transition-colors" to="/">
+                  <Link
+                    className="font-['Nunito'] text-[14px] leading-6 font-medium text-[#fafafa] transition-colors hover:text-white sm:text-[15px] lg:text-[18px]"
+                    to="/"
+                  >
                     Home
                   </Link>
                 </li>
                 <li>
-                  <Link className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#fafafa] hover:text-white transition-colors" to="/experts">
+                  <Link
+                    className="font-['Nunito'] text-[14px] leading-6 font-medium text-[#fafafa] transition-colors hover:text-white sm:text-[15px] lg:text-[18px]"
+                    to="/experts"
+                  >
                     Explore Experts
                   </Link>
                 </li>
                 <li>
-                  <Link className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#fafafa] hover:text-white transition-colors" to="/safaris">
+                  <Link
+                    className="font-['Nunito'] text-[14px] leading-6 font-medium text-[#fafafa] transition-colors hover:text-white sm:text-[15px] lg:text-[18px]"
+                    to="/safaris"
+                  >
                     Shared Safaris
                   </Link>
                 </li>
                 <li>
-                  <Link className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#fafafa] hover:text-white transition-colors" to="/homestays">
+                  <Link
+                    className="font-['Nunito'] text-[14px] leading-6 font-medium text-[#fafafa] transition-colors hover:text-white sm:text-[15px] lg:text-[18px]"
+                    to="/homestays"
+                  >
                     Homestays
                   </Link>
                 </li>
@@ -85,87 +99,56 @@ export function Footer() {
 
             {/* Company */}
             <nav aria-label="Footer company" className="text-[#fafafa]">
-              <p className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#F0C165]">
+              <p className="font-['Nunito'] text-[14px] leading-6 font-medium text-[#F0C165] sm:text-[15px] lg:text-[18px]">
                 Company
               </p>
-              <ul className="mt-[18px] flex flex-col gap-[10px]">
+              <ul className="mt-4 flex flex-col gap-2 sm:mt-[18px] sm:gap-2.5">
                 <li>
-                  <Link className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#fafafa] hover:text-white transition-colors" to="/about">
+                  <Link
+                    className="font-['Nunito'] text-[14px] leading-6 font-medium text-[#fafafa] transition-colors hover:text-white sm:text-[15px] lg:text-[18px]"
+                    to="/about"
+                  >
                     About Us
                   </Link>
                 </li>
-                {/* <li>
-                  <Link className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#fafafa] hover:text-white transition-colors" to="/responsible">
-                    Responsible<br />Wildlife Code
-                  </Link>
-                </li> */}
               </ul>
             </nav>
 
-            {/* Other Links */}
-            {/* <nav aria-label="Footer other links" className="text-[#fafafa]">
-              <p className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#F0C165]">
-                Other Links
-              </p>
-              <ul className="mt-[18px] flex flex-col gap-[10px]">
-                <li>
-                  <Link className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#fafafa] hover:text-white transition-colors" to="/faqs">
-                    FAQs
-                  </Link>
-                </li>
-                <li>
-                  <Link className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#fafafa] hover:text-white transition-colors" to="/privacy">
-                    Privacy
-                  </Link>
-                </li>
-                <li>
-                  <Link className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#fafafa] hover:text-white transition-colors" to="/terms">
-                    Terms
-                  </Link>
-                </li>
-                <li>
-                  <Link className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#fafafa] hover:text-white transition-colors" to="/feedback">
-                    Feedback
-                  </Link>
-                </li>
-              </ul>
-            </nav> */}
-
             {/* Reach us at */}
             <div className="text-[#fafafa]">
-              <p className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#F0C165]">
+              <p className="font-['Nunito'] text-[14px] leading-6 font-medium text-[#F0C165] sm:text-[15px] lg:text-[18px]">
                 Reach us at
               </p>
-              <div className="mt-[16px] flex items-center gap-[16px]">
-                <a href="https://www.instagram.com/wildbook.in" className="text-[#fafafa] hover:text-white transition-colors" aria-label="Instagram" target="_blank">
-                  <InstagramLogoIcon size={32} />
+              <div className="mt-3.5 flex items-center gap-3 sm:mt-4 sm:gap-4">
+                <a
+                  href="https://www.instagram.com/wildbook.in"
+                  className="text-[#fafafa] transition-colors hover:text-white"
+                  aria-label="Instagram"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <InstagramLogoIcon size={28} className="sm:size-8" />
                 </a>
-                {/* <a href="#" className="text-[#fafafa] hover:text-white transition-colors" aria-label="YouTube">
-                  <YoutubeLogoIcon size={32} />
-                </a>
-                <a href="#" className="text-[#fafafa] hover:text-white transition-colors" aria-label="LinkedIn">
-                  <LinkedinLogoIcon size={32} />
-                </a> */}
                 <button
                   type="button"
                   onClick={() => void copyEmail()}
-                  className="relative text-[#fafafa] hover:text-white transition-colors"
+                  className="relative text-[#fafafa] transition-colors hover:text-white"
                   aria-label={emailCopied ? "Email copied" : `Copy ${CONTACT_EMAIL}`}
                 >
-                  <EnvelopeSimpleIcon size={32} />
+                  <EnvelopeSimpleIcon size={28} className="sm:size-8" />
                   {emailCopied ? (
-                    <span className="absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap font-['Nunito'] text-[12px] text-[#F0C165]">
+                    <span className="absolute top-full left-1/2 mt-1 -translate-x-1/2 font-['Nunito'] text-[12px] whitespace-nowrap text-[#F0C165]">
                       Copied
                     </span>
                   ) : null}
                 </button>
               </div>
-              <div className="mt-[24px] flex flex-col gap-[10px]">
-                <p className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#fafafa]">
+              <div className="mt-5 flex flex-col gap-2 sm:mt-6 sm:gap-2.5">
+                <p className="font-['Nunito'] text-[14px] leading-6 font-medium text-[#fafafa] sm:text-[15px] lg:text-[18px]">
                   Bengaluru, India
                 </p>
                 <a
-                  className="font-['Nunito'] font-medium text-[15px] lg:text-[18px] leading-[24px] text-[#fafafa] hover:text-white transition-colors"
+                  className="font-['Nunito'] text-[14px] leading-6 font-medium text-[#fafafa] transition-colors hover:text-white sm:text-[15px] lg:text-[18px]"
                   href="tel:+917483735393"
                 >
                   +91 7483 73 53 93

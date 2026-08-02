@@ -4,25 +4,20 @@ import { useNavigate } from "react-router-dom";
 import {
   XIcon,
   ArrowRightIcon,
-  BookmarkSimpleIcon,
   CircleNotchIcon,
   FunnelSimpleIcon,
-  GlobeIcon,
   MagnifyingGlassIcon,
-  MapPinIcon,
-  ShareNetworkIcon,
   SignInIcon,
 } from "@phosphor-icons/react";
 
-import heroImage from "../assets/Explore_experts_Banner.png";
+import heroImage from "../assets/Banner_Image_Experts_V2.jpg";
 import { addBookmark, removeBookmark } from "../api/bookmarks";
 import { useAuth } from "../auth/AuthProvider";
 import { LoginModalContent } from "../components/auth/LoginModalContent";
 import Navbar from "../components/Navbar";
-import { PageLoader } from "../components/PageLoader";
 import { ShareLinkModal } from "../components/common/ShareLinkModal";
 import { StickyHeader } from "../components/StickyHeader";
-import { ExpertAvatar } from "../components/common/ExpertAvatar";
+import { ExpertCard, ExpertCardSkeleton } from "../components/experts/ExpertCard";
 import {
   ExpertsFilterPanel,
   type ExpertsPanelFilters,
@@ -33,6 +28,7 @@ import { useExperts } from "../hooks/useExperts";
 
 const FIRST_FREE_EXPERT_KEY = "wildbook_guest_first_expert_detail";
 const SEARCH_DEBOUNCE_MS = 300;
+const SKELETON_CARD_COUNT = 8;
 
 const EMPTY_PANEL_FILTERS: ExpertsPanelFilters = {
   primaryLocationId: null,
@@ -47,12 +43,6 @@ function areSetsEqual(left: Set<string>, right: Set<string>): boolean {
     if (!right.has(value)) return false;
   }
   return true;
-}
-
-function roleLabel(role: string): string {
-  if (role === "guide") return "FOREST GUIDE";
-  if (role === "naturalist") return "NATURALIST";
-  return role.toUpperCase();
 }
 
 export function ExploreExpertsPage() {
@@ -176,7 +166,7 @@ export function ExploreExpertsPage() {
   };
 
   const pillClass = (active: boolean) =>
-    `h-[48px] rounded-[4px] px-[24px] font-['Nunito'] font-medium text-[15px] lg:text-[18px] transition-colors ${
+    `h-10 shrink-0 rounded-[4px] px-3.5 font-['Nunito'] font-medium text-[14px] transition-colors sm:h-12 sm:px-5 sm:text-[15px] lg:px-6 lg:text-[18px] ${
       active
         ? "bg-[#0B6E66] text-[#FAFAFA]"
         : "border-[0.5px] border-[#73706C] bg-[rgba(243,239,234,0.01)] text-[#6B6B6B] hover:text-[#2F2B28]"
@@ -194,47 +184,51 @@ export function ExploreExpertsPage() {
       <StickyHeader visible={isPastHero} />
 
       {/* ── Hero ── */}
-      <section ref={heroRef} className="relative overflow-hidden bg-[#2f2b28]">
+      <section
+        ref={heroRef}
+        className="relative min-h-[320px] h-[min(52svh,560px)] overflow-hidden bg-[#2f2b28] sm:min-h-[380px] sm:h-[min(56svh,640px)] md:min-h-[400px] md:h-[min(58svh,680px)] lg:min-h-[440px] lg:h-[min(60svh,720px)]"
+      >
         <img
           src={heroImage}
           alt=""
-          className="block h-auto w-full select-none"
+          className="absolute inset-0 h-full w-full select-none object-cover object-center"
         />
 
         {/* Gradients matching Figma */}
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(47,43,40,0.72)_0%,rgba(47,43,40,0.30)_28%,rgba(47,43,40,0)_58%)]" />
-        <div className="absolute inset-x-0 top-0 h-[155px] bg-[linear-gradient(180deg,rgba(47,43,40,0.48)_0%,rgba(47,43,40,0)_100%)] mix-blend-multiply" />
-        <div className="absolute inset-x-0 bottom-0 h-[385px] bg-[linear-gradient(180deg,rgba(47,43,40,0)_0%,rgba(47,43,40,0.72)_100%)] mix-blend-multiply" />
+        <div className="absolute inset-x-0 top-0 h-20 bg-[linear-gradient(180deg,rgba(47,43,40,0.48)_0%,rgba(47,43,40,0)_100%)] mix-blend-multiply sm:h-28 md:h-[155px]" />
+        <div className="absolute inset-x-0 bottom-0 h-[40%] bg-[linear-gradient(180deg,rgba(47,43,40,0)_0%,rgba(47,43,40,0.72)_100%)] mix-blend-multiply sm:h-1/2 md:h-[385px]" />
 
-        <div className="absolute inset-0 z-10 flex flex-col">
+        <div className="relative z-10 flex h-full flex-col">
           <Navbar variant="light" />
 
           {/* Hero text — vertically centered within the banner */}
-          <div className="flex flex-1 items-center page-px py-12">
+          <div className="flex flex-1 items-center page-px py-6 sm:py-8 md:py-10 lg:py-12">
             <div className="max-w-[452px]">
-            <h1
-              className="text-[38px] leading-[1.2] text-[rgba(232,226,220,0.9)] drop-shadow-[0_4px_4px_rgba(0,0,0,0.4)] md:text-[46px] md:leading-[60px] lg:text-[56px] lg:leading-[72px]"
-              style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300 }}
-            >
-              Connect with Wildlife Experts
-            </h1>
-            <p className="mt-[16px] font-['Nunito'] font-bold text-[16px] leading-[1.4] text-[#9bcdb2] md:text-[18px] lg:text-[24px] lg:leading-[32px]">
-            Explore and connect with our growing network of guides and naturalists, helping travelers access local knowledge across India’s wildlife destinations.
-            </p>
+              <h1
+                className="text-[28px] leading-[1.2] text-[rgba(232,226,220,0.9)] drop-shadow-[0_4px_4px_rgba(0,0,0,0.4)] sm:text-[36px] md:text-[42px] md:leading-[1.15] lg:text-[56px] lg:leading-[72px]"
+                style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300 }}
+              >
+                Connect with Wildlife Experts
+              </h1>
+              <p className="mt-2.5 font-['Nunito'] font-bold text-[14px] leading-[1.4] text-[#9bcdb2] sm:mt-4 sm:text-[16px] md:text-[18px] lg:text-[24px] lg:leading-[32px]">
+                Explore and connect with our growing network of guides and naturalists, helping
+                travelers access local knowledge across India’s wildlife destinations.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
       {/* ── List section ── */}
-      <section className="bg-[#F6F4F0] page-px pt-[56px] pb-[40px] lg:pt-[32px] lg:pb-[48px]">
+      <section className="bg-[#F6F4F0] page-px pt-8 pb-10 sm:pt-10 md:pt-10 md:pb-11 lg:pt-8 lg:pb-12">
 
         {/* Title + count row */}
-        <div className="mb-[16px] flex flex-wrap items-center justify-between gap-4">
-          <h2 className="font-['Nunito'] font-bold text-[20px] lg:text-[28px] lg:leading-[40px] text-[#2F2B28]">
+        <div className="mb-4 flex flex-col gap-2 sm:mb-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-4">
+          <h2 className="font-['Nunito'] font-bold text-[18px] leading-snug text-[#2F2B28] sm:text-[20px] md:text-[24px] lg:text-[28px] lg:leading-[40px]">
             Explore Verified Forest Guides &amp; Naturalists
           </h2>
-          <p className="font-['Nunito'] font-light text-[13px] lg:text-[16px] lg:leading-[32px] text-[#73706C]">
+          <p className="shrink-0 font-['Nunito'] font-light text-[13px] text-[#73706C] md:text-[14px] lg:text-[16px] lg:leading-[32px]">
             {stats.totalCount > 0
               ? `Showing ${rangeStart}\u2013${rangeEnd} of ${stats.totalCount} experts`
               : "No experts found"}
@@ -242,9 +236,9 @@ export function ExploreExpertsPage() {
         </div>
 
         {/* Filter + search bar */}
-        <div className="mb-[32px] flex flex-wrap items-center justify-between gap-[16px]">
+        <div className="mb-6 flex flex-col gap-3 md:mb-7 md:flex-row md:items-center md:justify-between md:gap-4 lg:mb-8">
           {/* Role pills */}
-          <div className="flex gap-[16px]">
+          <div className="flex gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-3 lg:gap-4 [&::-webkit-scrollbar]:hidden">
             <button type="button" onClick={() => setRoleFilter("all")}
               className={pillClass(roleFilter === "all")}>All</button>
             <button type="button" onClick={() => setRoleFilter("guide")}
@@ -254,37 +248,40 @@ export function ExploreExpertsPage() {
           </div>
 
           {/* Search + Filter */}
-          <div className="flex min-w-0 flex-1 justify-end gap-[16px]">
-            <div className="flex h-[48px] w-full min-w-[280px] max-w-[720px] items-center gap-[12px] rounded-[4px] bg-[rgba(115,112,108,0.1)] pl-[14px] pr-[20px]">
+          <div className="flex min-w-0 w-full items-center gap-2 sm:gap-3 md:max-w-[520px] md:flex-1 md:justify-end lg:max-w-[720px]">
+            <div className="flex h-10 min-w-0 flex-1 items-center gap-2.5 rounded-[4px] bg-[rgba(115,112,108,0.1)] pl-3 pr-3 sm:h-12 sm:gap-3 sm:pl-3.5 sm:pr-5">
               {isListRefreshing ? (
                 <CircleNotchIcon
-                  size={20}
-                  className="shrink-0 animate-spin text-[#0B6E66]"
+                  size={18}
+                  className="shrink-0 animate-spin text-[#0B6E66] sm:size-5"
                   aria-hidden="true"
                 />
               ) : (
-                <MagnifyingGlassIcon size={20} className="shrink-0 text-[#73706C]" />
+                <MagnifyingGlassIcon size={18} className="shrink-0 text-[#73706C] sm:size-5" />
               )}
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by name, location, or expertise"
                 aria-busy={isListRefreshing}
-                className="w-full bg-transparent font-['Nunito'] font-normal text-[14px] lg:text-[16px] text-[#2F2B28] outline-none placeholder:text-[12px] placeholder:text-[#73706C] lg:placeholder:text-[13px]"
+                className="min-w-0 w-full bg-transparent font-['Nunito'] font-normal text-[13px] text-[#2F2B28] outline-none placeholder:text-[#73706C] sm:text-[14px] lg:text-[16px]"
               />
             </div>
             <button
               type="button"
               onClick={() => setIsFilterPanelOpen(true)}
               aria-expanded={isFilterPanelOpen}
-              className={`inline-flex h-[48px] items-center gap-[16px] rounded-[4px] px-[24px] font-['Nunito'] font-normal text-[14px] lg:text-[16px] whitespace-nowrap transition-colors ${
+              aria-label={activeFilterCount > 0 ? `Filter (${activeFilterCount})` : "Filter"}
+              className={`inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-[4px] px-3 font-['Nunito'] font-normal text-[13px] whitespace-nowrap transition-colors sm:h-12 sm:gap-3 sm:px-5 sm:text-[14px] lg:px-6 lg:text-[16px] ${
                 activeFilterCount > 0
                   ? "bg-[#0B6E66] text-[#FAFAFA]"
                   : "bg-[rgba(115,112,108,0.1)] text-[#2F2B28]"
               }`}
             >
-              <FunnelSimpleIcon size={20} />
-              Filter{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
+              <FunnelSimpleIcon size={18} className="sm:size-5" />
+              <span>
+                Filter{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
+              </span>
             </button>
           </div>
         </div>
@@ -294,122 +291,36 @@ export function ExploreExpertsPage() {
           <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">{error}</div>
         )}
 
-        {/* Cards grid — Figma: 2-col, gap-[32px] */}
+        {/* Cards grid */}
         {isInitialLoading ? (
-          <PageLoader />
+          <div
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4"
+            aria-busy="true"
+            aria-label="Loading experts"
+          >
+            {Array.from({ length: SKELETON_CARD_COUNT }).map((_, index) => (
+              <ExpertCardSkeleton key={index} />
+            ))}
+          </div>
         ) : (
           <div
-            className={`relative grid grid-cols-1 gap-[32px] transition-opacity lg:grid-cols-2 ${
+            className={`relative grid grid-cols-1 gap-4 transition-opacity sm:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 ${
               isListRefreshing ? "pointer-events-none opacity-60" : ""
             }`}
             aria-busy={isListRefreshing}
           >
             {paged.map((expert) => {
               const expertPath = `/experts/${expert.slug || expert.id}`;
-              const isBookmarked = bookmarkedExpertIds.has(expert.id);
-              const isBookmarkPending = bookmarkingExpertIds.has(expert.id);
-              const primaryRole = expert.roles[0] ? roleLabel(expert.roles[0]) : "NATURALIST";
-              const location =
-                expert.location_name ?? expert.location_primary_location_id ?? "India Wildlife Reserve";
-              const languageValues = expert.language_names.length > 0 ? expert.language_names : expert.language_ids;
-              const languages = languageValues.slice(0, 4).join(", ");
-              const tagValues = expert.expertise_names.length > 0 ? expert.expertise_names : expert.expertise_ids;
-              const tags = tagValues.slice(0, 3);
-
               return (
-                <article
+                <ExpertCard
                   key={expert.id}
-                  className="flex gap-[24px] rounded-[16px] bg-[#F3EEE9] p-[24px]"
-                >
-                  {/* Photo — Figma: 272×312 rounded-[10px] */}
-                  <div className="relative h-[312px] w-[272px] shrink-0 overflow-hidden rounded-[10px] bg-[#0B6E66]/20">
-                    <ExpertAvatar src={expert.profile_image_url} alt={expert.name} iconSize={96} lazy />
-                  </div>
-
-                  {/* Right column — spread across photo height, tight internal grouping */}
-                  <div className="min-w-0 flex-1 self-stretch flex flex-col justify-between">
-
-                    {/* Top: name row + role row (tight gap between name and role) */}
-                    <div className="flex flex-col gap-[2px]">
-                      {/* Name + actions */}
-                      <div className="flex items-center justify-between gap-2">
-                        <h3 className="font-['Nunito'] font-bold text-[20px] lg:text-[22px] leading-[32px] text-[#2F2B28]">
-                          {expert.name}
-                        </h3>
-                        <div className="flex items-center gap-[4px] text-[#73706C] shrink-0">
-                          <button
-                            type="button"
-                            onClick={() => void toggleBookmark(expert.id)}
-                            disabled={isBookmarkPending}
-                            className="flex size-[40px] items-center justify-center rounded-full hover:bg-black/5 disabled:opacity-50 transition-colors"
-                            aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
-                          >
-                            <BookmarkSimpleIcon size={24} weight={isBookmarked ? "fill" : "regular"} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setSharePath(expertPath)}
-                            className="flex size-[48px] items-center justify-center rounded-full hover:bg-black/5 transition-colors"
-                            aria-label="Share expert"
-                          >
-                            <ShareNetworkIcon size={24} />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Role + homestay */}
-                      <div className="flex items-center gap-[4px] flex-wrap">
-                        <span className="font-['Nunito'] font-medium text-[13px] lg:text-[14px] uppercase text-[#73706C]">
-                          {primaryRole}
-                        </span>
-                        {/* <span className="text-[#73706C] opacity-40 mx-[4px]">|</span>
-                        <span className="flex items-center gap-[4px] text-[#0B6E66]">
-                          <HouseSimpleIcon size={16} />
-                          <span className="font-['Nunito'] font-medium text-[13px] lg:text-[16px] uppercase">
-                            HOMESTAY HOST
-                          </span>
-                        </span> */}
-                      </div>
-                    </div>
-
-                    {/* Middle: location + language */}
-                    <div className="flex flex-col gap-[8px]">
-                      <div className="flex gap-[16px] items-center">
-                        <MapPinIcon size={20} className="shrink-0 text-[#2F2B28]" />
-                        <span className="font-['Nunito'] font-medium text-[13px] lg:text-[18px] leading-[24px] text-[#2F2B28]">
-                          {location}
-                        </span>
-                      </div>
-                      <div className="flex gap-[16px] items-center">
-                        <GlobeIcon size={20} className="shrink-0 text-[#2F2B28]" />
-                        <span className="font-['Nunito'] font-medium text-[13px] lg:text-[18px] leading-[24px] text-[#2F2B28]">
-                          {languages || "English, Hindi"}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Skills */}
-                    <div className="flex flex-wrap gap-x-[8px] gap-y-[4px]">
-                      {tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="rounded-[4px] bg-[rgba(155,205,178,0.5)] px-[16px] py-[8px] font-['Nunito'] font-medium text-[12px] lg:text-[16px] leading-[24px] text-[#2F2B28]"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => handleViewDetails(expertPath)}
-                      className="inline-flex h-[48px] w-full items-center justify-center gap-[10px] rounded-[4px] bg-[#0B6E66] font-['Nunito'] font-medium text-[14px] lg:text-[18px] text-[#FAFAFA] hover:bg-[#074A46] transition-colors"
-                    >
-                      View More
-                      <ArrowRightIcon size={24} />
-                    </button>
-                  </div>
-                </article>
+                  expert={expert}
+                  isBookmarked={bookmarkedExpertIds.has(expert.id)}
+                  isBookmarkPending={bookmarkingExpertIds.has(expert.id)}
+                  onToggleBookmark={() => void toggleBookmark(expert.id)}
+                  onShare={() => setSharePath(expertPath)}
+                  onViewMore={() => handleViewDetails(expertPath)}
+                />
               );
             })}
           </div>

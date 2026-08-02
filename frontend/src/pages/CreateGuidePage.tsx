@@ -161,7 +161,7 @@ export function CreateGuidePage() {
         <div className="px-4 py-12">
           <div className="mx-auto max-w-[760px]">
             <div className="rounded-lg border border-[#b6decf] bg-[#d9efe4] p-8 text-[15px] leading-snug text-[#1e6757]">
-              <p className="text-[22px] font-semibold">Your guide profile has been published.</p>
+              <p className="text-[18px] font-semibold sm:text-[20px] md:text-[22px]">Your guide profile has been published.</p>
               <p className="mt-3">
                 Your profile is now live and discoverable in the experts directory.
               </p>
@@ -198,8 +198,8 @@ export function CreateGuidePage() {
           </Link>
 
           <header className="mt-6">
-            <h1 className="text-[40px] leading-[1.05] font-bold text-[#121212]">Create Your Guide Profile</h1>
-            <p className="mt-2 text-[16px] text-[#73706c]">This is how travellers will see you on Wildbook.</p>
+            <h1 className="text-[24px] leading-[1.05] font-bold text-[#121212] sm:text-[32px] md:text-[36px] lg:text-[40px]">Create Your Guide Profile</h1>
+            <p className="mt-2 text-[14px] text-[#73706c] sm:text-[15px] md:text-[16px]">This is how travellers will see you on Wildbook.</p>
           </header>
 
           {optionsError ? (
@@ -208,7 +208,7 @@ export function CreateGuidePage() {
 
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <section className="rounded-lg border border-black/6 bg-white p-6 shadow-sm">
-              <h2 className="text-[18px] font-semibold text-[#121212]">Basic Information</h2>
+              <h2 className="text-[16px] font-semibold text-[#121212] sm:text-[17px] md:text-[18px]">Basic Information</h2>
 
               <div className="mt-6 grid gap-5 md:grid-cols-2">
                 <div>
@@ -326,7 +326,7 @@ export function CreateGuidePage() {
                 />
 
                 <section className="rounded-lg border border-black/6 bg-white p-6 shadow-sm">
-                  <h2 className="text-[18px] font-semibold text-[#121212]">Naturalist Summary</h2>
+                  <h2 className="text-[16px] font-semibold text-[#121212] sm:text-[17px] md:text-[18px]">Naturalist Summary</h2>
                   <p className="mt-1 text-[14px] text-[#73706c]">A short note about your field focus (optional).</p>
                   <textarea
                     className="mt-4 min-h-[100px] w-full rounded border border-black/8 bg-white px-4 py-3 text-[15px] text-[#2f2b28] outline-none focus:border-[#0b6e66]"

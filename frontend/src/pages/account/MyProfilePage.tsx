@@ -147,7 +147,7 @@ export function MyProfilePage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-[22px] font-semibold text-(--color-wildbook-text)">My Profile</h1>
+        <h1 className="text-[18px] font-semibold text-(--color-wildbook-text) sm:text-[20px] md:text-[22px]">My Profile</h1>
         <p className="mt-1 text-sm text-(--color-wildbook-muted)">
           The more we know about you, the better we can match you with the right guides and experiences.
         </p>

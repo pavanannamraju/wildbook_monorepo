@@ -28,7 +28,7 @@ export function AdminLayout() {
             Admin
           </p>
           <h1
-            className="mt-1 text-[28px] font-extrabold tracking-[-0.03em] text-(--color-wildbook-text)"
+            className="mt-1 text-[22px] font-extrabold tracking-[-0.03em] text-(--color-wildbook-text) sm:text-[24px] md:text-[28px]"
             style={{ fontFamily: '"Montserrat", sans-serif' }}
           >
             Dashboard
