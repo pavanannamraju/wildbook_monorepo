@@ -148,6 +148,7 @@ class ProfileDetailsUpdateRequest(BaseModel):
     experience_level: TravelExperienceLevel | None = None
     emergency_contact_name: str | None = Field(default=None, max_length=120)
     emergency_contact_phone: str | None = Field(default=None, max_length=30)
+    phone_number: str | None = Field(default=None, min_length=5, max_length=30)
 
 
 class AvatarUpdateRequest(BaseModel):

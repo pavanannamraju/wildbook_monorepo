@@ -49,6 +49,7 @@ export type ProfileDetailsInput = {
   experience_level?: TravelExperienceLevel;
   emergency_contact_name?: string;
   emergency_contact_phone?: string;
+  phone_number?: string;
 };
 
 export type AvatarUpdateInput = {

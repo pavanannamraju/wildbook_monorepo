@@ -108,11 +108,28 @@ export function MyProfilePage() {
     setBasicSaveStatus("saving");
     setBasicSaveError(null);
     try {
-      const updated = await upsertEmailSignupProfile({
-        full_name: fullName.trim(),
-        phone_number: phoneNumber.trim() || undefined,
-      });
-      applyUser(updated);
+      if (canEditBasicInfo) {
+        const updated = await upsertEmailSignupProfile({
+          full_name: fullName.trim(),
+          phone_number: phoneNumber.trim() || undefined,
+        });
+        applyUser(updated);
+      } else {
+        const updated = await updateProfileDetails({
+          bio: bio.trim() || undefined,
+          date_of_birth: dateOfBirth || undefined,
+          gender: gender.trim() || undefined,
+          location_city: locationCity.trim() || undefined,
+          location_country: locationCountry.trim() || undefined,
+          interests,
+          preferred_languages: preferredLanguages,
+          experience_level: experienceLevel || undefined,
+          emergency_contact_name: emergencyContactName.trim() || undefined,
+          emergency_contact_phone: emergencyContactPhone.trim() || undefined,
+          phone_number: phoneNumber.trim() || undefined,
+        });
+        applyUser(updated);
+      }
       setBasicSaveStatus("success");
     } catch (error) {
       setBasicSaveStatus("error");
@@ -135,6 +152,7 @@ export function MyProfilePage() {
         experience_level: experienceLevel || undefined,
         emergency_contact_name: emergencyContactName.trim() || undefined,
         emergency_contact_phone: emergencyContactPhone.trim() || undefined,
+        phone_number: phoneNumber.trim() || undefined,
       });
       applyUser(updated);
       setDetailsSaveStatus("success");
@@ -177,8 +195,8 @@ export function MyProfilePage() {
               id="phone-number"
               className={inputClassName}
               value={phoneNumber}
-              disabled={!canEditBasicInfo}
               onChange={(event) => setPhoneNumber(event.target.value)}
+              placeholder="Add your phone number"
             />
           </div>
 
@@ -199,26 +217,26 @@ export function MyProfilePage() {
 
         {!canEditBasicInfo ? (
           <p className="mt-4 text-sm text-(--color-wildbook-muted)">
-            You signed in with Google, so your name is managed by your Google account and can't be edited here yet.
+            You signed in with Google, so your name is managed by your Google account. You can still update your
+            phone number.
           </p>
-        ) : (
-          <div className="mt-6 flex items-center gap-4">
-            <button
-              type="button"
-              className="inline-flex h-11 items-center justify-center rounded bg-(--color-wildbook-teal) px-6 text-sm font-medium text-white transition-colors hover:bg-[#095852] disabled:opacity-60"
-              disabled={basicSaveStatus === "saving" || fullName.trim().length < 2}
-              onClick={() => void handleSaveBasicInfo()}
-            >
-              {basicSaveStatus === "saving" ? "Saving…" : "Save changes"}
-            </button>
-            {basicSaveStatus === "success" ? (
-              <span className="text-sm text-(--color-wildbook-teal)">Saved.</span>
-            ) : null}
-            {basicSaveStatus === "error" && basicSaveError ? (
-              <span className="text-sm text-red-600">{basicSaveError}</span>
-            ) : null}
-          </div>
-        )}
+        ) : null}
+        <div className="mt-6 flex items-center gap-4">
+          <button
+            type="button"
+            className="inline-flex h-11 items-center justify-center rounded bg-(--color-wildbook-teal) px-6 text-sm font-medium text-white transition-colors hover:bg-[#095852] disabled:opacity-60"
+            disabled={basicSaveStatus === "saving" || (canEditBasicInfo && fullName.trim().length < 2)}
+            onClick={() => void handleSaveBasicInfo()}
+          >
+            {basicSaveStatus === "saving" ? "Saving…" : "Save changes"}
+          </button>
+          {basicSaveStatus === "success" ? (
+            <span className="text-sm text-(--color-wildbook-teal)">Saved.</span>
+          ) : null}
+          {basicSaveStatus === "error" && basicSaveError ? (
+            <span className="text-sm text-red-600">{basicSaveError}</span>
+          ) : null}
+        </div>
       </section>
 
       <section className="border-t border-black/10 pt-8">

@@ -805,6 +805,7 @@ export function AccountPage() {
         bio: user.bio ?? undefined,
         emergency_contact_name: user.emergency_contact_name ?? undefined,
         emergency_contact_phone: user.emergency_contact_phone ?? undefined,
+        phone_number: phoneNumber.trim() || undefined,
       });
       applyUser(updated);
       setSaveStatus("success");
@@ -1102,8 +1103,9 @@ export function AccountPage() {
                     id="account-phone"
                     className={inputClassName}
                     value={phoneNumber}
-                    disabled={!user || !canEditBasicInfo}
+                    disabled={!user}
                     onChange={(event) => setPhoneNumber(event.target.value)}
+                    placeholder="Add your phone number"
                   />
                 </div>
                 <div>
@@ -1168,7 +1170,8 @@ export function AccountPage() {
 
               {!canEditBasicInfo && user ? (
                 <p className="text-xs text-[#73706C]">
-                  You signed in with Google, so your name is managed by your Google account.
+                  You signed in with Google, so your name is managed by your Google account. Phone number can still
+                  be edited here.
                 </p>
               ) : null}
 

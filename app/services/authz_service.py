@@ -286,30 +286,32 @@ class AuthzService:
         payload: ProfileDetailsUpdateRequest,
     ) -> CurrentUserResponse:
         now = _utcnow()
+        provided = payload.model_dump(exclude_unset=True)
         date_of_birth = (
             datetime.combine(payload.date_of_birth, time.min, tzinfo=UTC) if payload.date_of_birth else None
         )
+        updates: dict[str, Any] = {
+            "bio": payload.bio.strip() if payload.bio else None,
+            "date_of_birth": date_of_birth,
+            "gender": payload.gender.strip() if payload.gender else None,
+            "location_city": payload.location_city.strip() if payload.location_city else None,
+            "location_country": payload.location_country.strip() if payload.location_country else None,
+            "interests": payload.interests,
+            "preferred_languages": payload.preferred_languages,
+            "experience_level": payload.experience_level.value if payload.experience_level else None,
+            "emergency_contact_name": (
+                payload.emergency_contact_name.strip() if payload.emergency_contact_name else None
+            ),
+            "emergency_contact_phone": (
+                payload.emergency_contact_phone.strip() if payload.emergency_contact_phone else None
+            ),
+            "updated_at": now,
+        }
+        if "phone_number" in provided:
+            updates["phone_number"] = payload.phone_number.strip() if payload.phone_number else None
         self._users.update_one(
             {"_id": ObjectId(current_user.id)},
-            {
-                "$set": {
-                    "bio": payload.bio.strip() if payload.bio else None,
-                    "date_of_birth": date_of_birth,
-                    "gender": payload.gender.strip() if payload.gender else None,
-                    "location_city": payload.location_city.strip() if payload.location_city else None,
-                    "location_country": payload.location_country.strip() if payload.location_country else None,
-                    "interests": payload.interests,
-                    "preferred_languages": payload.preferred_languages,
-                    "experience_level": payload.experience_level.value if payload.experience_level else None,
-                    "emergency_contact_name": (
-                        payload.emergency_contact_name.strip() if payload.emergency_contact_name else None
-                    ),
-                    "emergency_contact_phone": (
-                        payload.emergency_contact_phone.strip() if payload.emergency_contact_phone else None
-                    ),
-                    "updated_at": now,
-                }
-            },
+            {"$set": updates},
         )
         updated = self._users.find_one({"_id": ObjectId(current_user.id)})
         if updated is None:
