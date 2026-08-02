@@ -1,0 +1,29 @@
+# Build context exclusions — keep the image lean.
+# Frontend sources are NOT built in Docker; commit a prebuilt `static/` instead.
+
+.git
+.cursor
+.claude
+.venv
+antenv
+__pycache__
+*.pyc
+*.egg-info
+.pytest_cache
+.mypy_cache
+.ruff_cache
+
+.env
+.env.*
+!.env.example
+secrets/
+
+frontend/
+docs/
+AGENTS.md
+.deployment
+
+# Local IDE / OS noise
+.DS_Store
+.idea
+.vscode

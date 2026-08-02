@@ -18,26 +18,35 @@ Availability slots, checkout, bookings, payments, RabbitMQ/outbox.
 ## Setup
 
 ```bash
-cd wildbook_v1
 cp .env.example .env
-# set MONGO_URI, FIREBASE_*, etc.
+# set MONGO_URI, FIREBASE_*, AUTH_ADMIN_GOOGLE_EMAILS=[] (JSON array), etc.
 
 # Python deps (prefer uv)
 uv sync
-# or: python -m venv .venv && .venv/Scripts/activate && pip install -e .
+# or: python -m venv .venv && source .venv/bin/activate && pip install -e .
 
 # Seed reference data
 uv run python scripts/seed_references.py
 
-# Build SPA into static/
+# Build SPA into static/ (commit static/ for Docker deploys — not built in the image)
 cd frontend
 bun install
 bun run build
 cd ..
 
 # Run one server
-uv run uvicorn app.main:app --reload --port 8000
+uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
+
+### Docker (prebuilt SPA)
+
+Put Firebase admin JSON at `secrets/firebase-admin.json`, then:
+
+```bash
+docker compose up -d --build
+```
+
+The image copies committed `static/` only — no Bun/Node build inside Docker.
 
 Open http://localhost:8000 — UI and API on the same origin.
 

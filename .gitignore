@@ -9,8 +9,6 @@ __pycache__/
 .ruff_cache/
 frontend/node_modules/
 frontend/build/
-static/*
-!static/.gitkeep
 
 *.egg-info/
 
