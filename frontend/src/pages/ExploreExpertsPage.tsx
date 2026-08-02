@@ -55,6 +55,7 @@ export function ExploreExpertsPage() {
   const isPastHero = useScrollPastRef(heroRef);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [stickyFilterTop, setStickyFilterTop] = useState(0);
   const [roleFilter, setRoleFilter] = useState<"all" | "guide" | "naturalist">("all");
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
@@ -125,6 +126,29 @@ export function ExploreExpertsPage() {
       areSetsEqual(prev, nextBookmarkedExpertIds) ? prev : nextBookmarkedExpertIds,
     );
   }, [data]);
+
+  // Keep sticky filters flush under the fixed sticky navbar (no visual gap).
+  useEffect(() => {
+    const header = document.querySelector<HTMLElement>("[data-sticky-header]");
+    if (!header) return;
+
+    const update = () => {
+      // Prefer the glass navbar box — it matches the visible header height.
+      const navbar = header.querySelector<HTMLElement>("#site-navbar-glass");
+      const height = (navbar ?? header).getBoundingClientRect().height;
+      setStickyFilterTop(Math.ceil(height));
+    };
+
+    update();
+    const resizeObserver = new ResizeObserver(update);
+    resizeObserver.observe(header);
+    window.addEventListener("resize", update);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", update);
+    };
+  }, []);
 
   const toggleBookmark = async (expertId: string) => {
     if (!user) {
@@ -201,11 +225,6 @@ export function ExploreExpertsPage() {
           alt=""
         />
 
-        {/* Gradients matching Figma */}
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(47,43,40,0.72)_0%,rgba(47,43,40,0.30)_28%,rgba(47,43,40,0)_58%)]" />
-        <div className="absolute inset-x-0 top-0 h-20 bg-[linear-gradient(180deg,rgba(47,43,40,0.48)_0%,rgba(47,43,40,0)_100%)] mix-blend-multiply sm:h-28 md:h-[155px]" />
-        <div className="absolute inset-x-0 bottom-0 h-[40%] bg-[linear-gradient(180deg,rgba(47,43,40,0)_0%,rgba(47,43,40,0.72)_100%)] mix-blend-multiply sm:h-1/2 md:h-[385px]" />
-
         <div className="relative z-10 flex h-full flex-col">
           <Navbar variant="light" />
 
@@ -213,8 +232,8 @@ export function ExploreExpertsPage() {
           <div className="flex flex-1 items-center page-px py-6 max-md:justify-center max-md:text-center sm:py-8 md:py-10 lg:py-12">
             <div className="max-w-[452px]">
               <h1
-                className="text-[28px] leading-[1.2] text-[rgba(232,226,220,0.9)] drop-shadow-[0_4px_4px_rgba(0,0,0,0.4)] sm:text-[36px] md:text-[42px] md:leading-[1.15] lg:text-[56px] lg:leading-[72px]"
-                style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300 }}
+                className="font-['Montserrat'] font-medium leading-[1.1] text-[42px] text-[#EDE8E2]/90 sm:text-[52px] md:text-[62px] lg:text-[70px]"
+                style={{ textShadow: "0px 1px 2px rgba(0,0,0,0.25)" }}
               >
                 Connect with Wildlife Experts
               </h1>
@@ -242,8 +261,17 @@ export function ExploreExpertsPage() {
           </p>
         </div>
 
-        {/* Filter + search bar */}
-        <div className="mb-6 flex flex-col gap-3 md:mb-7 md:flex-row md:items-center md:justify-between md:gap-4 lg:mb-8">
+        {/* Filter + search bar — sticky under the fixed navbar at all sizes */}
+        <div
+          style={{ top: stickyFilterTop }}
+          className={[
+            "sticky z-10 mb-6 flex flex-col gap-3 bg-[#F6F4F0] pt-2 pb-4",
+            "-mx-[var(--page-px-mobile)] px-[var(--page-px-mobile)]",
+            "shadow-[0_8px_16px_-10px_rgba(47,43,40,0.45)]",
+            "md:mb-7 md:-mx-[var(--page-px-tablet)] md:px-[var(--page-px-tablet)] md:flex-row md:items-center md:justify-between md:gap-4 md:pt-3 md:pb-4",
+            "lg:mb-8 lg:-mx-[var(--page-px-desktop)] lg:px-[var(--page-px-desktop)]",
+          ].join(" ")}
+        >
           {/* Role pills */}
           <div className="flex gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-3 lg:gap-4 [&::-webkit-scrollbar]:hidden">
             <button type="button" onClick={() => setRoleFilter("all")}

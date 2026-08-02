@@ -47,7 +47,7 @@ export function WhatWeDo() {
 
       <div className="flex flex-col gap-5 md:gap-6 lg:flex-row lg:gap-6">
         {/* Expert Connect */}
-        <div className="flex shrink-0 flex-col overflow-hidden rounded-xl bg-[#F3EEE9] sm:rounded-2xl lg:w-1/2">
+        <div className="flex shrink-0 flex-col overflow-hidden rounded-xl bg-[#F3EEE9] shadow-[0_1px_4px_rgba(47,43,40,0.14)] sm:rounded-2xl lg:w-1/2">
           <div className="relative h-[200px] shrink-0 sm:h-[260px] md:h-[300px] lg:h-[364px]">
             <img
               src={ExpertConnectImage}
@@ -61,18 +61,18 @@ export function WhatWeDo() {
                   "linear-gradient(90deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 50%), linear-gradient(180deg, rgba(0,0,0,0) 15%, rgba(0,0,0,0.4) 100%)",
               }}
             />
-            <div className="absolute top-3 left-3 sm:top-4 sm:left-4 md:top-6 md:left-6 lg:top-[37px] lg:left-12">
+            <div className="absolute top-4 left-4 sm:top-4 sm:left-4 md:top-6 md:left-6 lg:top-[37px] lg:left-12">
               <StatusTag variant="live">Live Now</StatusTag>
             </div>
             <p
-              className="absolute right-3 bottom-3 left-3 text-[20px] leading-[1.2] tracking-[0.4px] text-[#E3DDD8] uppercase sm:right-4 sm:bottom-4 sm:left-4 sm:text-[22px] md:text-[26px] lg:right-12 lg:bottom-6 lg:left-12 lg:text-[32px]"
+              className="absolute right-4 bottom-4 left-4 text-[20px] leading-[1.2] tracking-[0.4px] text-[#E3DDD8] uppercase sm:right-4 sm:bottom-4 sm:left-4 sm:text-[22px] md:text-[26px] lg:right-12 lg:bottom-6 lg:left-12 lg:text-[32px]"
               style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 500 }}
             >
               Expert Connect
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 p-5 sm:gap-4 sm:p-6 md:p-8 lg:gap-4 lg:p-12">
+          <div className="flex flex-col gap-3 p-4 sm:gap-4 sm:p-6 md:p-8 lg:gap-4 lg:p-12">
             <h3 className="font-['Nunito'] font-bold text-[18px] leading-snug text-[#0B6E66] sm:text-[22px] md:text-[24px] lg:text-[28px] lg:leading-10">
               Begin your journey with the people who know the forest best.
             </h3>
@@ -87,7 +87,7 @@ export function WhatWeDo() {
             <button
               type="button"
               onClick={() => navigate("/experts")}
-              className="inline-flex h-10 w-fit items-center justify-center rounded-[4px] border-[0.8px] border-[#3B372F] px-5 font-['Nunito'] text-[14px] font-medium text-[#3B372F] transition-colors hover:bg-[#3B372F]/5 sm:px-6 lg:text-[18px]"
+              className="inline-flex h-10 w-fit items-center justify-center rounded-[4px] bg-[#0B6E66] px-5 font-['Nunito'] text-[14px] font-medium text-[#FAFAFA] transition-colors hover:bg-[#095B54] active:bg-[#074A46] sm:px-6 lg:text-[18px]"
             >
               Find your Expert
             </button>
@@ -99,12 +99,12 @@ export function WhatWeDo() {
           {comingSoonOfferings.map((offering) => (
             <div
               key={offering.title}
-              className="relative flex flex-1 flex-col justify-center gap-3 rounded-xl bg-[#F3EEE9] p-5 sm:gap-4 sm:rounded-2xl sm:p-6 md:p-8 lg:p-12"
+              className="flex flex-1 flex-col justify-center gap-3 rounded-xl bg-[#F3EEE9] p-4 shadow-[0_1px_4px_rgba(47,43,40,0.14)] sm:gap-4 sm:rounded-2xl sm:p-6 md:p-8 lg:p-12"
             >
-              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 md:top-6 md:left-6 lg:top-8 lg:left-12">
+              <div>
                 <StatusTag variant="comingSoon">Coming Soon</StatusTag>
               </div>
-              <h3 className="mt-9 font-['Nunito'] text-[18px] leading-snug font-bold tracking-[0.32px] text-[#2F2B28] uppercase sm:mt-10 sm:text-[22px] md:text-[24px] lg:mt-6 lg:text-[28px]">
+              <h3 className="font-['Nunito'] text-[18px] leading-snug font-bold tracking-[0.32px] text-[#2F2B28] uppercase sm:text-[22px] md:text-[24px] lg:text-[28px]">
                 {offering.title}
               </h3>
               <p className="text-justify font-['Nunito'] text-[15px] leading-6 text-[#2F2B28] sm:text-[16px] md:text-[18px] md:leading-7 lg:text-[20px]">

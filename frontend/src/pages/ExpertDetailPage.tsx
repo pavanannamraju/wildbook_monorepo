@@ -168,7 +168,6 @@ export function ExpertDetailPage() {
       errors.groupSize = "Must be greater than zero.";
     }
     if (!enquiryMessage.trim()) errors.enquiryMessage = "Enquiry is required.";
-    else if (enquiryMessage.trim().length < 10) errors.enquiryMessage = "At least 10 characters.";
     return errors;
   })();
 

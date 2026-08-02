@@ -19,7 +19,7 @@ class InquiryBase(BaseModel):
     # Legacy freeform field; still returned for older documents.
     travel_dates: str | None = Field(default=None, max_length=120)
     group_size: str | None = Field(default=None, max_length=80)
-    enquiry_message: str = Field(min_length=10, max_length=5_000)
+    enquiry_message: str = Field(min_length=1, max_length=5_000)
 
     source: str = Field(default="expert_detail_form", max_length=50)
 
@@ -61,7 +61,7 @@ class InquiryCreate(BaseModel):
     travel_start_date: date | None = None
     travel_end_date: date | None = None
     group_size: str | None = Field(default=None, max_length=80)
-    enquiry_message: str = Field(min_length=10, max_length=5_000)
+    enquiry_message: str = Field(min_length=1, max_length=5_000)
     source: str = Field(default="expert_detail_form", max_length=50)
 
     @field_validator(

@@ -24,9 +24,7 @@ export const Hero = forwardRef<HTMLElement>(function Hero(_, ref) {
         largeSrc={bannerImage}
         alt=""
       />
-      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(47,43,40,0.55)_0%,rgba(47,43,40,0.25)_42%,rgba(47,43,40,0)_70%)]" />
-      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(180deg,rgba(47,43,40,0)_0%,rgba(47,43,40,0.45)_100%)]" />
-
+      
       <div className="relative z-10 flex h-full flex-col">
         <Navbar variant="light" />
 

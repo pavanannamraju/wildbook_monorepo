@@ -1,4 +1,5 @@
 import {
+  ArrowLeftIcon,
   ArrowRightIcon,
   BinocularsIcon,
   BirdIcon,
@@ -154,9 +155,10 @@ export function PageScaffold({ title }: PageScaffoldProps) {
           <div className="text-center">
             <Link
               to="/"
-              className="text-sm font-semibold text-[#73706C] transition-colors hover:text-[#0B6E66]"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#73706C] transition-colors hover:text-[#0B6E66]"
             >
-              ← Back to base camp
+              <ArrowLeftIcon size={16} />
+              Back to base camp
             </Link>
           </div>
 
