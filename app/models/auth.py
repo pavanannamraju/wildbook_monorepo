@@ -94,6 +94,8 @@ class CurrentUserResponse(BaseModel):
     avatar_type: AvatarType | None = None
     avatar_key: str | None = None
     avatar_url: str | None = None
+    # Full photo kept so the user can re-crop later. Display still uses avatar_url.
+    avatar_source_url: str | None = None
 
 
 class GuideApplicationCreate(BaseModel):
@@ -155,10 +157,12 @@ class AvatarUpdateRequest(BaseModel):
     """
     Persist the user's avatar with an explicit type differentiator:
     - preset: avatar_key refers to a bundled wildlife icon (e.g. "019-tiger")
-    - custom: avatar_url is a data-URI base64 image (data:image/...;base64,...)
+    - custom: avatar_url is the cropped display image; avatar_source_url is the
+      full photo kept for later re-cropping (both data:image/...;base64,...)
     """
 
     avatar_type: AvatarType
     avatar_key: str | None = Field(default=None, max_length=64)
     # Base64 data URIs are large; keep under MongoDB's 16MB doc limit with headroom.
     avatar_url: str | None = Field(default=None, max_length=1_500_000)
+    avatar_source_url: str | None = Field(default=None, max_length=1_500_000)

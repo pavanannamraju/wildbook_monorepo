@@ -86,6 +86,7 @@ class AuthzService:
             avatar_type=avatar_type,
             avatar_key=str(doc["avatar_key"]) if doc.get("avatar_key") else None,
             avatar_url=str(doc["avatar_url"]) if doc.get("avatar_url") else None,
+            avatar_source_url=str(doc["avatar_source_url"]) if doc.get("avatar_source_url") else None,
         )
 
     def get_or_provision_user(self, *, principal: AuthPrincipal) -> CurrentUserResponse:
@@ -333,6 +334,7 @@ class AuthzService:
                 "avatar_type": AvatarType.preset.value,
                 "avatar_key": key,
                 "avatar_url": None,
+                "avatar_source_url": None,
             }
         else:
             url = (payload.avatar_url or "").strip()
@@ -342,10 +344,17 @@ class AuthzService:
                 raise BadRequestError(detail="Custom avatar must be a base64 data URI (data:image/...).")
             if ";base64," not in url:
                 raise BadRequestError(detail="Custom avatar must include base64-encoded image data.")
+            source = (payload.avatar_source_url or "").strip() or None
+            if source is not None:
+                if not source.startswith("data:image/") or ";base64," not in source:
+                    raise BadRequestError(
+                        detail="Custom avatar source must be a base64 data URI (data:image/...)."
+                    )
             avatar_fields = {
                 "avatar_type": AvatarType.custom.value,
                 "avatar_key": None,
                 "avatar_url": url,
+                "avatar_source_url": source,
             }
 
         now = _utcnow()

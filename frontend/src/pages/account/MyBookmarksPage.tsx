@@ -94,7 +94,7 @@ export function MyBookmarksPage() {
             to="/experts"
             className="mt-4 inline-flex h-10 items-center justify-center rounded bg-(--color-wildbook-teal) px-5 text-sm font-medium text-white transition-colors hover:bg-[#095852]"
           >
-            Explore experts
+            Explore Experts
           </Link>
         </div>
       ) : (

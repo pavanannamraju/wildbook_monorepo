@@ -110,15 +110,21 @@ def _init_firebase_admin(*, firebase_project_id: str | None) -> None:
         pass
 
     options = {"projectId": firebase_project_id} if firebase_project_id else None
-    creds_path = Path(os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "") or "")
-    if creds_path.as_posix() and creds_path.is_dir():
-        raise RuntimeError(
-            f"GOOGLE_APPLICATION_CREDENTIALS points to a directory ({creds_path}). "
-            "On Docker this usually means the host file was missing when the volume "
-            "was first mounted. Place a service-account JSON at that path and recreate "
-            "the container."
-        )
-    if creds_path.is_file():
+    configured_creds = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "").strip()
+    if configured_creds:
+        creds_path = Path(configured_creds)
+        if creds_path.is_dir():
+            raise RuntimeError(
+                f"GOOGLE_APPLICATION_CREDENTIALS points to a directory ({creds_path}). "
+                "On Docker this usually means the host file was missing when the volume "
+                "was first mounted. Place a service-account JSON at that path and recreate "
+                "the container."
+            )
+        if not creds_path.is_file():
+            raise RuntimeError(
+                f"GOOGLE_APPLICATION_CREDENTIALS points to a missing file ({creds_path}). "
+                "Download the Firebase service-account JSON and place it at that path."
+            )
         firebase_admin.initialize_app(credentials.Certificate(str(creds_path)), options)
         logger.info("Firebase Admin initialized from %s", creds_path)
         return

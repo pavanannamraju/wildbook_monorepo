@@ -34,8 +34,10 @@ export type CurrentUser = {
   avatar_type: AvatarType | null;
   /** Preset icon key, e.g. "019-tiger". Null when avatar_type is "custom". */
   avatar_key: string | null;
-  /** Hosted photo URL when avatar_type is "custom". */
+  /** Cropped display photo when avatar_type is "custom". */
   avatar_url: string | null;
+  /** Full photo kept for re-cropping. Null for presets or legacy uploads. */
+  avatar_source_url: string | null;
 };
 
 export type ProfileDetailsInput = {
@@ -56,6 +58,7 @@ export type AvatarUpdateInput = {
   avatar_type: AvatarType;
   avatar_key?: string;
   avatar_url?: string;
+  avatar_source_url?: string;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -102,6 +105,7 @@ function parseCurrentUser(payload: unknown): CurrentUser {
     avatar_type: parseAvatarType(payload.avatar_type),
     avatar_key: typeof payload.avatar_key === "string" ? payload.avatar_key : null,
     avatar_url: typeof payload.avatar_url === "string" ? payload.avatar_url : null,
+    avatar_source_url: typeof payload.avatar_source_url === "string" ? payload.avatar_source_url : null,
   };
 }
 

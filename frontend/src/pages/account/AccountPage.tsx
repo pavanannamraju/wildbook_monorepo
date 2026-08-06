@@ -1,4 +1,6 @@
 import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
   BinocularsIcon,
   BookmarkSimpleIcon,
   CalendarDotsIcon,
@@ -26,6 +28,7 @@ import {
   updateUserAvatar,
   upsertEmailSignupProfile,
   type AvatarType,
+  type AvatarUpdateInput,
   type CurrentUser,
 } from "../../api/auth";
 import {
@@ -35,14 +38,30 @@ import {
 import { fetchBookmarks, removeBookmark, type Bookmark } from "../../api/bookmarks";
 import { fetchExpertById, type ExpertDetail } from "../../api/experts";
 import { useAuth } from "../../auth/AuthProvider";
+import { AvatarCropper } from "../../components/common/AvatarCropper";
 import { StickyTopNavbar } from "../../components/common/StickyTopNavbar";
 import { PageErrorState } from "../../components/common/PageErrorState";
 import { UserAvatar } from "../../components/common/UserAvatar";
 import { WORLD_LANGUAGES } from "../../data/languages";
 import {
+  composePhoneNumber,
+  DEFAULT_PHONE_DIAL,
+  dialOptionLabel,
+  findDialOption,
+  parsePhoneParts,
+  PHONE_DIAL_CODES,
+} from "../../data/phoneDialCodes";
+import {
+  DEFAULT_PROFILE_COUNTRY,
+  PROFILE_COUNTRIES,
+  PROFILE_LOCATIONS,
+} from "../../data/profileLocations";
+import {
   PRESET_AVATARS,
+  resolvePresetAvatarSrc,
   resolveUserAvatarSrc,
 } from "../../data/presetAvatars";
+import { validateNationalPhone, validateProfileForm, type ProfileField } from "../../lib/profileValidation";
 
 const INTEREST_PRESETS = [
   "Birding",
@@ -74,34 +93,6 @@ const LANGUAGE_PRESETS = [
   "Gujarati",
   "Odia",
   "Punjabi",
-] as const;
-
-const CITIES = [
-  "Bengaluru, Karnataka",
-  "Mumbai, Maharashtra",
-  "Delhi NCR",
-  "Chennai, Tamil Nadu",
-  "Hyderabad, Telangana",
-  "Pune, Maharashtra",
-  "Ahmedabad, Gujarat",
-  "Kochi, Kerala",
-  "Jaipur, Rajasthan",
-  "Kolkata, West Bengal",
-  "Bhopal, Madhya Pradesh",
-  "Nagpur, Maharashtra",
-  "Dehradun, Uttarakhand",
-  "Guwahati, Assam",
-  "Chandigarh, Punjab",
-  "Lucknow, Uttar Pradesh",
-  "Patna, Bihar",
-  "Bhubaneswar, Odisha",
-  "Thiruvananthapuram, Kerala",
-  "Mysuru, Karnataka",
-  "Coimbatore, Tamil Nadu",
-  "Vijayawada, Andhra Pradesh",
-  "Indore, Madhya Pradesh",
-  "Surat, Gujarat",
-  "Raipur, Chhattisgarh",
 ] as const;
 
 const GENDER_OPTIONS = ["Male", "Female", "Other", "Prefer not to say"] as const;
@@ -174,12 +165,12 @@ function cityDisplayValue(city: string, country: string): string {
   return parts.join(", ");
 }
 
-function parseCitySelection(value: string): { city: string; country: string } {
-  const [cityPart, ...rest] = value.split(",").map((part) => part.trim());
-  return {
-    city: cityPart ?? "",
-    country: rest.join(", "),
-  };
+/** Prefer a real country; legacy rows stored Indian states in location_country. */
+function normalizeStoredCountry(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  if ((PROFILE_COUNTRIES as readonly string[]).includes(trimmed)) return trimmed;
+  return DEFAULT_PROFILE_COUNTRY;
 }
 
 function SectionTitle({
@@ -211,47 +202,8 @@ function SectionTitle({
   );
 }
 
-const CUSTOM_AVATAR_MAX_EDGE_PX = 512;
-const CUSTOM_AVATAR_JPEG_QUALITY = 0.82;
-const CUSTOM_AVATAR_MAX_BYTES = 900_000;
-
-async function fileToCompressedDataUri(file: File): Promise<string> {
-  if (!file.type.startsWith("image/")) {
-    throw new Error("Please choose an image file.");
-  }
-
-  const objectUrl = URL.createObjectURL(file);
-  try {
-    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = () => reject(new Error("Could not read that image."));
-      img.src = objectUrl;
-    });
-
-    const longestEdge = Math.max(image.width, image.height) || 1;
-    const scale = Math.min(1, CUSTOM_AVATAR_MAX_EDGE_PX / longestEdge);
-    const width = Math.max(1, Math.round(image.width * scale));
-    const height = Math.max(1, Math.round(image.height * scale));
-
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const context = canvas.getContext("2d");
-    if (!context) {
-      throw new Error("Could not process that image.");
-    }
-    context.drawImage(image, 0, 0, width, height);
-
-    const dataUri = canvas.toDataURL("image/jpeg", CUSTOM_AVATAR_JPEG_QUALITY);
-    if (dataUri.length > CUSTOM_AVATAR_MAX_BYTES) {
-      throw new Error("That photo is too large. Try a smaller image.");
-    }
-    return dataUri;
-  } finally {
-    URL.revokeObjectURL(objectUrl);
-  }
-}
+/** Custom profile photos are cropped to a square — UserAvatar shows them in a circle. */
+const AVATAR_CROP_ASPECT_RATIO = 1;
 
 function SkillTag({
   label,
@@ -476,14 +428,20 @@ function SecondaryBtn({
   );
 }
 
-function CityPicker({
+/** Shared trigger style for gender / location / country / DOB dropdowns. */
+const dropdownTriggerClassName =
+  "relative flex w-full items-center justify-between rounded-[4px] border border-[#D7D2CC] bg-[#FBF9F6] px-3 py-2.5 text-left font-['Nunito'] text-sm font-medium text-[#2F2B28] outline-none transition-colors hover:border-[#B5B0AB] focus:border-[#0B6E66] focus:ring-1 focus:ring-[#0B6E66]/30 disabled:opacity-60";
+
+function DialCodeSelect({
   value,
   onChange,
   disabled,
+  invalid = false,
 }: {
   value: string;
-  onChange: (next: string) => void;
+  onChange: (dial: string) => void;
   disabled?: boolean;
+  invalid?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -500,55 +458,544 @@ function CityPicker({
     return () => document.removeEventListener("mousedown", handlePointerDown);
   }, [open]);
 
-  const filtered = CITIES.filter((city) => city.toLowerCase().includes(query.trim().toLowerCase()));
+  useEffect(() => {
+    if (!open) setQuery("");
+  }, [open]);
+
+  const needle = query.trim().toLowerCase();
+  const list = PHONE_DIAL_CODES.filter((option) => {
+    if (!needle) return true;
+    return (
+      option.dial.toLowerCase().includes(needle) ||
+      option.label.toLowerCase().includes(needle) ||
+      dialOptionLabel(option).toLowerCase().includes(needle)
+    );
+  });
+
+  return (
+    <div ref={rootRef} className="relative w-[4.75rem] shrink-0">
+      <button
+        type="button"
+        id="account-phone-dial"
+        disabled={disabled}
+        aria-invalid={invalid}
+        aria-expanded={open}
+        aria-label="Country code"
+        title={findDialOption(value)?.label ?? value}
+        onClick={() => setOpen((current) => !current)}
+        className={`${dropdownTriggerClassName} px-2 ${
+          invalid ? "border-[#C94A45] focus:border-[#C94A45] focus:ring-[#C94A45]/20" : ""
+        }`}
+      >
+        <span className="truncate font-medium tabular-nums">{value}</span>
+        <CaretDownIcon size={11} className="shrink-0 text-[#9A9691]" />
+      </button>
+      {open ? (
+        <div className="absolute left-0 z-30 mt-1 w-[min(18rem,calc(100vw-3rem))] overflow-hidden rounded-[6px] border border-[#E3DDD8] bg-white shadow-lg">
+          <div className="border-b border-[#E3DDD8] p-2">
+            <input
+              autoFocus
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search country or code…"
+              className="h-9 w-full rounded-[4px] border border-[#D7D2CC] bg-[#FBF9F6] px-3 font-['Nunito'] text-sm outline-none focus:border-[#0B6E66]"
+            />
+          </div>
+          <ul className="max-h-[220px] overflow-y-auto py-1">
+            {list.length === 0 ? (
+              <li className="px-3 py-2 font-['Nunito'] text-sm text-[#73706C]">No matches.</li>
+            ) : (
+              list.map((option) => {
+                const selected = option.dial === value;
+                return (
+                  <li key={`${option.dial}-${option.label}`}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onChange(option.dial);
+                        setOpen(false);
+                        setQuery("");
+                      }}
+                      className={`flex w-full items-center justify-between gap-3 rounded-[4px] px-3 py-2 font-['Nunito'] text-sm font-medium transition-colors hover:bg-[#F6F4F1] ${
+                        selected ? "text-[#0B6E66]" : "text-[#2F2B28]"
+                      }`}
+                    >
+                      <span className="min-w-0 truncate">
+                        <span className="tabular-nums">{option.dial}</span>
+                        <span className="text-[#73706C]"> · {option.label}</span>
+                      </span>
+                      {selected ? <CheckIcon size={13} className="shrink-0 text-[#0B6E66]" /> : null}
+                    </button>
+                  </li>
+                );
+              })
+            )}
+          </ul>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function AccountSelect({
+  value,
+  onChange,
+  options,
+  placeholder,
+  disabled,
+  searchable = false,
+  invalid = false,
+}: {
+  value: string;
+  onChange: (next: string) => void;
+  options: readonly string[];
+  placeholder: string;
+  disabled?: boolean;
+  searchable?: boolean;
+  invalid?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const rootRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function handlePointerDown(event: MouseEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) setQuery("");
+  }, [open]);
+
+  const optionsWithValue =
+    value && !(options as readonly string[]).includes(value) ? [value, ...options] : [...options];
+  const list = searchable
+    ? optionsWithValue.filter((option) => option.toLowerCase().includes(query.trim().toLowerCase()))
+    : optionsWithValue;
 
   return (
     <div ref={rootRef} className="relative">
       <button
         type="button"
         disabled={disabled}
+        aria-invalid={invalid}
+        aria-expanded={open}
         onClick={() => setOpen((current) => !current)}
-        className="relative flex w-full items-center rounded-[4px] border border-[#D7D2CC] bg-[#FBF9F6] py-2.5 pl-9 pr-3 font-['Nunito'] text-sm font-medium text-[#2F2B28] outline-none transition-colors focus:border-[#0B6E66] disabled:opacity-60"
+        className={`${dropdownTriggerClassName} ${
+          invalid ? "border-[#C94A45] focus:border-[#C94A45] focus:ring-[#C94A45]/20" : ""
+        }`}
       >
-        <MagnifyingGlassIcon size={13} className="absolute left-3 text-[#9A9691]" />
-        <span className="truncate">{value || "Select city…"}</span>
+        <span className="flex min-w-0 items-center gap-2">
+          {searchable ? <MagnifyingGlassIcon size={13} className="shrink-0 text-[#9A9691]" /> : null}
+          <span className={`truncate ${value ? "text-[#2F2B28]" : "text-[#9A9691]"}`}>
+            {value || placeholder}
+          </span>
+        </span>
+        <CaretDownIcon size={12} className="shrink-0 text-[#9A9691]" />
       </button>
       {open ? (
         <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-[6px] border border-[#E3DDD8] bg-white shadow-lg">
-          <div className="border-b border-[#E3DDD8] p-2">
-            <input
-              autoFocus
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search city…"
-              className="h-9 w-full rounded-[4px] border border-[#D7D2CC] bg-[#FBF9F6] px-3 font-['Nunito'] text-sm outline-none focus:border-[#0B6E66]"
-            />
-          </div>
-          <ul className="max-h-[200px] overflow-y-auto py-1">
-            {filtered.length === 0 ? (
-              <li className="px-3 py-2 font-['Nunito'] text-sm text-[#73706C]">No city found.</li>
+          {searchable ? (
+            <div className="border-b border-[#E3DDD8] p-2">
+              <input
+                autoFocus
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search…"
+                className="h-9 w-full rounded-[4px] border border-[#D7D2CC] bg-[#FBF9F6] px-3 font-['Nunito'] text-sm outline-none focus:border-[#0B6E66]"
+              />
+            </div>
+          ) : null}
+          <ul className={`max-h-[200px] overflow-y-auto ${searchable ? "py-1" : "p-1.5"}`}>
+            {list.length === 0 ? (
+              <li className="px-3 py-2 font-['Nunito'] text-sm text-[#73706C]">No options found.</li>
             ) : (
-              filtered.map((city) => (
-                <li key={city}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onChange(city);
-                      setOpen(false);
-                      setQuery("");
-                    }}
-                    className="flex w-full items-center px-3 py-2 font-['Nunito'] text-sm text-[#2F2B28] transition-colors hover:bg-[#F6F4F1]"
-                  >
-                    {city}
-                    <CheckIcon
-                      size={16}
-                      className={`ml-auto text-[#0B6E66] ${city === value ? "opacity-100" : "opacity-0"}`}
-                    />
-                  </button>
-                </li>
-              ))
+              list.map((option) => {
+                const selected = option === value;
+                return (
+                  <li key={option}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onChange(option);
+                        setOpen(false);
+                        setQuery("");
+                      }}
+                      className={`flex w-full items-center justify-between rounded-[4px] px-3 py-2 font-['Nunito'] text-sm font-medium transition-colors hover:bg-[#F6F4F1] ${
+                        selected ? "text-[#0B6E66]" : "text-[#2F2B28]"
+                      }`}
+                    >
+                      {option}
+                      {selected ? <CheckIcon size={13} className="shrink-0 text-[#0B6E66]" /> : null}
+                    </button>
+                  </li>
+                );
+              })
             )}
           </ul>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+const WEEKDAY_LABELS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"] as const;
+const MONTH_LABELS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+] as const;
+
+const CAL_YEAR_CHUNK = 12;
+
+function todayIsoDate(): string {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${now.getFullYear()}-${month}-${day}`;
+}
+
+function parseIsoDate(value: string): { year: number; month: number; day: number } | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (!year || month < 1 || month > 12 || day < 1 || day > 31) return null;
+  return { year, month, day };
+}
+
+function toIsoDate(year: number, month: number, day: number): string {
+  return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function daysInMonth(year: number, month: number): number {
+  return new Date(year, month, 0).getDate();
+}
+
+function BirthDatePicker({
+  value,
+  onChange,
+  disabled,
+  max = todayIsoDate(),
+  invalid = false,
+}: {
+  value: string;
+  onChange: (next: string) => void;
+  disabled?: boolean;
+  max?: string;
+  invalid?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const [calView, setCalView] = useState<"day" | "month" | "year">("day");
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const maxParsed = parseIsoDate(max) ?? parseIsoDate(todayIsoDate())!;
+  const selected = parseIsoDate(value);
+  const minYear = maxParsed.year - 120;
+
+  const [nav, setNav] = useState({
+    year: selected?.year ?? maxParsed.year,
+    month: selected?.month ?? maxParsed.month,
+  });
+
+  useEffect(() => {
+    if (!open) return;
+    setCalView("day");
+    if (selected) {
+      setNav({ year: selected.year, month: selected.month });
+    } else {
+      setNav({ year: maxParsed.year, month: maxParsed.month });
+    }
+  }, [open, selected?.year, selected?.month, maxParsed.year, maxParsed.month]);
+
+  useEffect(() => {
+    if (!open) return;
+    function handlePointerDown(event: MouseEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [open]);
+
+  const yearBase = Math.floor(nav.year / CAL_YEAR_CHUNK) * CAL_YEAR_CHUNK;
+  const isNextYearChunkDisabled = yearBase + CAL_YEAR_CHUNK > maxParsed.year;
+  const isPrevYearChunkDisabled = yearBase - CAL_YEAR_CHUNK < minYear;
+  const isNextNavYearDisabled = nav.year >= maxParsed.year;
+  const isPrevNavYearDisabled = nav.year <= minYear;
+
+  const firstWeekday = new Date(nav.year, nav.month - 1, 1).getDay();
+  const totalDays = daysInMonth(nav.year, nav.month);
+  const cells: Array<number | null> = [
+    ...Array.from({ length: firstWeekday }, () => null),
+    ...Array.from({ length: totalDays }, (_, index) => index + 1),
+  ];
+
+  const isNextMonthDisabled =
+    nav.year > maxParsed.year || (nav.year === maxParsed.year && nav.month >= maxParsed.month);
+  const isPrevMonthDisabled =
+    nav.year < minYear || (nav.year === minYear && nav.month <= 1);
+
+  function prevMonth() {
+    setNav((current) =>
+      current.month === 1
+        ? { year: current.year - 1, month: 12 }
+        : { ...current, month: current.month - 1 },
+    );
+  }
+
+  function nextMonth() {
+    setNav((current) => {
+      const next =
+        current.month === 12
+          ? { year: current.year + 1, month: 1 }
+          : { ...current, month: current.month + 1 };
+      if (next.year > maxParsed.year || (next.year === maxParsed.year && next.month > maxParsed.month)) {
+        return current;
+      }
+      return next;
+    });
+  }
+
+  function isFutureDay(day: number): boolean {
+    return toIsoDate(nav.year, nav.month, day) > max;
+  }
+
+  function isDaySelected(day: number): boolean {
+    return Boolean(
+      selected && selected.year === nav.year && selected.month === nav.month && selected.day === day,
+    );
+  }
+
+  const arrowBtn = (disabledArrow: boolean) =>
+    `flex h-7 w-7 items-center justify-center rounded-[4px] transition-colors ${
+      disabledArrow ? "cursor-not-allowed text-[#D7D2CC]" : "text-[#73706C] hover:bg-[#F6F4F1]"
+    }`;
+  const headerBtn =
+    "font-['Nunito'] text-[13px] font-semibold text-[#3B372F] transition-colors hover:text-[#0B6E66]";
+
+  const displayValue = selected
+    ? new Date(selected.year, selected.month - 1, selected.day).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : "";
+
+  return (
+    <div ref={rootRef} className="relative">
+      <button
+        type="button"
+        id="account-dob"
+        disabled={disabled}
+        aria-invalid={invalid}
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+        className={`${dropdownTriggerClassName} ${
+          invalid ? "border-[#C94A45] focus:border-[#C94A45] focus:ring-[#C94A45]/20" : ""
+        }`}
+      >
+        <span className="flex min-w-0 items-center gap-2">
+          <CalendarDotsIcon size={14} className="shrink-0 text-[#9A9691]" />
+          <span className={`truncate ${displayValue ? "text-[#2F2B28]" : "text-[#9A9691]"}`}>
+            {displayValue || "Select date…"}
+          </span>
+        </span>
+        <CaretDownIcon size={12} className="shrink-0 text-[#9A9691]" />
+      </button>
+      {open ? (
+        <div className="absolute z-20 mt-1 w-[272px] select-none rounded-[6px] border border-[#E3DDD8] bg-white p-3 shadow-lg">
+          {calView === "year" ? (
+            <>
+              <div className="mb-3 flex items-center justify-between">
+                <button
+                  type="button"
+                  disabled={isPrevYearChunkDisabled}
+                  onClick={() => setNav((current) => ({ ...current, year: current.year - CAL_YEAR_CHUNK }))}
+                  className={arrowBtn(isPrevYearChunkDisabled)}
+                  aria-label="Previous years"
+                >
+                  <ArrowLeftIcon size={13} />
+                </button>
+                <button type="button" onClick={() => setCalView("day")} className={headerBtn}>
+                  {yearBase}–{yearBase + CAL_YEAR_CHUNK - 1}
+                </button>
+                <button
+                  type="button"
+                  disabled={isNextYearChunkDisabled}
+                  onClick={() => setNav((current) => ({ ...current, year: current.year + CAL_YEAR_CHUNK }))}
+                  className={arrowBtn(isNextYearChunkDisabled)}
+                  aria-label="Next years"
+                >
+                  <ArrowRightIcon size={13} />
+                </button>
+              </div>
+              <div className="grid grid-cols-4 gap-1">
+                {Array.from({ length: CAL_YEAR_CHUNK }, (_, index) => yearBase + index).map((year) => {
+                  const isFutureYear = year > maxParsed.year || year < minYear;
+                  const isSelectedYear = selected?.year === year;
+                  return (
+                    <button
+                      key={year}
+                      type="button"
+                      disabled={isFutureYear}
+                      onClick={() => {
+                        setNav((current) => ({ ...current, year }));
+                        setCalView("month");
+                      }}
+                      className={`rounded-[6px] py-2.5 font-['Nunito'] text-[12px] font-medium transition-colors ${
+                        isSelectedYear
+                          ? "bg-[#0B6E66] text-white"
+                          : isFutureYear
+                            ? "cursor-not-allowed text-[#D7D2CC]"
+                            : year === maxParsed.year
+                              ? "font-bold text-[#0B6E66] hover:bg-[#E8F4F2]"
+                              : "text-[#3B372F] hover:bg-[#E8F4F2] hover:text-[#0B6E66]"
+                      }`}
+                    >
+                      {year}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          ) : null}
+
+          {calView === "month" ? (
+            <>
+              <div className="mb-3 flex items-center justify-between">
+                <button
+                  type="button"
+                  disabled={isPrevNavYearDisabled}
+                  onClick={() => setNav((current) => ({ ...current, year: current.year - 1 }))}
+                  className={arrowBtn(isPrevNavYearDisabled)}
+                  aria-label="Previous year"
+                >
+                  <ArrowLeftIcon size={13} />
+                </button>
+                <button type="button" onClick={() => setCalView("year")} className={headerBtn}>
+                  {nav.year}
+                </button>
+                <button
+                  type="button"
+                  disabled={isNextNavYearDisabled}
+                  onClick={() => setNav((current) => ({ ...current, year: current.year + 1 }))}
+                  className={arrowBtn(isNextNavYearDisabled)}
+                  aria-label="Next year"
+                >
+                  <ArrowRightIcon size={13} />
+                </button>
+              </div>
+              <div className="grid grid-cols-3 gap-1">
+                {MONTH_LABELS.map((label, index) => {
+                  const month = index + 1;
+                  const isFutureMonth =
+                    nav.year > maxParsed.year ||
+                    (nav.year === maxParsed.year && month > maxParsed.month) ||
+                    nav.year < minYear;
+                  const isSelectedMonth = selected?.year === nav.year && selected?.month === month;
+                  return (
+                    <button
+                      key={label}
+                      type="button"
+                      disabled={isFutureMonth}
+                      onClick={() => {
+                        setNav((current) => ({ ...current, month }));
+                        setCalView("day");
+                      }}
+                      className={`rounded-[6px] py-2.5 font-['Nunito'] text-[12px] font-medium transition-colors ${
+                        isSelectedMonth
+                          ? "bg-[#0B6E66] text-white"
+                          : isFutureMonth
+                            ? "cursor-not-allowed text-[#D7D2CC]"
+                            : "text-[#3B372F] hover:bg-[#E8F4F2] hover:text-[#0B6E66]"
+                      }`}
+                    >
+                      {label.slice(0, 3)}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          ) : null}
+
+          {calView === "day" ? (
+            <>
+              <div className="mb-3 flex items-center justify-between">
+                <button
+                  type="button"
+                  disabled={isPrevMonthDisabled}
+                  onClick={prevMonth}
+                  className={arrowBtn(isPrevMonthDisabled)}
+                  aria-label="Previous month"
+                >
+                  <ArrowLeftIcon size={13} />
+                </button>
+                <button type="button" onClick={() => setCalView("year")} className={headerBtn}>
+                  {MONTH_LABELS[nav.month - 1]} {nav.year}
+                </button>
+                <button
+                  type="button"
+                  disabled={isNextMonthDisabled}
+                  onClick={nextMonth}
+                  className={arrowBtn(isNextMonthDisabled)}
+                  aria-label="Next month"
+                >
+                  <ArrowRightIcon size={13} />
+                </button>
+              </div>
+              <div className="mb-1 grid grid-cols-7 text-center">
+                {WEEKDAY_LABELS.map((label) => (
+                  <span key={label} className="font-['Nunito'] text-[10px] font-semibold text-[#9A9691]">
+                    {label}
+                  </span>
+                ))}
+              </div>
+              <div className="grid grid-cols-7 gap-y-0.5 text-center">
+                {cells.map((day, index) => {
+                  if (day === null) return <span key={`empty-${index}`} />;
+                  const future = isFutureDay(day);
+                  const selectedDay = isDaySelected(day);
+                  return (
+                    <button
+                      key={day}
+                      type="button"
+                      disabled={future}
+                      onClick={() => {
+                        onChange(toIsoDate(nav.year, nav.month, day));
+                        setOpen(false);
+                      }}
+                      className={`mx-auto flex h-7 w-7 items-center justify-center rounded-full font-['Nunito'] text-[12px] font-medium transition-colors ${
+                        selectedDay
+                          ? "bg-[#0B6E66] text-white"
+                          : future
+                            ? "cursor-not-allowed text-[#D7D2CC]"
+                            : "text-[#3B372F] hover:bg-[#E8F4F2] hover:text-[#0B6E66]"
+                      }`}
+                    >
+                      {day}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          ) : null}
         </div>
       ) : null}
     </div>
@@ -558,7 +1005,31 @@ function CityPicker({
 const inputClassName =
   "w-full rounded-[4px] border border-[#D7D2CC] bg-[#FBF9F6] px-3 py-2.5 font-['Nunito'] text-sm font-medium text-[#2F2B28] outline-none transition-colors focus:border-[#0B6E66] focus:ring-1 focus:ring-[#0B6E66]/30 disabled:opacity-60";
 
+const inputErrorClassName = "border-[#C94A45] focus:border-[#C94A45] focus:ring-[#C94A45]/20";
+
 const labelClassName = "mb-1.5 block font-['Nunito'] text-[11px] font-semibold text-[#9A9691]";
+
+const SAVED_MESSAGE_MS = 3500;
+
+const BASIC_PROFILE_FIELDS: ProfileField[] = [
+  "fullName",
+  "dateOfBirth",
+  "gender",
+  "locationCity",
+  "locationCountry",
+];
+
+/** Phone edit UI is temporarily frozen; keep the control visible but read-only. */
+const PHONE_EDIT_FROZEN = true;
+
+function FieldError({ id, message }: { id: string; message: string | undefined }) {
+  if (!message) return null;
+  return (
+    <p id={id} className="mt-1.5 font-['Nunito'] text-[12px] text-[#C94A45]">
+      {message}
+    </p>
+  );
+}
 
 const cardClassName =
   "rounded-xl border border-[#E3DDD8] bg-white p-6 shadow-[0_4px_16px_rgba(0,0,0,.04)]";
@@ -577,7 +1048,8 @@ export function AccountPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const [fullName, setFullName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneDial, setPhoneDial] = useState(DEFAULT_PHONE_DIAL);
+  const [phoneNational, setPhoneNational] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");
   const [locationCity, setLocationCity] = useState("");
@@ -586,6 +1058,7 @@ export function AccountPage() {
   const [preferredLanguages, setPreferredLanguages] = useState<string[]>([]);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [touchedFields, setTouchedFields] = useState<ProfileField[]>([]);
   const [prefsSaveStatus, setPrefsSaveStatus] = useState<SaveStatus>("idle");
   const [prefsSaveError, setPrefsSaveError] = useState<string | null>(null);
   const prefsSaveSeqRef = useRef(0);
@@ -596,16 +1069,28 @@ export function AccountPage() {
   const [avatarType, setAvatarType] = useState<AvatarType | null>(null);
   const [avatarKey, setAvatarKey] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarSourceUrl, setAvatarSourceUrl] = useState<string | null>(null);
   const [avatarSaveError, setAvatarSaveError] = useState<string | null>(null);
   const [avatarSaving, setAvatarSaving] = useState(false);
+  const [pendingPresetKey, setPendingPresetKey] = useState<string | null>(null);
+  /** Active crop session: fresh file upload, or a saved source for re-edit. */
+  const [cropSource, setCropSource] = useState<
+    { kind: "file"; file: File } | { kind: "url"; url: string } | null
+  >(null);
   const customPhotoInputRef = useRef<HTMLInputElement | null>(null);
+
+  function closeAvatarModal() {
+    setAvatarOpen(false);
+    setPendingPresetKey(null);
+    setCropSource(null);
+  }
 
   useEffect(() => {
     if (!avatarOpen) return;
 
     const onEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape" && !avatarSaving) {
-        setAvatarOpen(false);
+        closeAvatarModal();
       }
     };
 
@@ -630,11 +1115,13 @@ export function AccountPage() {
     setUser(current);
     setProfile(current);
     setFullName(current.full_name ?? "");
-    setPhoneNumber(current.phone_number ?? "");
+    const phoneParts = parsePhoneParts(current.phone_number);
+    setPhoneDial(phoneParts.dial);
+    setPhoneNational(phoneParts.national);
     setDateOfBirth(current.date_of_birth ?? "");
     setGender(current.gender ?? "");
     setLocationCity(current.location_city ?? "");
-    setLocationCountry(current.location_country ?? "");
+    setLocationCountry(normalizeStoredCountry(current.location_country ?? ""));
     setInterests(current.interests);
     setPreferredLanguages(current.preferred_languages);
     interestsRef.current = current.interests;
@@ -642,6 +1129,7 @@ export function AccountPage() {
     setAvatarType(current.avatar_type);
     setAvatarKey(current.avatar_key);
     setAvatarUrl(current.avatar_url);
+    setAvatarSourceUrl(current.avatar_source_url);
   }
 
   useEffect(() => {
@@ -711,13 +1199,53 @@ export function AccountPage() {
 
   const displayName = fullName.trim() || user?.email || "Wildbook traveller";
   const avatarInitials = initialsFromName(displayName);
+  const phoneNumber = composePhoneNumber(phoneDial, phoneNational);
   const profileAvatarSrc = resolveUserAvatarSrc({
     avatarType,
     avatarKey,
     avatarUrl,
   });
+  const pendingPresetSrc = resolvePresetAvatarSrc(pendingPresetKey);
+  const avatarPreviewSrc = pendingPresetSrc ?? profileAvatarSrc;
+  const avatarPreviewOverflowTop = pendingPresetKey !== null || avatarType === "preset";
+  const presetSelectionChanged =
+    pendingPresetKey !== null && !(avatarType === "preset" && avatarKey === pendingPresetKey);
   const cityValue = cityDisplayValue(locationCity, locationCountry);
   const canEditBasicInfo = user?.auth_provider === "EMAIL";
+
+  const baseErrors = validateProfileForm(
+    {
+      fullName,
+      phoneNumber,
+      bio: user?.bio ?? "",
+      dateOfBirth,
+      gender,
+      locationCity,
+      locationCountry,
+      interests,
+      preferredLanguages,
+      emergencyContactName: user?.emergency_contact_name ?? "",
+      emergencyContactPhone: user?.emergency_contact_phone ?? "",
+    },
+    canEditBasicInfo,
+  );
+  const nationalPhoneError = PHONE_EDIT_FROZEN ? null : validateNationalPhone(phoneNational);
+  const validationErrors = nationalPhoneError
+    ? { ...baseErrors, phoneNumber: nationalPhoneError }
+    : baseErrors;
+
+  const markTouched = (...fields: ProfileField[]) => {
+    setTouchedFields((current) => [...new Set([...current, ...fields])]);
+  };
+  const visibleError = (field: ProfileField): string | undefined =>
+    touchedFields.includes(field) ? validationErrors[field] : undefined;
+  const hasBasicErrors = BASIC_PROFILE_FIELDS.some((field) => validationErrors[field]);
+
+  useEffect(() => {
+    if (saveStatus !== "success") return;
+    const timer = window.setTimeout(() => setSaveStatus("idle"), SAVED_MESSAGE_MS);
+    return () => window.clearTimeout(timer);
+  }, [saveStatus]);
 
   const today = useMemo(() => {
     const now = new Date();
@@ -785,13 +1313,19 @@ export function AccountPage() {
 
   async function handleSaveProfile() {
     if (!user) return;
+    markTouched(...BASIC_PROFILE_FIELDS);
+    if (hasBasicErrors) {
+      setSaveStatus("error");
+      setSaveError("Please fix the highlighted fields.");
+      return;
+    }
     setSaveStatus("saving");
     setSaveError(null);
     try {
       if (canEditBasicInfo) {
         await upsertEmailSignupProfile({
           full_name: fullName.trim(),
-          phone_number: phoneNumber.trim() || undefined,
+          phone_number: phoneNumber || undefined,
         });
       }
       const updated = await updateProfileDetails({
@@ -805,7 +1339,7 @@ export function AccountPage() {
         bio: user.bio ?? undefined,
         emergency_contact_name: user.emergency_contact_name ?? undefined,
         emergency_contact_phone: user.emergency_contact_phone ?? undefined,
-        phone_number: phoneNumber.trim() || undefined,
+        phone_number: phoneNumber || undefined,
       });
       applyUser(updated);
       setSaveStatus("success");
@@ -815,43 +1349,40 @@ export function AccountPage() {
     }
   }
 
-  async function handleSelectPresetAvatar(key: string) {
+  async function saveAvatar(payload: AvatarUpdateInput) {
     setAvatarSaving(true);
     setAvatarSaveError(null);
     try {
-      const updated = await updateUserAvatar({
-        avatar_type: "preset",
-        avatar_key: key,
-      });
+      const updated = await updateUserAvatar(payload);
       applyUser(updated);
-      setAvatarOpen(false);
+      closeAvatarModal();
     } catch (error) {
-      setAvatarSaveError(error instanceof Error ? error.message : "Failed to save avatar.");
+      setAvatarSaveError(error instanceof Error ? error.message : "Failed to save photo.");
     } finally {
       setAvatarSaving(false);
     }
   }
 
-  async function handleCustomPhotoSelected(file: File | null) {
-    if (!file) return;
-    setAvatarSaving(true);
-    setAvatarSaveError(null);
-    try {
-      const dataUri = await fileToCompressedDataUri(file);
-      const updated = await updateUserAvatar({
-        avatar_type: "custom",
-        avatar_url: dataUri,
-      });
-      applyUser(updated);
-      setAvatarOpen(false);
-    } catch (error) {
-      setAvatarSaveError(error instanceof Error ? error.message : "Failed to save photo.");
-    } finally {
-      setAvatarSaving(false);
-      if (customPhotoInputRef.current) {
-        customPhotoInputRef.current.value = "";
-      }
+  function handlePhotoFileSelected(file: File | null) {
+    if (customPhotoInputRef.current) {
+      customPhotoInputRef.current.value = "";
     }
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setAvatarSaveError("Please choose an image file.");
+      return;
+    }
+    setAvatarSaveError(null);
+    setPendingPresetKey(null);
+    setCropSource({ kind: "file", file });
+  }
+
+  function openAdjustCrop() {
+    const url = avatarSourceUrl ?? avatarUrl;
+    if (!url) return;
+    setAvatarSaveError(null);
+    setPendingPresetKey(null);
+    setCropSource({ kind: "url", url });
   }
 
   async function handleRemoveBookmark(card: BookmarkCard) {
@@ -904,6 +1435,8 @@ export function AccountPage() {
                 type="button"
                 onClick={() => {
                   setAvatarSaveError(null);
+                  setPendingPresetKey(avatarType === "preset" ? avatarKey : null);
+                  setCropSource(null);
                   setAvatarOpen(true);
                 }}
                 className="mt-2 flex w-24 items-center justify-center gap-1 rounded-[4px] py-1 text-[11px] font-semibold text-[#0B6E66] transition-colors hover:bg-[#9BCDB2]/20"
@@ -924,9 +1457,6 @@ export function AccountPage() {
                     >
                       {displayName}
                     </h1>
-                    {user.profile_completed ? (
-                      <ShieldCheckIcon size={17} weight="fill" className="text-[#0B6E66]" />
-                    ) : null}
                   </div>
                   <p className="mt-1 flex flex-wrap items-center gap-1.5 text-[13px] text-[#73706C]">
                     {cityValue ? (
@@ -939,27 +1469,6 @@ export function AccountPage() {
                   </p>
                 </>
               )}
-            </div>
-
-            <div className="flex gap-7 border-t border-[#E3DDD8] pt-4 md:border-l md:border-t-0 md:pl-7 md:pt-0">
-              <div>
-                <p
-                  className="text-[16px] font-extrabold text-[#3B372F] sm:text-[18px] md:text-[20px]"
-                  style={{ fontFamily: '"Montserrat", sans-serif' }}
-                >
-                  {bookings?.length ?? "—"}
-                </p>
-                <p className="text-[11px] text-[#9A9691]">Trips taken</p>
-              </div>
-              <div>
-                <p
-                  className="text-[16px] font-extrabold text-[#3B372F] sm:text-[18px] md:text-[20px]"
-                  style={{ fontFamily: '"Montserrat", sans-serif' }}
-                >
-                  {bookmarkCards?.length ?? "—"}
-                </p>
-                <p className="text-[11px] text-[#9A9691]">Saved guides</p>
-              </div>
             </div>
           </div>
         </section>
@@ -977,10 +1486,10 @@ export function AccountPage() {
                   className="absolute inset-0 cursor-default"
                   aria-label="Close edit photo dialog"
                   onClick={() => {
-                    if (!avatarSaving) setAvatarOpen(false);
+                    if (!avatarSaving) closeAvatarModal();
                   }}
                 />
-                <div className="relative z-1 flex max-h-[90svh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-2xl bg-[#F8F6F3] shadow-2xl sm:rounded-2xl">
+                <div className="relative z-1 flex max-h-[90svh] w-full max-w-[480px] flex-col overflow-hidden rounded-t-2xl bg-[#F8F6F3] shadow-2xl sm:rounded-2xl">
                   <div className="flex items-start justify-between gap-3 border-b border-[#E3DDD8] px-5 py-4">
                     <div>
                       <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9A9691]">
@@ -991,13 +1500,13 @@ export function AccountPage() {
                         className="mt-1 text-[18px] font-extrabold tracking-[-0.02em] text-[#3B372F] sm:text-[20px]"
                         style={{ fontFamily: '"Montserrat", sans-serif' }}
                       >
-                        Edit photo
+                        {cropSource ? "Crop photo" : "Edit photo"}
                       </h2>
                     </div>
                     <button
                       type="button"
                       disabled={avatarSaving}
-                      onClick={() => setAvatarOpen(false)}
+                      onClick={() => closeAvatarModal()}
                       className="rounded-full p-2 text-[#9A9691] transition-colors hover:bg-[#E8E2DC] hover:text-[#3B372F] disabled:opacity-50"
                       aria-label="Close"
                     >
@@ -1005,68 +1514,127 @@ export function AccountPage() {
                     </button>
                   </div>
 
-                  <div className="overflow-y-auto px-5 py-5">
-                    <div className="mb-5 flex justify-center">
-                      <UserAvatar
-                        initials={avatarInitials}
-                        imageUrl={profileAvatarSrc}
-                        large
-                        ring
-                        overflowTop={avatarType === "preset"}
-                        alt={displayName}
+                  <div className={`overflow-y-auto ${cropSource ? "px-4 py-4 sm:px-5 sm:py-5" : "px-5 py-5"}`}>
+                    {cropSource ? (
+                      <AvatarCropper
+                        file={cropSource.kind === "file" ? cropSource.file : undefined}
+                        sourceUrl={cropSource.kind === "url" ? cropSource.url : undefined}
+                        aspectRatio={AVATAR_CROP_ASPECT_RATIO}
+                        saving={avatarSaving}
+                        onCancel={() => setCropSource(null)}
+                        onSave={({ croppedDataUri, sourceDataUri }) =>
+                          void saveAvatar({
+                            avatar_type: "custom",
+                            avatar_url: croppedDataUri,
+                            avatar_source_url: sourceDataUri,
+                          })
+                        }
                       />
-                    </div>
+                    ) : (
+                      <>
+                        <div className="mb-5 flex justify-center">
+                          <UserAvatar
+                            initials={avatarInitials}
+                            imageUrl={avatarPreviewSrc}
+                            large
+                            ring
+                            overflowTop={avatarPreviewOverflowTop}
+                            alt={displayName}
+                          />
+                        </div>
 
-                    <button
-                      type="button"
-                      disabled={avatarSaving}
-                      onClick={() => customPhotoInputRef.current?.click()}
-                      className="flex w-full items-center justify-center gap-2 rounded-[6px] border border-dashed border-[#0B6E66]/40 bg-white px-4 py-3 text-sm font-semibold text-[#0B6E66] transition-colors hover:bg-[#E0F0EC] disabled:opacity-60"
-                    >
-                      <UploadSimpleIcon size={16} />
-                      {avatarSaving ? "Saving…" : "Upload photo"}
-                    </button>
+                        {avatarType === "custom" && (avatarSourceUrl || avatarUrl) ? (
+                          <button
+                            type="button"
+                            disabled={avatarSaving}
+                            onClick={openAdjustCrop}
+                            className="mb-3 flex w-full items-center justify-center gap-2 rounded-[6px] border border-[#0B6E66]/40 bg-white px-4 py-3 text-sm font-semibold text-[#0B6E66] transition-colors hover:bg-[#E0F0EC] disabled:opacity-60"
+                          >
+                            <PencilSimpleIcon size={16} />
+                            Adjust crop
+                          </button>
+                        ) : null}
+
+                        <button
+                          type="button"
+                          disabled={avatarSaving}
+                          onClick={() => customPhotoInputRef.current?.click()}
+                          className="flex w-full items-center justify-center gap-2 rounded-[6px] border border-dashed border-[#0B6E66]/40 bg-white px-4 py-3 text-sm font-semibold text-[#0B6E66] transition-colors hover:bg-[#E0F0EC] disabled:opacity-60"
+                        >
+                          <UploadSimpleIcon size={16} />
+                          {avatarType === "custom" ? "Upload new photo" : "Upload photo"}
+                        </button>
+
+                        <p className="mt-5 mb-3 text-center text-xs font-semibold text-[#9A9691]">
+                          or choose a wildlife avatar
+                        </p>
+                        <div className="grid grid-cols-4 gap-3 sm:grid-cols-5">
+                          {PRESET_AVATARS.map((avatar) => {
+                            const selected =
+                              pendingPresetKey !== null
+                                ? pendingPresetKey === avatar.key
+                                : avatarType === "preset" && avatarKey === avatar.key;
+                            return (
+                              <button
+                                key={avatar.key}
+                                type="button"
+                                disabled={avatarSaving}
+                                title={avatar.label}
+                                aria-label={`Select ${avatar.label} avatar`}
+                                aria-pressed={selected}
+                                data-avatar-type="preset"
+                                data-avatar-key={avatar.key}
+                                onClick={() => setPendingPresetKey(avatar.key)}
+                                className={`mx-auto overflow-visible rounded-full p-0.5 transition-transform hover:scale-105 disabled:opacity-60 ${
+                                  selected ? "ring-2 ring-[#0B6E66] ring-offset-2" : ""
+                                }`}
+                              >
+                                <UserAvatar
+                                  initials={avatar.label.slice(0, 2)}
+                                  imageUrl={avatar.src}
+                                  alt={avatar.label}
+                                  overflowTop
+                                  ring
+                                />
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        <div className="mt-6 flex items-center justify-end gap-3 border-t border-[#E3DDD8] pt-5">
+                          <button
+                            type="button"
+                            disabled={avatarSaving}
+                            onClick={() => closeAvatarModal()}
+                            className="rounded-[4px] border border-[#D7D2CC] bg-white px-4 py-2.5 text-sm font-semibold text-[#3B372F] transition-colors hover:bg-[#F6F4F1] disabled:opacity-50"
+                          >
+                            Cancel
+                          </button>
+                          <PrimaryBtn
+                            disabled={avatarSaving || !presetSelectionChanged}
+                            onClick={() => {
+                              if (!pendingPresetKey) return;
+                              void saveAvatar({
+                                avatar_type: "preset",
+                                avatar_key: pendingPresetKey,
+                              });
+                            }}
+                          >
+                            {avatarSaving ? "Saving…" : "Save avatar"}
+                          </PrimaryBtn>
+                        </div>
+                      </>
+                    )}
+
                     <input
                       ref={customPhotoInputRef}
                       type="file"
                       accept="image/*"
                       className="hidden"
                       onChange={(event) =>
-                        void handleCustomPhotoSelected(event.target.files?.[0] ?? null)
+                        handlePhotoFileSelected(event.target.files?.[0] ?? null)
                       }
                     />
-
-                    <p className="mt-5 mb-3 text-center text-xs font-semibold text-[#9A9691]">
-                      or choose a wildlife avatar
-                    </p>
-                    <div className="grid grid-cols-4 gap-3 sm:grid-cols-5">
-                      {PRESET_AVATARS.map((avatar) => {
-                        const selected = avatarType === "preset" && avatarKey === avatar.key;
-                        return (
-                          <button
-                            key={avatar.key}
-                            type="button"
-                            disabled={avatarSaving}
-                            title={avatar.label}
-                            aria-label={`Select ${avatar.label} avatar`}
-                            data-avatar-type="preset"
-                            data-avatar-key={avatar.key}
-                            onClick={() => void handleSelectPresetAvatar(avatar.key)}
-                            className={`mx-auto overflow-visible rounded-full p-0.5 transition-transform hover:scale-105 disabled:opacity-60 ${
-                              selected ? "ring-2 ring-[#0B6E66] ring-offset-2" : ""
-                            }`}
-                          >
-                            <UserAvatar
-                              initials={avatar.label.slice(0, 2)}
-                              imageUrl={avatar.src}
-                              alt={avatar.label}
-                              overflowTop
-                              ring
-                            />
-                          </button>
-                        );
-                      })}
-                    </div>
 
                     {avatarSaveError ? (
                       <p className="mt-4 text-center text-xs text-[#C94A45]">{avatarSaveError}</p>
@@ -1089,24 +1657,66 @@ export function AccountPage() {
                   </label>
                   <input
                     id="account-full-name"
-                    className={inputClassName}
+                    className={`${inputClassName} ${visibleError("fullName") ? inputErrorClassName : ""}`}
                     value={fullName}
                     disabled={!user || !canEditBasicInfo}
-                    onChange={(event) => setFullName(event.target.value)}
+                    aria-invalid={Boolean(visibleError("fullName"))}
+                    aria-describedby={visibleError("fullName") ? "account-full-name-error" : undefined}
+                    onChange={(event) => {
+                      setFullName(event.target.value);
+                      markTouched("fullName");
+                    }}
+                    onBlur={() => markTouched("fullName")}
                   />
+                  <FieldError id="account-full-name-error" message={visibleError("fullName")} />
                 </div>
-                <div>
+                <div className="sm:col-span-2">
                   <label className={labelClassName} htmlFor="account-phone">
                     Phone
                   </label>
-                  <input
-                    id="account-phone"
-                    className={inputClassName}
-                    value={phoneNumber}
-                    disabled={!user}
-                    onChange={(event) => setPhoneNumber(event.target.value)}
-                    placeholder="Add your phone number"
-                  />
+                  <div className="flex gap-2">
+                    <DialCodeSelect
+                      value={phoneDial}
+                      disabled={!user || PHONE_EDIT_FROZEN}
+                      invalid={!PHONE_EDIT_FROZEN && Boolean(visibleError("phoneNumber"))}
+                      onChange={(dial) => {
+                        setPhoneDial(dial);
+                        markTouched("phoneNumber");
+                      }}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <input
+                        id="account-phone"
+                        type="tel"
+                        inputMode="numeric"
+                        autoComplete="tel-national"
+                        className={`${inputClassName} ${
+                          !PHONE_EDIT_FROZEN && visibleError("phoneNumber") ? inputErrorClassName : ""
+                        }`}
+                        value={phoneNational}
+                        disabled={!user || PHONE_EDIT_FROZEN}
+                        readOnly={PHONE_EDIT_FROZEN}
+                        placeholder="Phone number"
+                        aria-invalid={!PHONE_EDIT_FROZEN && Boolean(visibleError("phoneNumber"))}
+                        aria-describedby={
+                          !PHONE_EDIT_FROZEN && visibleError("phoneNumber")
+                            ? "account-phone-error"
+                            : undefined
+                        }
+                        onChange={(event) => {
+                          if (PHONE_EDIT_FROZEN) return;
+                          setPhoneNational(event.target.value.replace(/[^\d\s-]/g, ""));
+                          markTouched("phoneNumber");
+                        }}
+                        onBlur={() => {
+                          if (!PHONE_EDIT_FROZEN) markTouched("phoneNumber");
+                        }}
+                      />
+                    </div>
+                  </div>
+                  {!PHONE_EDIT_FROZEN ? (
+                    <FieldError id="account-phone-error" message={visibleError("phoneNumber")} />
+                  ) : null}
                 </div>
                 <div>
                   <label className={labelClassName} htmlFor="account-email">
@@ -1118,60 +1728,76 @@ export function AccountPage() {
                   <label className={labelClassName} htmlFor="account-dob">
                     Date of birth
                   </label>
-                  <input
-                    id="account-dob"
-                    type="date"
-                    className={inputClassName}
+                  <BirthDatePicker
                     value={dateOfBirth}
                     disabled={!user}
-                    onChange={(event) => setDateOfBirth(event.target.value)}
+                    invalid={Boolean(visibleError("dateOfBirth"))}
+                    onChange={(next) => {
+                      setDateOfBirth(next);
+                      markTouched("dateOfBirth");
+                    }}
                   />
+                  <FieldError id="account-dob-error" message={visibleError("dateOfBirth")} />
                 </div>
                 <div>
                   <label className={labelClassName} htmlFor="account-gender">
                     Gender
                   </label>
-                  <div className="relative">
-                    <select
-                      id="account-gender"
-                      className={`${inputClassName} appearance-none pr-9`}
-                      value={gender}
-                      disabled={!user}
-                      onChange={(event) => setGender(event.target.value)}
-                    >
-                      <option value="">Prefer not to say</option>
-                      {GENDER_OPTIONS.map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                    <CaretDownIcon
-                      size={13}
-                      className="pointer-events-none absolute right-3 top-3.5 text-[#9A9691]"
-                    />
-                  </div>
+                  <AccountSelect
+                    value={gender}
+                    onChange={(next) => {
+                      setGender(next);
+                      markTouched("gender");
+                    }}
+                    options={GENDER_OPTIONS}
+                    placeholder="Prefer not to say"
+                    disabled={!user}
+                    invalid={Boolean(visibleError("gender"))}
+                  />
+                  <FieldError id="account-gender-error" message={visibleError("gender")} />
                 </div>
                 <div>
-                  <label className={labelClassName} htmlFor="account-city">
-                    City
+                  <label className={labelClassName} htmlFor="account-location">
+                    Location
                   </label>
-                  <CityPicker
-                    value={cityValue}
-                    disabled={!user}
+                  <AccountSelect
+                    value={locationCity}
                     onChange={(next) => {
-                      const parsed = parseCitySelection(next);
-                      setLocationCity(parsed.city);
-                      setLocationCountry(parsed.country);
+                      setLocationCity(next);
+                      if (!locationCountry) setLocationCountry(DEFAULT_PROFILE_COUNTRY);
+                      markTouched("locationCity");
                     }}
+                    options={PROFILE_LOCATIONS}
+                    placeholder="Select location…"
+                    disabled={!user}
+                    searchable
+                    invalid={Boolean(visibleError("locationCity"))}
                   />
+                  <FieldError id="account-location-error" message={visibleError("locationCity")} />
+                </div>
+                <div>
+                  <label className={labelClassName} htmlFor="account-country">
+                    Country
+                  </label>
+                  <AccountSelect
+                    value={locationCountry}
+                    onChange={(next) => {
+                      setLocationCountry(next);
+                      markTouched("locationCountry");
+                    }}
+                    options={PROFILE_COUNTRIES}
+                    placeholder="Select country…"
+                    disabled={!user}
+                    searchable
+                    invalid={Boolean(visibleError("locationCountry"))}
+                  />
+                  <FieldError id="account-country-error" message={visibleError("locationCountry")} />
                 </div>
               </div>
 
               {!canEditBasicInfo && user ? (
                 <p className="text-xs text-[#73706C]">
-                  You signed in with Google, so your name is managed by your Google account. Phone number can still
-                  be edited here.
+                  You signed in with Google, so your name is managed by your Google account.
                 </p>
               ) : null}
 
@@ -1319,7 +1945,7 @@ export function AccountPage() {
                     to="/experts"
                     className="mt-4 inline-flex h-10 items-center justify-center rounded-[4px] bg-[#0B6E66] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#095B54]"
                   >
-                    Explore experts
+                    Explore Experts
                   </Link>
                 ) : null}
               </EmptyState>
@@ -1398,7 +2024,7 @@ export function AccountPage() {
                 to="/experts"
                 className="mt-4 inline-flex h-10 items-center justify-center rounded-[4px] bg-[#0B6E66] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#095B54]"
               >
-                Explore experts
+                Explore Experts
               </Link>
             </EmptyState>
           ) : (

@@ -10,6 +10,7 @@ import { PageErrorState } from "../../components/common/PageErrorState";
 import { LanguageSelect } from "../../components/guide/LanguageSelect";
 import { TagSelector } from "../../components/guide/TagSelector";
 import { WORLD_LANGUAGES } from "../../data/languages";
+import { PROFILE_LIMITS, validateProfileForm, type ProfileField } from "../../lib/profileValidation";
 
 const ROLE_LABELS: Record<CurrentUser["role"], string> = {
   USER: "Traveller",
@@ -41,9 +42,40 @@ const EXPERIENCE_LEVEL_LABELS: Record<TravelExperienceLevel, string> = {
 const inputClassName =
   "h-11 w-full rounded border border-black/10 bg-white px-4 text-[15px] text-[#2f2b28] outline-none focus:border-(--color-wildbook-teal) disabled:bg-black/5 disabled:text-(--color-wildbook-muted)";
 
+const textAreaClassName =
+  "min-h-[96px] w-full rounded border border-black/10 bg-white px-4 py-3 text-[15px] text-[#2f2b28] outline-none focus:border-(--color-wildbook-teal)";
+
+const errorClassName = "border-red-500 focus:border-red-500";
+
 const labelClassName = "mb-1.5 block text-sm font-medium text-(--color-wildbook-text)";
 
+const BASIC_INFO_FIELDS: ProfileField[] = ["fullName", "phoneNumber"];
+
+const PERSONAL_DETAILS_FIELDS: ProfileField[] = [
+  "phoneNumber",
+  "bio",
+  "dateOfBirth",
+  "gender",
+  "locationCity",
+  "locationCountry",
+  "interests",
+  "preferredLanguages",
+  "emergencyContactName",
+  "emergencyContactPhone",
+];
+
 type SaveStatus = "idle" | "saving" | "success" | "error";
+
+const SAVED_MESSAGE_MS = 3500;
+
+function FieldError({ id, message }: { id: string; message: string | undefined }) {
+  if (!message) return null;
+  return (
+    <p id={id} className="mt-1.5 text-[13px] text-red-600">
+      {message}
+    </p>
+  );
+}
 
 export function MyProfilePage() {
   const [user, setUser] = useState<CurrentUser | null>(null);
@@ -66,6 +98,12 @@ export function MyProfilePage() {
   const [emergencyContactPhone, setEmergencyContactPhone] = useState("");
   const [detailsSaveStatus, setDetailsSaveStatus] = useState<SaveStatus>("idle");
   const [detailsSaveError, setDetailsSaveError] = useState<string | null>(null);
+
+  const [touchedFields, setTouchedFields] = useState<ProfileField[]>([]);
+
+  const markTouched = (...fields: ProfileField[]) => {
+    setTouchedFields((current) => [...new Set([...current, ...fields])]);
+  };
 
   function applyUser(current: CurrentUser) {
     setUser(current);
@@ -94,6 +132,18 @@ export function MyProfilePage() {
     return () => controller.abort();
   }, []);
 
+  useEffect(() => {
+    if (basicSaveStatus !== "success") return;
+    const timer = window.setTimeout(() => setBasicSaveStatus("idle"), SAVED_MESSAGE_MS);
+    return () => window.clearTimeout(timer);
+  }, [basicSaveStatus]);
+
+  useEffect(() => {
+    if (detailsSaveStatus !== "success") return;
+    const timer = window.setTimeout(() => setDetailsSaveStatus("idle"), SAVED_MESSAGE_MS);
+    return () => window.clearTimeout(timer);
+  }, [detailsSaveStatus]);
+
   if (loadError) {
     return <PageErrorState message={loadError} />;
   }
@@ -104,7 +154,36 @@ export function MyProfilePage() {
 
   const canEditBasicInfo = user.auth_provider === "EMAIL";
 
+  const validationErrors = validateProfileForm(
+    {
+      fullName,
+      phoneNumber,
+      bio,
+      dateOfBirth,
+      gender,
+      locationCity,
+      locationCountry,
+      interests,
+      preferredLanguages,
+      emergencyContactName,
+      emergencyContactPhone,
+    },
+    canEditBasicInfo,
+  );
+
+  // Errors surface as soon as a field has been edited or its section was submitted.
+  const visibleError = (field: ProfileField): string | undefined =>
+    touchedFields.includes(field) ? validationErrors[field] : undefined;
+
+  const hasErrorsIn = (fields: ProfileField[]) => fields.some((field) => validationErrors[field]);
+
   const handleSaveBasicInfo = async () => {
+    markTouched(...BASIC_INFO_FIELDS, ...(canEditBasicInfo ? [] : PERSONAL_DETAILS_FIELDS));
+    if (hasErrorsIn(canEditBasicInfo ? BASIC_INFO_FIELDS : PERSONAL_DETAILS_FIELDS)) {
+      setBasicSaveStatus("error");
+      setBasicSaveError("Please fix the highlighted fields.");
+      return;
+    }
     setBasicSaveStatus("saving");
     setBasicSaveError(null);
     try {
@@ -138,6 +217,12 @@ export function MyProfilePage() {
   };
 
   const handleSaveDetails = async () => {
+    markTouched(...PERSONAL_DETAILS_FIELDS);
+    if (hasErrorsIn(PERSONAL_DETAILS_FIELDS)) {
+      setDetailsSaveStatus("error");
+      setDetailsSaveError("Please fix the highlighted fields.");
+      return;
+    }
     setDetailsSaveStatus("saving");
     setDetailsSaveError(null);
     try {
@@ -180,11 +265,19 @@ export function MyProfilePage() {
             </label>
             <input
               id="full-name"
-              className={inputClassName}
+              className={`${inputClassName} ${visibleError("fullName") ? errorClassName : ""}`}
               value={fullName}
               disabled={!canEditBasicInfo}
-              onChange={(event) => setFullName(event.target.value)}
+              maxLength={PROFILE_LIMITS.fullName.max}
+              aria-invalid={Boolean(visibleError("fullName"))}
+              aria-describedby={visibleError("fullName") ? "full-name-error" : undefined}
+              onChange={(event) => {
+                setFullName(event.target.value);
+                markTouched("fullName");
+              }}
+              onBlur={() => markTouched("fullName")}
             />
+            <FieldError id="full-name-error" message={visibleError("fullName")} />
           </div>
 
           <div>
@@ -193,11 +286,20 @@ export function MyProfilePage() {
             </label>
             <input
               id="phone-number"
-              className={inputClassName}
+              type="tel"
+              className={`${inputClassName} ${visibleError("phoneNumber") ? errorClassName : ""}`}
               value={phoneNumber}
-              onChange={(event) => setPhoneNumber(event.target.value)}
+              maxLength={PROFILE_LIMITS.phone.max}
+              aria-invalid={Boolean(visibleError("phoneNumber"))}
+              aria-describedby={visibleError("phoneNumber") ? "phone-number-error" : undefined}
+              onChange={(event) => {
+                setPhoneNumber(event.target.value);
+                markTouched("phoneNumber");
+              }}
+              onBlur={() => markTouched("phoneNumber")}
               placeholder="Add your phone number"
             />
+            <FieldError id="phone-number-error" message={visibleError("phoneNumber")} />
           </div>
 
           <div>
@@ -225,7 +327,7 @@ export function MyProfilePage() {
           <button
             type="button"
             className="inline-flex h-11 items-center justify-center rounded bg-(--color-wildbook-teal) px-6 text-sm font-medium text-white transition-colors hover:bg-[#095852] disabled:opacity-60"
-            disabled={basicSaveStatus === "saving" || (canEditBasicInfo && fullName.trim().length < 2)}
+            disabled={basicSaveStatus === "saving"}
             onClick={() => void handleSaveBasicInfo()}
           >
             {basicSaveStatus === "saving" ? "Saving…" : "Save changes"}
@@ -248,12 +350,24 @@ export function MyProfilePage() {
             </label>
             <textarea
               id="bio"
-              className="min-h-[96px] w-full rounded border border-black/10 bg-white px-4 py-3 text-[15px] text-[#2f2b28] outline-none focus:border-(--color-wildbook-teal)"
+              className={`${textAreaClassName} ${visibleError("bio") ? errorClassName : ""}`}
               placeholder="Tell guides a bit about yourself and what you're hoping to see."
-              maxLength={500}
+              maxLength={PROFILE_LIMITS.bio.max}
               value={bio}
-              onChange={(event) => setBio(event.target.value)}
+              aria-invalid={Boolean(visibleError("bio"))}
+              aria-describedby={visibleError("bio") ? "bio-error" : undefined}
+              onChange={(event) => {
+                setBio(event.target.value);
+                markTouched("bio");
+              }}
+              onBlur={() => markTouched("bio")}
             />
+            <div className="mt-1.5 flex items-start justify-between gap-4">
+              <FieldError id="bio-error" message={visibleError("bio")} />
+              <span className="ml-auto text-[13px] text-(--color-wildbook-muted)">
+                {bio.trim().length}/{PROFILE_LIMITS.bio.max}
+              </span>
+            </div>
           </div>
 
           <div>
@@ -263,10 +377,18 @@ export function MyProfilePage() {
             <input
               id="date-of-birth"
               type="date"
-              className={inputClassName}
+              className={`${inputClassName} ${visibleError("dateOfBirth") ? errorClassName : ""}`}
               value={dateOfBirth}
-              onChange={(event) => setDateOfBirth(event.target.value)}
+              max={new Date().toISOString().slice(0, 10)}
+              aria-invalid={Boolean(visibleError("dateOfBirth"))}
+              aria-describedby={visibleError("dateOfBirth") ? "date-of-birth-error" : undefined}
+              onChange={(event) => {
+                setDateOfBirth(event.target.value);
+                markTouched("dateOfBirth");
+              }}
+              onBlur={() => markTouched("dateOfBirth")}
             />
+            <FieldError id="date-of-birth-error" message={visibleError("dateOfBirth")} />
           </div>
 
           <div>
@@ -276,10 +398,17 @@ export function MyProfilePage() {
             <input
               id="gender"
               list="gender-options"
-              className={inputClassName}
+              className={`${inputClassName} ${visibleError("gender") ? errorClassName : ""}`}
               placeholder="e.g. Female"
               value={gender}
-              onChange={(event) => setGender(event.target.value)}
+              maxLength={PROFILE_LIMITS.gender.max}
+              aria-invalid={Boolean(visibleError("gender"))}
+              aria-describedby={visibleError("gender") ? "gender-error" : undefined}
+              onChange={(event) => {
+                setGender(event.target.value);
+                markTouched("gender");
+              }}
+              onBlur={() => markTouched("gender")}
             />
             <datalist id="gender-options">
               <option value="Female" />
@@ -287,6 +416,7 @@ export function MyProfilePage() {
               <option value="Non-binary" />
               <option value="Prefer not to say" />
             </datalist>
+            <FieldError id="gender-error" message={visibleError("gender")} />
           </div>
 
           <div>
@@ -295,10 +425,18 @@ export function MyProfilePage() {
             </label>
             <input
               id="city"
-              className={inputClassName}
+              className={`${inputClassName} ${visibleError("locationCity") ? errorClassName : ""}`}
               value={locationCity}
-              onChange={(event) => setLocationCity(event.target.value)}
+              maxLength={PROFILE_LIMITS.location.max}
+              aria-invalid={Boolean(visibleError("locationCity"))}
+              aria-describedby={visibleError("locationCity") ? "city-error" : undefined}
+              onChange={(event) => {
+                setLocationCity(event.target.value);
+                markTouched("locationCity");
+              }}
+              onBlur={() => markTouched("locationCity")}
             />
+            <FieldError id="city-error" message={visibleError("locationCity")} />
           </div>
 
           <div>
@@ -307,10 +445,18 @@ export function MyProfilePage() {
             </label>
             <input
               id="country"
-              className={inputClassName}
+              className={`${inputClassName} ${visibleError("locationCountry") ? errorClassName : ""}`}
               value={locationCountry}
-              onChange={(event) => setLocationCountry(event.target.value)}
+              maxLength={PROFILE_LIMITS.location.max}
+              aria-invalid={Boolean(visibleError("locationCountry"))}
+              aria-describedby={visibleError("locationCountry") ? "country-error" : undefined}
+              onChange={(event) => {
+                setLocationCountry(event.target.value);
+                markTouched("locationCountry");
+              }}
+              onBlur={() => markTouched("locationCountry")}
             />
+            <FieldError id="country-error" message={visibleError("locationCountry")} />
           </div>
         </div>
       </section>
@@ -322,23 +468,35 @@ export function MyProfilePage() {
         </p>
 
         <div className="mt-4 space-y-4">
-          <TagSelector
-            title="Interests"
-            subtitle="What do you most want to experience?"
-            presets={INTEREST_PRESETS}
-            selected={interests}
-            onChange={setInterests}
-            customPlaceholder="Add another interest..."
-          />
+          <div>
+            <TagSelector
+              title="Interests"
+              subtitle="What do you most want to experience?"
+              presets={INTEREST_PRESETS}
+              selected={interests}
+              onChange={(next) => {
+                setInterests(next);
+                markTouched("interests");
+              }}
+              customPlaceholder="Add another interest..."
+            />
+            <FieldError id="interests-error" message={visibleError("interests")} />
+          </div>
 
-          <LanguageSelect
-            title="Preferred languages"
-            subtitle="Languages you'd like your guide to speak."
-            presets={LANGUAGE_PRESETS}
-            options={WORLD_LANGUAGES}
-            selected={preferredLanguages}
-            onChange={setPreferredLanguages}
-          />
+          <div>
+            <LanguageSelect
+              title="Preferred languages"
+              subtitle="Languages you'd like your guide to speak."
+              presets={LANGUAGE_PRESETS}
+              options={WORLD_LANGUAGES}
+              selected={preferredLanguages}
+              onChange={(next) => {
+                setPreferredLanguages(next);
+                markTouched("preferredLanguages");
+              }}
+            />
+            <FieldError id="preferred-languages-error" message={visibleError("preferredLanguages")} />
+          </div>
 
           <div className="max-w-sm">
             <label className={labelClassName} htmlFor="experience-level">
@@ -373,10 +531,18 @@ export function MyProfilePage() {
             </label>
             <input
               id="emergency-contact-name"
-              className={inputClassName}
+              className={`${inputClassName} ${visibleError("emergencyContactName") ? errorClassName : ""}`}
               value={emergencyContactName}
-              onChange={(event) => setEmergencyContactName(event.target.value)}
+              maxLength={PROFILE_LIMITS.emergencyContactName.max}
+              aria-invalid={Boolean(visibleError("emergencyContactName"))}
+              aria-describedby={visibleError("emergencyContactName") ? "emergency-contact-name-error" : undefined}
+              onChange={(event) => {
+                setEmergencyContactName(event.target.value);
+                markTouched("emergencyContactName");
+              }}
+              onBlur={() => markTouched("emergencyContactName", "emergencyContactPhone")}
             />
+            <FieldError id="emergency-contact-name-error" message={visibleError("emergencyContactName")} />
           </div>
           <div>
             <label className={labelClassName} htmlFor="emergency-contact-phone">
@@ -384,10 +550,19 @@ export function MyProfilePage() {
             </label>
             <input
               id="emergency-contact-phone"
-              className={inputClassName}
+              type="tel"
+              className={`${inputClassName} ${visibleError("emergencyContactPhone") ? errorClassName : ""}`}
               value={emergencyContactPhone}
-              onChange={(event) => setEmergencyContactPhone(event.target.value)}
+              maxLength={PROFILE_LIMITS.phone.max}
+              aria-invalid={Boolean(visibleError("emergencyContactPhone"))}
+              aria-describedby={visibleError("emergencyContactPhone") ? "emergency-contact-phone-error" : undefined}
+              onChange={(event) => {
+                setEmergencyContactPhone(event.target.value);
+                markTouched("emergencyContactPhone");
+              }}
+              onBlur={() => markTouched("emergencyContactName", "emergencyContactPhone")}
             />
+            <FieldError id="emergency-contact-phone-error" message={visibleError("emergencyContactPhone")} />
           </div>
         </div>
       </section>
