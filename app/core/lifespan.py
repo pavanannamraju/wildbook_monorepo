@@ -19,6 +19,8 @@ from app.domain.guides.search_service import GuideSearchService
 from app.stores.indexes import (
     ensure_accommodation_bookings_indexes,
     ensure_accommodations_indexes,
+    ensure_analytics_events_indexes,
+    ensure_analytics_identities_indexes,
     ensure_bookmarks_indexes,
     ensure_feature_notifications_indexes,
     ensure_guide_applications_indexes,
@@ -193,6 +195,18 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
                     feature_notifications=db[settings.mongo_feature_notifications_collection_name],
                 ),
                 label="feature_notifications",
+            )
+            _try_create_index(
+                lambda: ensure_analytics_events_indexes(
+                    analytics_events=db[settings.mongo_analytics_events_collection_name],
+                ),
+                label="analytics_events",
+            )
+            _try_create_index(
+                lambda: ensure_analytics_identities_indexes(
+                    analytics_identities=db[settings.mongo_analytics_identities_collection_name],
+                ),
+                label="analytics_identities",
             )
             _ensure_guide_indexes(store)
 

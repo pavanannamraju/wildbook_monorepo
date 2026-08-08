@@ -1,26 +1,25 @@
-import { XIcon } from "@phosphor-icons/react";
+import { EnvelopeSimpleIcon, XIcon } from "@phosphor-icons/react";
 import { FirebaseError } from "firebase/app";
-import { useMemo, useState } from "react";
-// import { Link } from "react-router-dom";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useState } from "react";
 import { upsertEmailSignupProfile } from "../../api/auth";
-import logoDark from "../../assets/Logo Dark.png";
 import { useAuth } from "../../auth/AuthProvider";
 import heroImage from "../../assets/Login_Modal_Image.jpg";
 import googleIcon from "../../assets/gmail.svg";
-import emailIcon from "../../assets/Email.svg";
-type ExploreTab = "login" | "signup";
+import { track } from "../../lib/analytics";
+
+type AuthTab = "login" | "signup";
 type EmailAuthMode = "login" | "signup";
+// type RoleTab = "explore" | "guide";
 
 type LoginModalContentProps = {
   onClose?: () => void;
   onSuccess?: () => void;
+  /** Preferred email auth mode when opening Continue with Email. */
+  defaultTab?: AuthTab;
+  /** Where the modal was opened from (navbar, explore_gate, login_page, bookmark). */
+  analyticsSource?: string;
 };
-
-type ExploreAuthViewProps = {
-  onSuccess?: () => void;
-};
-
-const HERO_IMAGE_URL = heroImage;
 
 function isStrongPassword(password: string): boolean {
   const hasMinLength = password.length >= 8;
@@ -56,14 +55,27 @@ function mapEmailAuthError(error: unknown, mode: EmailAuthMode): string {
   }
 }
 
+const fieldClass =
+  "h-12 w-full rounded-lg border border-[#E3DDD8] bg-white px-4 font-['Nunito'] text-[15px] text-[#2F2B28] outline-none transition-colors placeholder:text-[#9A9691] focus:border-[#0B6E66]";
+
+const primaryBtnClass =
+  "w-full h-12 rounded-sm bg-[#0B6E66] font-['Nunito'] text-base font-semibold text-white transition-opacity disabled:pointer-events-none disabled:opacity-50";
+
+const outlineBtnClass =
+  "flex h-11 w-full items-center justify-center gap-2.5 rounded-sm border border-black/10 bg-transparent font-['Nunito'] text-sm font-semibold text-[#2F2B28] transition-colors hover:bg-black/[0.03]";
+
 function EmailAuthForm({
   mode,
+  onModeChange,
   onBack,
   onSuccess,
+  analyticsSource,
 }: {
   mode: EmailAuthMode;
+  onModeChange: (mode: EmailAuthMode) => void;
   onBack: () => void;
   onSuccess?: () => void;
+  analyticsSource?: string;
 }) {
   const { loginWithEmailPassword, signupWithEmailPassword } = useAuth();
   const [submitting, setSubmitting] = useState(false);
@@ -90,7 +102,9 @@ function EmailAuthForm({
           return;
         }
         if (!isStrongPassword(form.password)) {
-          setError("Password must be at least 8 characters with uppercase, lowercase, number, and special character.");
+          setError(
+            "Password must be at least 8 characters with uppercase, lowercase, number, and special character.",
+          );
           return;
         }
         if (form.password !== form.confirmPassword) {
@@ -103,31 +117,76 @@ function EmailAuthForm({
           phone_number: form.phoneNumber.trim() || undefined,
         });
       }
+      track("auth_email_submit", {
+        mode,
+        ok: true,
+        source: analyticsSource ?? null,
+      });
       onSuccess?.();
     } catch (err: unknown) {
       setError(mapEmailAuthError(err, mode));
+      track("auth_email_submit", {
+        mode,
+        ok: false,
+        source: analyticsSource ?? null,
+      });
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <form className="mt-7 space-y-4" onSubmit={onSubmit}>
+    <motion.form
+      key={`email-${mode}`}
+      initial={{ opacity: 0, x: -12 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 12 }}
+      transition={{ duration: 0.18 }}
+      className="mb-1 flex flex-col gap-3"
+      onSubmit={onSubmit}
+    >
+      {/* Both Sign in and Sign up always available */}
+      <div className="mb-1 grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => onModeChange("login")}
+          className={`rounded-lg border py-2.5 font-['Nunito'] text-sm font-semibold transition-colors ${
+            mode === "login"
+              ? "border-[#2F2B28] bg-[#2F2B28] text-white"
+              : "border-[#E3DDD8] text-[#73706C] hover:border-[#2F2B28] hover:text-[#2F2B28]"
+          }`}
+        >
+          Sign in
+        </button>
+        <button
+          type="button"
+          onClick={() => onModeChange("signup")}
+          className={`rounded-lg border py-2.5 font-['Nunito'] text-sm font-semibold transition-colors ${
+            mode === "signup"
+              ? "border-[#0B6E66] bg-[#0B6E66] text-white"
+              : "border-[#0B6E66]/40 text-[#0B6E66] hover:bg-[#0B6E66]/8"
+          }`}
+        >
+          Sign up
+        </button>
+      </div>
+
       {mode === "signup" ? (
         <>
           <input
             type="text"
-            className="h-14 w-full rounded border border-black/8 bg-white px-4 text-[15px] text-[#2f2b28]"
-            placeholder="Enter Full Name"
+            className={fieldClass}
+            placeholder="Full name"
             value={form.fullName}
             onChange={(event) => setForm((prev) => ({ ...prev, fullName: event.target.value }))}
             minLength={2}
             required
+            autoFocus
           />
           <input
             type="tel"
-            className="h-14 w-full rounded border border-black/8 bg-white px-4 text-[15px] text-[#2f2b28]"
-            placeholder="Phone Number (optional)"
+            className={fieldClass}
+            placeholder="Phone number (optional)"
             value={form.phoneNumber}
             onChange={(event) => setForm((prev) => ({ ...prev, phoneNumber: event.target.value }))}
           />
@@ -135,16 +194,17 @@ function EmailAuthForm({
       ) : null}
       <input
         type="email"
-        className="h-14 w-full rounded border border-black/8 bg-white px-4 text-[15px] text-[#2f2b28]"
-        placeholder="Enter Email"
+        className={fieldClass}
+        placeholder="Email"
         value={form.email}
         onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
         required
+        autoFocus={mode === "login"}
       />
       <input
         type="password"
-        className="h-14 w-full rounded border border-black/8 bg-white px-4 text-[15px] text-[#2f2b28]"
-        placeholder="Enter Password"
+        className={fieldClass}
+        placeholder="Password"
         value={form.password}
         onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
         minLength={8}
@@ -153,166 +213,159 @@ function EmailAuthForm({
       {mode === "signup" ? (
         <input
           type="password"
-          className="h-14 w-full rounded border border-black/8 bg-white px-4 text-[15px] text-[#2f2b28]"
-          placeholder="Confirm Password"
+          className={fieldClass}
+          placeholder="Confirm password"
           value={form.confirmPassword}
           onChange={(event) => setForm((prev) => ({ ...prev, confirmPassword: event.target.value }))}
           minLength={8}
           required
         />
       ) : null}
-      <button
-        type="submit"
-        className="h-12 w-full rounded bg-(--color-wildbook-teal) text-[16px] leading-none font-semibold text-white disabled:opacity-60 sm:h-14 sm:text-[18px]"
-        disabled={submitting}
-      >
-        {submitting ? "Please wait..." : mode === "login" ? "Login with Email" : "Create account"}
+      <button type="submit" className={`${primaryBtnClass} mt-1`} disabled={submitting}>
+        {submitting ? "Please wait…" : mode === "login" ? "Sign in →" : "Create account →"}
       </button>
-      <button
-        type="button"
-        className="h-12 w-full rounded border border-black/10 bg-white text-[16px] text-[#2f2b28]"
-        onClick={onBack}
-      >
+      <button type="button" className={outlineBtnClass} onClick={onBack}>
         Back
       </button>
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
-    </form>
+      {error ? <p className="font-['Nunito'] text-sm text-red-700">{error}</p> : null}
+    </motion.form>
   );
 }
 
-function ExploreAuthView({ onSuccess }: ExploreAuthViewProps) {
+export function LoginModalContent({
+  onClose,
+  onSuccess,
+  defaultTab = "login",
+  analyticsSource,
+}: LoginModalContentProps) {
   const { loginWithGoogle } = useAuth();
-  const [tab, setTab] = useState<ExploreTab>("login");
+  // const [roleTab, setRoleTab] = useState<RoleTab>("explore");
   const [emailMode, setEmailMode] = useState<EmailAuthMode | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // setRoleTab("explore");
+    setEmailMode(null);
+    setError(null);
+  }, [defaultTab]);
 
   async function handleGoogleLogin() {
     setError(null);
     try {
       await loginWithGoogle();
+      track("auth_google", { ok: true, source: analyticsSource ?? null });
       onSuccess?.();
     } catch {
       setError("Google sign-in failed. Please try again.");
+      track("auth_google", { ok: false, source: analyticsSource ?? null });
     }
   }
 
-  if (emailMode) {
-    return <EmailAuthForm mode={emailMode} onBack={() => setEmailMode(null)} onSuccess={onSuccess} />;
-  }
-
-  const isSignup = tab === "signup";
-
   return (
-    <div className="mt-7 space-y-4">
-      <div className="grid h-13 grid-cols-2 gap-2 rounded bg-[#ecebe7] p-1">
+    <section className="relative flex h-[90vh] max-h-[900px] w-full max-w-[1120px] overflow-hidden rounded-2xl bg-[#F8F6F3] shadow-2xl">
+      {onClose ? (
         <button
           type="button"
-          className={`rounded text-[16px] leading-none font-medium sm:text-[18px] ${
-            tab === "login" ? "bg-[#cbe6dc] text-[#0b6e66]" : "text-[#777]"
-          }`}
-          onClick={() => setTab("login")}
+          onClick={onClose}
+          className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/20 text-white transition-colors hover:bg-black/30 md:bg-black/20"
+          aria-label="Close login modal"
         >
-          Login
+          <XIcon size={16} weight="bold" />
         </button>
-        <button
-          type="button"
-          className={`rounded text-[16px] leading-none font-medium sm:text-[18px] ${
-            tab === "signup" ? "bg-[#cbe6dc] text-[#0b6e66]" : "text-[#777]"
-          }`}
-          onClick={() => setTab("signup")}
-        >
-          Sign Up
-        </button>
-      </div>
+      ) : null}
 
-      <div className="space-y-1 pt-1">
-        <p className="text-[16px] font-semibold text-[#121212] sm:text-[18px]">
-          {isSignup ? "Create your wildbook account" : "Welcome back"}
-        </p>
-        <p className="text-[14px] leading-snug text-[#6b6b6b]">
-          {isSignup
-            ? "Join the community to bookmark guides, book stays, and plan your next trip."
-            : "Sign in to pick up where you left off."}
-        </p>
-      </div>
-
-      <button
-        type="button"
-        className={`flex h-12 w-full items-center justify-start gap-3 rounded px-4 text-[16px] leading-none font-medium sm:h-16 sm:px-6 sm:text-[20px] ${
-          isSignup
-            ? "bg-(--color-wildbook-teal) text-white"
-            : "border border-black/8 bg-white text-[#2f2b28]"
-        }`}
-        onClick={handleGoogleLogin}
-      >
-        <img
-          src={googleIcon}
-          alt=""
-          className={`h-7 w-7 shrink-0 ${isSignup ? "rounded-sm bg-white p-0.5" : ""}`}
-        />
-        {isSignup ? "Sign up with Google" : "Sign in with Google"}
-      </button>
-      <button
-        type="button"
-        className={`flex h-12 w-full items-center justify-start gap-3 rounded px-4 text-[16px] leading-none font-medium sm:h-16 sm:px-6 sm:text-[20px] ${
-          isSignup
-            ? "border border-(--color-wildbook-teal) bg-white text-(--color-wildbook-teal)"
-            : "border border-black/8 bg-white text-[#2f2b28]"
-        }`}
-        onClick={() => setEmailMode(isSignup ? "signup" : "login")}
-      >
-        <img src={emailIcon} alt="" className="h-7 w-7 shrink-0" />
-        {isSignup ? "Sign up with Email" : "Sign in with Email"}
-      </button>
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
-    </div>
-  );
-}
-
-export function LoginModalContent({ onClose, onSuccess }: LoginModalContentProps) {
-  const title = useMemo(() => "Login or sign up", []);
-  // const tabButton = (active: boolean) =>
-  //   `h-12 rounded px-3 text-[15px] leading-tight font-semibold transition-colors ${
-  //     active ? "bg-(--color-wildbook-teal) text-white" : "bg-transparent text-[#767676]"
-  //   }`;
-
-  return (
-    <section className="flex h-[90vh] w-full max-w-[1120px] overflow-hidden bg-transparent shadow-2xl">
-      <aside className="relative hidden w-[47%] self-stretch lg:block">
-        <img src={HERO_IMAGE_URL} alt="Wild landscape" className="absolute inset-0 h-full w-full object-cover object-bottom" />
-        <div className="absolute inset-0 p-12 text-white">
-          <img src={logoDark} alt="wildbook" className="mb-10 w-auto" />
-          <h3 className="max-w-[420px] text-[32px] sm:text-[40px] lg:text-[48px]" style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300, lineHeight: '1.1' }}>
-            Your Gateway to the Wild
+      {/* Left panel — Wildlife Image */}
+      <div className="relative hidden w-[47%] shrink-0 self-stretch md:block">
+        <img src={heroImage} alt="Wildlife" className="absolute inset-0 h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+        <div className="absolute right-7 bottom-8 left-7 text-white md:right-10 md:bottom-10 md:left-10">
+          <h3 className="mb-1 font-['Montserrat'] text-2xl leading-snug font-bold md:text-3xl lg:text-4xl">
+            Step into the wild.
           </h3>
-          <p className="mt-2 max-w-[430px] text-[16px] leading-tight text-white/90 sm:text-[18px] lg:text-[20px]">
-            Sign in to explore, connect, and be part of a growing wildlife community.
+          <p className="font-['Nunito'] text-sm text-white/80 md:text-base">
+            Connect with India&apos;s finest naturalists.
           </p>
         </div>
-      </aside>
+      </div>
 
-      <div className="w-full overflow-y-auto bg-[#f7f6f2] px-9 py-9 lg:w-[53%]">
-        <header className="mb-6 flex items-center justify-between">
-          <h2 className="text-[20px] leading-[0.95] font-bold text-[#121212] sm:text-[22px] md:text-[24px]">{title}</h2>
-          {onClose ? (
-            <button type="button" onClick={onClose} aria-label="Close login popup" className="text-[#4a4a4a]">
-              <XIcon size={34} />
+      {/* Right panel — Form */}
+      <div className="flex flex-1 flex-col overflow-y-auto p-7 sm:p-9 lg:w-[53%] lg:px-12 lg:py-12">
+        <div className="mb-6 pr-8 md:mb-8">
+          <h2 className="mb-1 font-['Montserrat'] text-2xl font-bold text-[#2F2B28] md:text-3xl">
+            Login or sign up
+          </h2>
+          <p className="font-['Nunito'] text-sm text-[#73706C] md:text-base">
+            Welcome to Wildbook — India&apos;s wildlife community.
+          </p>
+        </div>
+
+        {/* Explore / Guide toggle — hidden for now
+        <div className="mb-6 flex gap-1 rounded-xl bg-[#ECEBE7] p-1">
+          {(["explore", "guide"] as const).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => {
+                // if (t === "guide") { navigate("/create-guide"); onClose?.(); return; }
+                setRoleTab(t);
+              }}
+              className={`flex-1 rounded-sm py-2.5 font-['Nunito'] text-sm font-semibold transition-all duration-200 ${
+                roleTab === t
+                  ? "bg-[#F8F6F3] text-[#2F2B28] shadow-sm"
+                  : "text-[#73706C] hover:text-[#2F2B28]"
+              }`}
+            >
+              I want to {t === "explore" ? "Explore" : "Guide"}
             </button>
-          ) : null}
-        </header>
-
-        {/* Temporarily hidden — explorer vs guide entry
-        <div className="grid h-16 grid-cols-2 gap-2 rounded bg-[#ecebe7] p-2">
-          <button type="button" className={tabButton(true)}>
-            I want to Explore
-          </button>
-          <Link to="/create-guide" onClick={onClose} className={`${tabButton(false)} flex items-center justify-center`}>
-            Create Naturalist/Guide Profile
-          </Link>
+          ))}
         </div>
         */}
 
-        <ExploreAuthView key="explore-view" onSuccess={onSuccess} />
+        <AnimatePresence mode="wait">
+          {emailMode ? (
+            <EmailAuthForm
+              key="email"
+              mode={emailMode}
+              onModeChange={setEmailMode}
+              onBack={() => setEmailMode(null)}
+              onSuccess={onSuccess}
+              analyticsSource={analyticsSource}
+            />
+          ) : (
+            <motion.div
+              key="methods"
+              initial={{ opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 12 }}
+              transition={{ duration: 0.18 }}
+              className="flex flex-col gap-2.5"
+            >
+              <button type="button" className={outlineBtnClass} onClick={() => void handleGoogleLogin()}>
+                <img src={googleIcon} alt="" className="h-[17px] w-[17px]" />
+                Continue with Google
+              </button>
+              <button
+                type="button"
+                className={outlineBtnClass}
+                onClick={() => {
+                  setEmailMode(defaultTab);
+                  setError(null);
+                }}
+              >
+                <EnvelopeSimpleIcon size={18} weight="bold" />
+                Continue with Email
+              </button>
+              {error ? <p className="font-['Nunito'] text-sm text-red-700">{error}</p> : null}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <p className="mt-5 text-center font-['Nunito'] text-[11px] leading-snug text-[#73706C]">
+          By continuing, you agree to Wildbook&apos;s{" "}
+          <span className="cursor-pointer text-[#0B6E66] hover:underline">Terms of Service</span>
+          {" and "}
+          <span className="cursor-pointer text-[#0B6E66] hover:underline">Privacy Policy</span>.
+        </p>
       </div>
     </section>
   );

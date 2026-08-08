@@ -1,37 +1,35 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { GlassCard } from "react-glass-ui";
 import {
   BookmarkSimpleIcon,
   CircleIcon,
-  GearIcon,
-  ImageSquareIcon,
-  QuestionIcon,
+  ListIcon,
   ShieldCheckIcon,
   SignOutIcon,
   UserIcon,
   XIcon,
 } from "@phosphor-icons/react";
 import { createPortal } from "react-dom";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
+
 import { useAuth } from "../auth/AuthProvider";
-import logoDark from "../assets/Logo Dark.png";
-import logoLight from "../assets/Wildbook_light.svg";
+import logoWhite from "../assets/Wildbook_nav_white.svg";
 import { resolveUserAvatarSrc } from "../data/presetAvatars";
 import { UserAvatar } from "./common/UserAvatar";
 import { LoginModalContent } from "./auth/LoginModalContent";
+import { track } from "../lib/analytics";
 
 const NAV_LINKS = [
   { label: "Home", to: "/" },
   { label: "Explore Experts", to: "/experts" },
   { label: "Shared Safaris", to: "/safaris" },
   { label: "Homestays", to: "/homestays" },
+  // { label: "Safari Booking Directory", to: "/park-guide" },
+  { label: "About Us", to: "/about" },
 ] as const;
 
+/** Kept for call-site compatibility; design nav is self-theming via scroll/route. */
 export type NavbarVariant = "light" | "dark";
-
-interface NavbarProps {
-  variant?: NavbarVariant;
-}
 
 type ProfileMenuItem = {
   label: string;
@@ -43,20 +41,24 @@ const PROFILE_MENU_ITEMS: ReadonlyArray<ProfileMenuItem> = [
   { label: "My Profile", to: "/account#profile", icon: UserIcon },
   { label: "My Bookings", to: "/account#bookings", icon: CircleIcon },
   { label: "Bookmarks", to: "/account#bookmarks", icon: BookmarkSimpleIcon },
-  // { label: "My Gallery", to: "/account#gallery", icon: ImageSquareIcon },
-  // { label: "Settings", to: "/account#settings", icon: GearIcon },
-  // { label: "FAQs", to: "/account#faqs", icon: QuestionIcon },
 ];
 
-export default function Navbar({ variant = "light" }: NavbarProps) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+export default function Navbar(_props: { variant?: NavbarVariant } = {}) {
+  const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [navHidden, setNavHidden] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [profileMenuPosition, setProfileMenuPosition] = useState({ top: 0, left: 0 });
   const { user, loading: authLoading, logout, profile, profileLoading } = useAuth();
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
   const profileTriggerRef = useRef<HTMLButtonElement | null>(null);
-  const isLight = variant === "light";
+
+  // Match zip: transparent over hero pages only
+  const isTransparentInitial = location.pathname === "/" || location.pathname === "/about";
+  const isGlass = !(isTransparentInitial && !scrolled && !isOpen);
+
   const userInitial = useMemo(
     () => user?.displayName?.trim().charAt(0).toUpperCase() || "U",
     [user?.displayName],
@@ -74,62 +76,81 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
   );
   const userRole = profile?.role ?? null;
   const avatarOverflowTop = profile?.avatar_type === "preset";
-  const avatarInitials = userInitial;
 
   useEffect(() => {
-    if (!mobileMenuOpen) {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Hide-on-scroll only below md (768px), matching zip
+  const { scrollY } = useScroll();
+  useMotionValueEvent(scrollY, "change", (current) => {
+    if (window.innerWidth >= 768) {
+      setNavHidden(false);
       return;
     }
+    if (isOpen) {
+      setNavHidden(false);
+      return;
+    }
+    const previous = scrollY.getPrevious() ?? 0;
+    const diff = current - previous;
+    if (diff > 0 && current > 64) {
+      setNavHidden(true);
+    } else {
+      setNavHidden(false);
+    }
+  });
 
+  useEffect(() => {
+    if (!isOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setMobileMenuOpen(false);
-      }
+      if (event.key === "Escape") setIsOpen(false);
     };
-
     window.addEventListener("keydown", onKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [mobileMenuOpen]);
+  }, [isOpen]);
 
   useEffect(() => {
-    if (!profileMenuOpen) {
-      return;
-    }
+    setIsOpen(false);
+    setProfileMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!profileMenuOpen) return;
 
     const updateMenuPosition = () => {
       const triggerRect = profileTriggerRef.current?.getBoundingClientRect();
-      if (!triggerRect) {
-        return;
-      }
-
+      if (!triggerRect) return;
       const menuWidth = 300;
       const menuTop = triggerRect.bottom + 12;
-      const menuLeft = Math.max(16, Math.min(window.innerWidth - menuWidth - 16, triggerRect.right - menuWidth));
+      const menuLeft = Math.max(
+        16,
+        Math.min(window.innerWidth - menuWidth - 16, triggerRect.right - menuWidth),
+      );
       setProfileMenuPosition({ top: menuTop, left: menuLeft });
     };
 
     const onPointerDown = (event: MouseEvent) => {
       const target = event.target;
-      if (!(target instanceof Node)) {
-        return;
-      }
-      const clickInsideMenu = profileMenuRef.current?.contains(target);
-      const clickOnTrigger = profileTriggerRef.current?.contains(target);
-      if (!clickInsideMenu && !clickOnTrigger) {
+      if (!(target instanceof Node)) return;
+      if (
+        !profileMenuRef.current?.contains(target) &&
+        !profileTriggerRef.current?.contains(target)
+      ) {
         setProfileMenuOpen(false);
       }
     };
 
     const onEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setProfileMenuOpen(false);
-      }
+      if (event.key === "Escape") setProfileMenuOpen(false);
     };
 
     updateMenuPosition();
@@ -137,7 +158,6 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
     window.addEventListener("keydown", onEscape);
     window.addEventListener("resize", updateMenuPosition);
     window.addEventListener("scroll", updateMenuPosition, true);
-
     return () => {
       window.removeEventListener("mousedown", onPointerDown);
       window.removeEventListener("keydown", onEscape);
@@ -145,298 +165,208 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
       window.removeEventListener("scroll", updateMenuPosition, true);
     };
   }, [profileMenuOpen]);
-  
-  const linkClasses = (active: boolean) =>
-    `block px-5 py-2.5 text-sm font-medium transition-colors ${
-      active
-        ? "bg-(--color-wildbook-teal) text-(--color-wildbook-cream)"
-        : isLight
-          ? "text-(--color-wildbook-cream) hover:bg-white/10"
-          : "text-black hover:bg-black/10"
-    }`;
+
+  const bgStyle =
+    isTransparentInitial && !scrolled && !isOpen
+      ? "bg-transparent text-white"
+      : "text-white border-b border-white/10";
 
   return (
     <>
-      <nav>
-      <GlassCard
-        id="site-navbar-glass"
-        className={`w-full! overflow-visible! ${isLight ? "" : "bg-transparent!"}`}
-        borderRadius={0}
-        blur={isLight ? 10 : 10}
-        brightness={isLight ? 60 : 90}
-        borderColor="transparent"
-        backgroundOpacity={isLight ? 0 : 0.4}
-        backgroundColor={isLight ? "#00000000" : "#f3eee9"}
-        distortion={0}
+      <motion.nav
+        className={`fixed top-0 z-50 w-full transition-all duration-300 ${bgStyle}`}
+        style={
+          isGlass
+            ? {
+                backgroundColor: "rgba(10, 28, 20, 0.62)",
+                backdropFilter: "blur(14px)",
+                WebkitBackdropFilter: "blur(14px)",
+              }
+            : undefined
+        }
+        variants={{
+          visible: { y: 0 },
+          hidden: { y: "-100%" },
+        }}
+        animate={navHidden ? "hidden" : "visible"}
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
       >
-        <div className="flex w-full items-center justify-between gap-3 page-px sm:gap-4">
-          {/* Logo */}
-          <Link to="/" className="flex shrink-0 items-center" aria-label="Wildbook home">
-            <img
-              src={isLight ? logoDark : logoLight}
-              alt="Wildbook"
-              className="h-4 w-auto min-[1000px]:h-6"
-            />
+        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+          <Link to="/" className="flex items-center" aria-label="Wildbook home">
+            <img src={logoWhite} alt="Wildbook" className="h-8 w-auto" />
           </Link>
 
-          {/* Navigation links - desktop at 1000px+ */}
-          <ul className="hidden items-center justify-center gap-1 min-[1000px]:flex min-[1000px]:gap-2">
-            {NAV_LINKS.map((link) => (
-              <li key={link.label}>
-                <NavLink
-                  to={link.to}
-                  end={link.to === "/"}
-                  className={({ isActive }) =>
-                    `rounded px-5 py-2 text-sm font-medium transition-colors min-[1000px]:px-6 min-[1000px]:py-2 ${
-                      isActive
-                        ? "bg-(--color-wildbook-teal) text-(--color-wildbook-cream)"
-                        : isLight
-                          ? "text-(--color-wildbook-cream) hover:bg-white/10"
-                          : "text-black hover:bg-black/10"
-                    }`
-                  }
-                >
-                  {link.label}
-                </NavLink>
-              </li>
+          {/* Desktop Nav — zip layout: inline links, not centered flex-1 */}
+          <div className="hidden items-center gap-4 font-['Nunito'] text-sm font-semibold md:flex lg:gap-7 xl:gap-8">
+            {NAV_LINKS.map(({ to, label }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={to === "/"}
+                onClick={() => track("nav_click", { to, label, device: "desktop" })}
+                className="transition-all duration-200 hover:text-white"
+                style={({ isActive }) => ({
+                  color: isActive ? "#F0C165" : "rgba(255,255,255,0.62)",
+                  fontWeight: isActive ? 700 : undefined,
+                })}
+              >
+                {label}
+              </NavLink>
             ))}
-          </ul>
+          </div>
 
-          {/* Desktop auth - visible at 1000px+. Hold a neutral slot while Firebase hydrates
-              so Login does not flash before a restored session paints the profile chip. */}
-          {authLoading ? (
-            <div
-              className="hidden h-10 w-24 shrink-0 min-[1000px]:block"
-              aria-hidden="true"
-            />
-          ) : user ? (
-            <div className="hidden shrink-0 min-[1000px]:block">
+          <div className="hidden items-center gap-4 md:flex">
+            {authLoading ? (
+              <div className="h-8 w-20" aria-hidden="true" />
+            ) : user ? (
               <button
                 ref={profileTriggerRef}
                 type="button"
                 onClick={() => setProfileMenuOpen((open) => !open)}
-                className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  isLight
-                    ? "text-(--color-wildbook-cream) hover:bg-white/10"
-                    : "bg-(--color-wildbook-teal) text-(--color-wildbook-cream) hover:brightness-95"
-                }`}
+                className="inline-flex items-center gap-2 font-['Nunito'] text-sm font-semibold text-white transition-colors duration-200 hover:text-[#F0C165]"
                 aria-label="Open account menu"
                 aria-expanded={profileMenuOpen}
                 aria-haspopup="menu"
               >
-                <span className="inline-flex overflow-visible">
-                  <UserAvatar
-                    initials={avatarInitials}
-                    imageUrl={profileAvatarSrc}
-                    size="xs"
-                    overflowTop={avatarOverflowTop}
-                    loading={profileLoading}
-                    alt=""
-                  />
-                </span>
+                <UserAvatar
+                  initials={userInitial}
+                  imageUrl={profileAvatarSrc}
+                  size="xs"
+                  overflowTop={avatarOverflowTop}
+                  loading={profileLoading}
+                  alt=""
+                />
                 <span className="max-w-32 truncate">{userDisplayName.split(" ")[0]}</span>
               </button>
-            </div>
-          ) : (
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  track("auth_modal_open", { source: "navbar" });
+                  setLoginModalOpen(true);
+                }}
+                className="inline-flex items-center gap-2 font-['Nunito'] text-sm font-semibold text-white transition-colors duration-200 hover:text-[#F0C165]"
+              >
+                <UserIcon size={16} />
+                Login
+              </button>
+            )}
+          </div>
+
+          {/* Mobile Nav Toggle */}
+          <div className="flex items-center gap-2 md:hidden">
             <button
               type="button"
-              className={`hidden shrink-0 rounded px-6 py-2 text-sm font-medium min-[1000px]:inline-flex min-[1000px]:items-center min-[1000px]:gap-2 ${
-                isLight ? "text-(--color-wildbook-cream) hover:bg-white/10" : "text-black hover:bg-black/10"
-              }`}
-              onClick={() => setLoginModalOpen(true)}
+              onClick={() => setIsOpen((open) => !open)}
+              className="p-2"
+              aria-label={isOpen ? "Close menu" : "Open menu"}
+              aria-expanded={isOpen}
             >
-              <UserIcon size={20} aria-hidden="true" />
-              Login
+              {isOpen ? <XIcon size={24} /> : <ListIcon size={24} />}
             </button>
-          )}
-
-          {/* Hamburger button - below 1000px */}
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen((open) => !open)}
-            className="flex min-[1000px]:hidden shrink-0 flex-col justify-center gap-1.5 rounded p-2 -mr-2"
-            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileMenuOpen}
-          >
-            <span
-              className={`h-0.5 w-5 rounded-full transition-transform ${
-                isLight ? "bg-white" : "bg-black"
-              } ${mobileMenuOpen ? "translate-y-2 rotate-45" : ""}`}
-            />
-            <span
-              className={`h-0.5 w-5 rounded-full transition-opacity ${
-                isLight ? "bg-white" : "bg-black"
-              } ${mobileMenuOpen ? "opacity-0" : ""}`}
-            />
-            <span
-              className={`h-0.5 w-5 rounded-full transition-transform ${
-                isLight ? "bg-white" : "bg-black"
-              } ${mobileMenuOpen ? "-translate-y-2 -rotate-45" : ""}`}
-            />
-          </button>
+          </div>
         </div>
 
-      </GlassCard>
-      </nav>
-      {mobileMenuOpen
-        ? createPortal(
-            <div
-              className="fixed inset-0 z-1100 flex flex-col min-[1000px]:hidden"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Navigation menu"
+        {/* Mobile Drawer */}
+        <AnimatePresence>
+          {isOpen ? (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden md:hidden"
+              style={{
+                backgroundColor: "rgba(5, 15, 10, 0.96)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                borderBottom: "1px solid rgba(255,255,255,0.08)",
+              }}
             >
-              <div
-                className={`flex min-h-0 flex-1 flex-col ${
-                  isLight
-                    ? "bg-[#1C1917]/95 text-(--color-wildbook-cream) backdrop-blur-md"
-                    : "bg-[#F7F6F2] text-black"
-                }`}
-              >
-                <div className="flex shrink-0 items-center justify-between gap-3 page-px py-3">
-                  <Link
-                    to="/"
-                    className="flex shrink-0 items-center"
-                    aria-label="Wildbook home"
-                    onClick={() => setMobileMenuOpen(false)}
+              <div className="container mx-auto flex flex-col gap-1 px-4 py-5 font-['Nunito'] text-sm font-semibold">
+                {NAV_LINKS.map(({ to, label }) => (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    end={to === "/"}
+                    onClick={() => {
+                      track("nav_click", { to, label, device: "mobile" });
+                      setIsOpen(false);
+                    }}
+                    className="border-b py-3 transition-colors duration-150"
+                    style={({ isActive }) => ({
+                      color: isActive ? "#F0C165" : "rgba(255,255,255,0.78)",
+                      fontWeight: isActive ? 700 : undefined,
+                      borderColor: "rgba(255,255,255,0.07)",
+                    })}
                   >
-                    <img
-                      src={isLight ? logoDark : logoLight}
-                      alt="Wildbook"
-                      className="h-4 w-auto"
-                    />
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`-mr-2 rounded p-2 ${
-                      isLight ? "text-white hover:bg-white/10" : "text-black hover:bg-black/10"
-                    }`}
-                    aria-label="Close menu"
-                  >
-                    <XIcon size={22} aria-hidden="true" />
-                  </button>
-                </div>
+                    {label}
+                  </NavLink>
+                ))}
 
-                <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto border-t border-black/10 py-4 page-px">
-                  {NAV_LINKS.map((link) => (
-                    <NavLink
-                      key={link.label}
-                      to={link.to}
-                      end={link.to === "/"}
-                      className={({ isActive }) => linkClasses(isActive)}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      {link.label}
-                    </NavLink>
-                  ))}
-
-                  {authLoading ? null : user ? (
-                    <>
-                      <div
-                        className={`my-2 border-t ${isLight ? "border-white/15" : "border-black/10"}`}
-                      />
-                      <p
-                        className={`px-5 pb-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${
-                          isLight ? "text-white/55" : "text-black/45"
-                        }`}
-                      >
-                        Account
-                      </p>
-                      <div
-                        className={`mb-1 flex items-center gap-3 px-5 py-2 ${
-                          isLight ? "text-(--color-wildbook-cream)" : "text-black"
-                        }`}
-                      >
-                        <UserAvatar
-                          initials={avatarInitials}
-                          imageUrl={profileAvatarSrc}
-                          size="xs"
-                          overflowTop={avatarOverflowTop}
-                          loading={profileLoading}
-                          alt=""
-                        />
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold">{userDisplayName}</p>
-                          {userEmail ? (
-                            <p
-                              className={`truncate text-xs ${
-                                isLight ? "text-white/65" : "text-black/55"
-                              }`}
-                            >
-                              {userEmail}
-                            </p>
-                          ) : null}
-                        </div>
-                      </div>
-                      {PROFILE_MENU_ITEMS.map((item) => (
-                        <Link
-                          key={item.label}
-                          to={item.to}
-                          className={linkClasses(false)}
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          <span className="inline-flex items-center gap-3">
-                            <item.icon size={18} aria-hidden="true" />
-                            {item.label}
-                          </span>
-                        </Link>
-                      ))}
-                      {userRole === "ADMIN" ? (
-                        <Link
-                          to="/admin"
-                          className={linkClasses(false)}
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          <span className="inline-flex items-center gap-3">
-                            <ShieldCheckIcon size={18} aria-hidden="true" />
-                            Admin
-                          </span>
-                        </Link>
-                      ) : null}
-                      <button
-                        type="button"
-                        className={`mt-1 rounded px-5 py-2.5 text-left text-sm font-medium ${
-                          isLight
-                            ? "text-[#FFB4AE] hover:bg-white/10"
-                            : "text-[#D83A31] hover:bg-[#D83A31]/10"
-                        }`}
-                        onClick={() => {
-                          setMobileMenuOpen(false);
-                          void logout();
+                {authLoading ? null : user ? (
+                  <>
+                    {PROFILE_MENU_ITEMS.map((item) => (
+                      <Link
+                        key={item.label}
+                        to={item.to}
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center gap-2 border-b py-3"
+                        style={{
+                          color: "rgba(255,255,255,0.78)",
+                          borderColor: "rgba(255,255,255,0.07)",
                         }}
                       >
-                        <span className="inline-flex items-center gap-3">
-                          <SignOutIcon size={18} aria-hidden="true" />
-                          Logout
-                        </span>
-                      </button>
-                    </>
-                  ) : (
+                        <item.icon size={16} />
+                        {item.label}
+                      </Link>
+                    ))}
+                    {userRole === "ADMIN" ? (
+                      <Link
+                        to="/admin"
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center gap-2 border-b py-3"
+                        style={{
+                          color: "rgba(255,255,255,0.78)",
+                          borderColor: "rgba(255,255,255,0.07)",
+                        }}
+                      >
+                        <ShieldCheckIcon size={16} />
+                        Admin
+                      </Link>
+                    ) : null}
                     <button
                       type="button"
-                      className={`mt-2 rounded px-5 py-2.5 text-left text-sm font-medium ${
-                        isLight
-                          ? "text-(--color-wildbook-cream) hover:bg-white/10"
-                          : "text-black hover:bg-black/10"
-                      }`}
                       onClick={() => {
-                        setMobileMenuOpen(false);
-                        setLoginModalOpen(true);
+                        setIsOpen(false);
+                        void logout();
                       }}
+                      className="mt-3 flex items-center gap-2 py-3 text-sm font-semibold text-[#FFB4AE]"
                     >
-                      <span className="inline-flex items-center gap-3">
-                        <UserIcon size={18} aria-hidden="true" />
-                        Login
-                      </span>
+                      <SignOutIcon size={16} />
+                      Logout
                     </button>
-                  )}
-                </div>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsOpen(false);
+                      track("auth_modal_open", { source: "navbar_mobile" });
+                      setLoginModalOpen(true);
+                    }}
+                    className="mt-3 flex items-center gap-2 py-3 text-sm font-semibold"
+                    style={{ color: "rgba(255,255,255,0.78)" }}
+                  >
+                    <UserIcon size={16} />
+                    Login
+                  </button>
+                )}
               </div>
-            </div>,
-            document.body,
-          )
-        : null}
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      </motion.nav>
+
       {profileMenuOpen && user
         ? createPortal(
             <div
@@ -450,7 +380,7 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
               <div className="flex items-start gap-3 border-b border-black/20 pb-3">
                 <span className="mt-0.5 inline-flex shrink-0 overflow-visible">
                   <UserAvatar
-                    initials={avatarInitials}
+                    initials={userInitial}
                     imageUrl={profileAvatarSrc}
                     size="md"
                     overflowTop={avatarOverflowTop}
@@ -513,20 +443,41 @@ export default function Navbar({ variant = "light" }: NavbarProps) {
             document.body,
           )
         : null}
-      {loginModalOpen
-        ? createPortal(
-            <div className="fixed inset-0 z-1200 flex items-center justify-center bg-black/50 p-4">
-              <div className="absolute inset-0" onClick={() => setLoginModalOpen(false)} />
-              <div className="relative z-1 w-full max-w-[1120px]">
-                <LoginModalContent
-                  onClose={() => setLoginModalOpen(false)}
-                  onSuccess={() => setLoginModalOpen(false)}
-                />
-              </div>
-            </div>,
-            document.body,
-          )
-        : null}
+
+      {createPortal(
+        <AnimatePresence>
+          {loginModalOpen ? (
+            <>
+              <motion.div
+                key="login-backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.22 }}
+                className="fixed inset-0 z-1200 bg-black/80"
+                onClick={() => setLoginModalOpen(false)}
+              />
+              <motion.div
+                key="login-modal"
+                initial={{ opacity: 0, scale: 0.95, y: 16 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96, y: 8 }}
+                transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                className="pointer-events-none fixed inset-0 z-1201 flex items-center justify-center p-4"
+              >
+                <div className="pointer-events-auto w-full max-w-[1120px]">
+                  <LoginModalContent
+                    analyticsSource="navbar"
+                    onClose={() => setLoginModalOpen(false)}
+                    onSuccess={() => setLoginModalOpen(false)}
+                  />
+                </div>
+              </motion.div>
+            </>
+          ) : null}
+        </AnimatePresence>,
+        document.body,
+      )}
     </>
   );
 }

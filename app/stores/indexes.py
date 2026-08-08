@@ -67,3 +67,17 @@ def ensure_feature_notifications_indexes(*, feature_notifications: Collection[di
 def ensure_guide_profiles_indexes(*, guide_profiles: Collection[dict[str, Any]]) -> None:
     guide_profiles.create_index([("status", 1), ("created_at", -1)], name="by_status_created")
     guide_profiles.create_index([("full_name", 1)], name="by_full_name")
+
+
+def ensure_analytics_events_indexes(*, analytics_events: Collection[dict[str, Any]]) -> None:
+    analytics_events.create_index([("ts", -1)], name="by_ts")
+    analytics_events.create_index([("anonymous_id", 1), ("ts", -1)], name="by_anonymous_ts")
+    analytics_events.create_index([("user_id", 1), ("ts", -1)], name="by_user_ts")
+    analytics_events.create_index([("event", 1), ("ts", -1)], name="by_event_ts")
+    analytics_events.create_index([("geo.country", 1), ("ts", -1)], name="by_country_ts")
+    analytics_events.create_index([("geo.state", 1), ("ts", -1)], name="by_state_ts")
+
+
+def ensure_analytics_identities_indexes(*, analytics_identities: Collection[dict[str, Any]]) -> None:
+    analytics_identities.create_index([("anonymous_id", 1)], unique=True, name="uniq_anonymous_id")
+    analytics_identities.create_index([("user_id", 1), ("last_seen_at", -1)], name="by_user_last_seen")

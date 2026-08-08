@@ -6,6 +6,7 @@ import {
 } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import footerTop from "../assets/Mask group (1).svg";
+import { track } from "../lib/analytics";
 
 const CONTACT_EMAIL = "hello@wildbook.in";
 
@@ -22,15 +23,18 @@ export function Footer() {
     try {
       await navigator.clipboard.writeText(CONTACT_EMAIL);
       setEmailCopied(true);
+      track("footer_email_copy", { ok: true });
     } catch {
       setEmailCopied(false);
+      track("footer_email_copy", { ok: false });
     }
   };
 
   return (
-    <footer className="mx-auto mt-12 w-full max-w-[1920px] overflow-hidden bg-[#F6F4F0] sm:mt-16 lg:mt-20">
+    <footer className="mt-12 w-full overflow-hidden bg-[#F6F4F0] sm:mt-16 lg:mt-20">
       <img src={footerTop} alt="" aria-hidden="true" className="block h-auto w-full select-none" />
-      <div className="page-px-footer bg-[#0e1b15] pt-8 pb-5 sm:pt-10 sm:pb-6 md:pt-12 lg:pt-14 lg:pb-8">
+      <div className="bg-[#0e1b15]">
+        <div className="page-px-footer mx-auto max-w-[1920px] pt-8 pb-5 sm:pt-10 sm:pb-6 md:pt-12 lg:pt-14 lg:pb-8">
         {/* Main footer row */}
         <div className="flex flex-col gap-8 sm:gap-10 md:flex-row md:items-start md:justify-between md:gap-12 lg:gap-20">
           {/* Left: Logo + description + copyright */}
@@ -66,6 +70,7 @@ export function Footer() {
                   <Link
                     className="font-['Nunito'] text-[14px] leading-6 font-medium text-[#fafafa] transition-colors hover:text-white sm:text-[15px] lg:text-[18px]"
                     to="/"
+                    onClick={() => track("footer_nav_click", { to: "/", label: "Home" })}
                   >
                     Home
                   </Link>
@@ -74,6 +79,7 @@ export function Footer() {
                   <Link
                     className="font-['Nunito'] text-[14px] leading-6 font-medium text-[#fafafa] transition-colors hover:text-white sm:text-[15px] lg:text-[18px]"
                     to="/experts"
+                    onClick={() => track("footer_nav_click", { to: "/experts", label: "Explore Experts" })}
                   >
                     Explore Experts
                   </Link>
@@ -82,6 +88,7 @@ export function Footer() {
                   <Link
                     className="font-['Nunito'] text-[14px] leading-6 font-medium text-[#fafafa] transition-colors hover:text-white sm:text-[15px] lg:text-[18px]"
                     to="/safaris"
+                    onClick={() => track("footer_nav_click", { to: "/safaris", label: "Shared Safaris" })}
                   >
                     Shared Safaris
                   </Link>
@@ -90,6 +97,7 @@ export function Footer() {
                   <Link
                     className="font-['Nunito'] text-[14px] leading-6 font-medium text-[#fafafa] transition-colors hover:text-white sm:text-[15px] lg:text-[18px]"
                     to="/homestays"
+                    onClick={() => track("footer_nav_click", { to: "/homestays", label: "Homestays" })}
                   >
                     Homestays
                   </Link>
@@ -107,6 +115,7 @@ export function Footer() {
                   <Link
                     className="font-['Nunito'] text-[14px] leading-6 font-medium text-[#fafafa] transition-colors hover:text-white sm:text-[15px] lg:text-[18px]"
                     to="/about"
+                    onClick={() => track("footer_nav_click", { to: "/about", label: "About Us" })}
                   >
                     About Us
                   </Link>
@@ -126,6 +135,7 @@ export function Footer() {
                   aria-label="Instagram"
                   target="_blank"
                   rel="noreferrer"
+                  onClick={() => track("footer_instagram")}
                 >
                   <InstagramLogoIcon size={28} className="sm:size-8" />
                 </a>
@@ -152,12 +162,14 @@ export function Footer() {
                   href="https://wa.me/917483735393"
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => track("footer_whatsapp")}
                 >
                   +91 7483 73 53 93
                 </a>
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </footer>

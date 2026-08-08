@@ -32,6 +32,10 @@ class Settings(BaseSettings):
     mongo_bookmarks_collection_name: str = "bookmarks"
     mongo_inquiries_collection_name: str = "inquiries"
     mongo_feature_notifications_collection_name: str = "feature_notifications"
+    mongo_analytics_events_collection_name: str = "analytics_events"
+    mongo_analytics_identities_collection_name: str = "analytics_identities"
+    geoip_db_path: str | None = None
+    analytics_enabled: bool = True
 
     firebase_project_id: str | None = None
     auth_required: bool = True

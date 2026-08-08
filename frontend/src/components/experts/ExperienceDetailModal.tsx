@@ -7,13 +7,7 @@ import {
 import { useEffect, useState } from "react";
 
 import type { ExperienceDetail } from "../../api/experts";
-
-function durationLabel(experience: ExperienceDetail): string | null {
-  if (!experience.duration) return null;
-  const { value, unit } = experience.duration;
-  const unitLabel = unit === "hours" ? "Hours" : unit === "days" ? "Days" : unit;
-  return `${value} ${unitLabel}`;
-}
+import { durationLabel } from "./labels";
 
 function groupSizeLabel(experience: ExperienceDetail): string | null {
   const gs = experience.group_size;

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { CheckIcon, CopyIcon, XIcon } from "@phosphor-icons/react";
+import { track } from "../../lib/analytics";
 
 type ShareLinkModalProps = {
   isOpen: boolean;
@@ -36,8 +37,10 @@ export function ShareLinkModal({ isOpen, title = "Share link", path, onClose }: 
     try {
       await navigator.clipboard.writeText(fullLink);
       setCopied(true);
+      track("share_copy", { path, ok: true });
     } catch {
       setCopied(false);
+      track("share_copy", { path, ok: false });
     }
   };
 

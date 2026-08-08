@@ -1,13 +1,10 @@
-import Navbar, { type NavbarVariant } from "../Navbar";
+import type { NavbarVariant } from "../Navbar";
 
 type StickyTopNavbarProps = {
   variant?: NavbarVariant;
 };
 
-export function StickyTopNavbar({ variant = "dark" }: StickyTopNavbarProps) {
-  return (
-    <div className="sticky top-0 z-40">
-      <Navbar variant={variant} />
-    </div>
-  );
+/** Navbar is fixed in RootLayout; this only reserves the 64px nav height. */
+export function StickyTopNavbar(_props: StickyTopNavbarProps = {}) {
+  return <div className="h-16 shrink-0" aria-hidden="true" />;
 }

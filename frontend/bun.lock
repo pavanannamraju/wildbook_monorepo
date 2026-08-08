@@ -10,6 +10,7 @@
         "firebase": "^11.8.1",
         "leaflet": "^1.9.4",
         "leaflet.markercluster": "^1.5.3",
+        "motion": "^13.0.0",
         "react": "^19",
         "react-dom": "^19",
         "react-glass-ui": "^1.2.2",
@@ -205,6 +206,8 @@
 
     "firebase": ["firebase@11.10.0", "", { "dependencies": { "@firebase/ai": "1.4.1", "@firebase/analytics": "0.10.17", "@firebase/analytics-compat": "0.2.23", "@firebase/app": "0.13.2", "@firebase/app-check": "0.10.1", "@firebase/app-check-compat": "0.3.26", "@firebase/app-compat": "0.4.2", "@firebase/app-types": "0.9.3", "@firebase/auth": "1.10.8", "@firebase/auth-compat": "0.5.28", "@firebase/data-connect": "0.3.10", "@firebase/database": "1.0.20", "@firebase/database-compat": "2.0.11", "@firebase/firestore": "4.8.0", "@firebase/firestore-compat": "0.3.53", "@firebase/functions": "0.12.9", "@firebase/functions-compat": "0.3.26", "@firebase/installations": "0.6.18", "@firebase/installations-compat": "0.2.18", "@firebase/messaging": "0.12.22", "@firebase/messaging-compat": "0.2.22", "@firebase/performance": "0.7.7", "@firebase/performance-compat": "0.2.20", "@firebase/remote-config": "0.6.5", "@firebase/remote-config-compat": "0.2.18", "@firebase/storage": "0.13.14", "@firebase/storage-compat": "0.3.24", "@firebase/util": "1.12.1" } }, "sha512-nKBXoDzF0DrXTBQJlZa+sbC5By99ysYU1D6PkMRYknm0nCW7rJly47q492Ht7Ndz5MeYSBuboKuhS1e6mFC03w=="],
 
+    "framer-motion": ["framer-motion@13.0.0", "", { "dependencies": { "motion-dom": "^13.0.0", "motion-utils": "^13.0.0", "tslib": "^2.4.0" }, "peerDependencies": { "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0" }, "optionalPeers": ["react", "react-dom"] }, "sha512-nQGZXlsiigN48nzvE7AL1GLekql+etcphp8v+PQ0X04oxO20yVmV9rU9XQ25c136RdeIYoaWlKT9oAwvJza3mg=="],
+
     "get-caller-file": ["get-caller-file@2.0.5", "", {}, "sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg=="],
 
     "http-parser-js": ["http-parser-js@0.5.10", "", {}, "sha512-Pysuw9XpUq5dVc/2SMHpuTY01RFl8fttgcyunjL7eEMhGM3cI4eOmiCycJDVCo/7O7ClfQD3SaI6ftDzqOXYMA=="],
@@ -220,6 +223,12 @@
     "lodash.camelcase": ["lodash.camelcase@4.3.0", "", {}, "sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA=="],
 
     "long": ["long@5.3.2", "", {}, "sha512-mNAgZ1GmyNhD7AuqnTG3/VQ26o760+ZYBPKjPvugO8+nLbYfX6TVpJPseBvopbdY+qpZ/lKUnmEc1LeZYS3QAA=="],
+
+    "motion": ["motion@13.0.0", "", { "dependencies": { "framer-motion": "^13.0.0", "tslib": "^2.4.0" }, "peerDependencies": { "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0" }, "optionalPeers": ["react", "react-dom"] }, "sha512-RYZjEpgHUCKjBNqjmUQzW93VJWLvEZGTPdKRFSqOdOl07IIMvz+WrsZmD1XXAkoFLruW/8bO1L7UF+ViQTxtLg=="],
+
+    "motion-dom": ["motion-dom@13.0.0", "", { "dependencies": { "motion-utils": "^13.0.0" } }, "sha512-Xk+SJas70uMAUIApg+m3lZDShxI3LBFHq7mFGbBKoRXc2PVPDyAKmzN64Bbzt4CZdP/CItTiJxWtn4TA0v53Ng=="],
+
+    "motion-utils": ["motion-utils@13.0.0", "", {}, "sha512-7DnN7TmbLcYXcG4RVadXIihWlyuM9afoUww8Y5Agg431kGKiuL2/OMyP4mJ5wLz+pvN3t5ySClLOaVXJ+wekRQ=="],
 
     "protobufjs": ["protobufjs@7.5.4", "", { "dependencies": { "@protobufjs/aspromise": "^1.1.2", "@protobufjs/base64": "^1.1.2", "@protobufjs/codegen": "^2.0.4", "@protobufjs/eventemitter": "^1.1.0", "@protobufjs/fetch": "^1.1.0", "@protobufjs/float": "^1.0.2", "@protobufjs/inquire": "^1.1.0", "@protobufjs/path": "^1.1.2", "@protobufjs/pool": "^1.1.0", "@protobufjs/utf8": "^1.1.0", "@types/node": ">=13.7.0", "long": "^5.0.0" } }, "sha512-CvexbZtbov6jW2eXAvLukXjXUW1TzFaivC46BpWc/3BpcCysb5Vffu+B3XHMm8lVEuy2Mm4XGex8hBSg1yapPg=="],
 

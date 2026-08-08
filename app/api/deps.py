@@ -15,6 +15,7 @@ from app.errors.http import AppError, ForbiddenError, ServiceUnavailableError, U
 from app.models.auth import AuthPrincipal, CurrentUserResponse, UserRole
 from app.services.accommodation_bookings_service import AccommodationBookingsService
 from app.services.accommodations_service import AccommodationsService
+from app.services.analytics_service import AnalyticsService
 from app.services.authz_service import AuthzService
 from app.services.bookmarks_service import BookmarksService
 from app.services.experts_adapter_service import ExpertsAdapterService
@@ -127,6 +128,22 @@ def get_feature_notify_service(request: Request) -> FeatureNotifyService:
         )
         request.app.state.feature_notify_service = service
     return cast(FeatureNotifyService, service)
+
+
+def get_analytics_service(request: Request) -> AnalyticsService:
+    service = getattr(request.app.state, "analytics_service", None)
+    if service is None:
+        settings = get_settings()
+        client = _get_mongo_client(request)
+        db = client[settings.mongo_database_name]
+        service = AnalyticsService(
+            events=db[settings.mongo_analytics_events_collection_name],
+            identities=db[settings.mongo_analytics_identities_collection_name],
+            geoip_db_path=settings.geoip_db_path,
+            enabled=settings.analytics_enabled,
+        )
+        request.app.state.analytics_service = service
+    return cast(AnalyticsService, service)
 
 
 def get_authz_service(request: Request) -> AuthzService:

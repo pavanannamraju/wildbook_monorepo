@@ -4,10 +4,17 @@ import {
   PawPrintIcon,
   TreeEvergreenIcon,
 } from "@phosphor-icons/react";
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { StickyTopNavbar } from "../components/common/StickyTopNavbar";
+import { track } from "../lib/analytics";
 
 export function NotFoundPage() {
+  const location = useLocation();
+  useEffect(() => {
+    track("not_found_view", { path: location.pathname });
+  }, [location.pathname]);
+
   return (
     <div className="flex min-h-screen flex-col bg-[#F6F4F1] font-['Nunito'] text-[#2F2B28] selection:bg-[#0B6E66] selection:text-white">
       <StickyTopNavbar variant="dark" />

@@ -10,6 +10,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { subscribeFeatureNotification } from "../api/featureNotifications";
 import { StickyTopNavbar } from "../components/common/StickyTopNavbar";
+import { track } from "../lib/analytics";
 
 const SIGHTINGS = [
   { label: "Explore Experts", done: true },
@@ -43,8 +44,10 @@ export function PageScaffold({ title }: PageScaffoldProps) {
         feature: title,
       });
       setSubmitted(true);
+      track("notify_me_submit", { feature: title, ok: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not save your email. Try again.");
+      track("notify_me_submit", { feature: title, ok: false });
     } finally {
       setSubmitting(false);
     }

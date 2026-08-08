@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.api.endpoints.accommodation_bookings import router as accommodation_bookings_router
 from app.api.endpoints.accommodations import router as accommodations_router
+from app.api.endpoints.analytics import router as analytics_router
 from app.api.endpoints.auth import router as auth_router
 from app.api.endpoints.bookmarks import router as bookmarks_router
 from app.api.endpoints.experts import router as experts_router
@@ -27,6 +28,7 @@ def create_site_router(api_prefix: str) -> APIRouter:
     router.include_router(bookmarks_router, prefix=api_prefix)
     router.include_router(experts_router, prefix=api_prefix)
     router.include_router(feature_notifications_router, prefix=api_prefix)
+    router.include_router(analytics_router, prefix=api_prefix)
     return router
 
 

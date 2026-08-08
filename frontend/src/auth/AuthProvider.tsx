@@ -11,6 +11,7 @@ import {
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { fetchCurrentUser, type CurrentUser } from "../api/auth";
 import { firebaseAuth, googleAuthProvider } from "../lib/firebase";
+import { track } from "../lib/analytics";
 
 type AuthState = {
   user: User | null;
@@ -150,6 +151,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       },
       logout: async () => {
+        track("auth_logout");
         await signOut(firebaseAuth);
         window.location.assign("/");
       },

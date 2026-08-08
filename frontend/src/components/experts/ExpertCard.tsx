@@ -5,17 +5,13 @@ import {
   MapPinIcon,
   ShareNetworkIcon,
 } from "@phosphor-icons/react";
+import { motion } from "motion/react";
 
 import type { ExpertListItem } from "../../api/experts";
 import { ExpertAvatar } from "../common/ExpertAvatar";
+import { roleLabel } from "./labels";
 
-const MAX_VISIBLE_TAGS = 3;
-
-function roleLabel(role: string): string {
-  if (role === "guide") return "Guide";
-  if (role === "naturalist") return "Naturalist";
-  return role;
-}
+const MAX_VISIBLE_TAGS = 4;
 
 type ExpertCardProps = {
   expert: ExpertListItem;
@@ -24,6 +20,7 @@ type ExpertCardProps = {
   onToggleBookmark: () => void;
   onShare: () => void;
   onViewMore: () => void;
+  index?: number;
 };
 
 export function ExpertCard({
@@ -33,143 +30,182 @@ export function ExpertCard({
   onToggleBookmark,
   onShare,
   onViewMore,
+  index = 0,
 }: ExpertCardProps) {
-  const primaryRole = expert.roles[0] ? roleLabel(expert.roles[0]) : "Naturalist";
+  const primaryRole = expert.roles[0] ? roleLabel(expert.roles[0], "short") : "Naturalist";
   const location =
     expert.location_name ?? expert.location_primary_location_id ?? "India Wildlife Reserve";
   const languageValues =
     expert.language_names.length > 0 ? expert.language_names : expert.language_ids;
-  const languages = languageValues.join(" · ") || "English · Hindi";
+  const languages = languageValues.join(", ") || "English, Hindi";
   const tagValues =
     expert.expertise_names.length > 0 ? expert.expertise_names : expert.expertise_ids;
-  const [topSpec, ...rest] = tagValues;
-  const visibleTags = rest.slice(0, MAX_VISIBLE_TAGS);
-  const overflow = rest.length - MAX_VISIBLE_TAGS;
+  const visibleTags = tagValues.slice(0, MAX_VISIBLE_TAGS);
+  const overflow = tagValues.length - MAX_VISIBLE_TAGS;
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-xl border border-[#E3DDD8] bg-white shadow-[0_4px_16px_rgba(0,0,0,.05)] transition-all hover:border-[#9BCDB2] hover:shadow-[0_8px_28px_rgba(11,110,102,.12)]">
-      {/* Header: avatar / name / actions */}
-      <div className="flex items-start gap-3 px-4 pt-5 pb-4 sm:gap-4 sm:px-5 sm:pt-6 sm:pb-5">
-        <div className="aspect-square w-[28%] min-w-14 max-w-24 shrink-0 overflow-hidden rounded-full bg-[#C8DED5] ring-2 ring-white shadow-sm sm:min-w-16">
-          <ExpertAvatar src={expert.profile_image_url} alt={expert.name} iconSize={36} lazy />
+    <motion.article
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: false, margin: "-40px" }}
+      transition={{ duration: 0.4, delay: Math.min(index, 8) * 0.05, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -3, transition: { duration: 0.2 } }}
+      className="flex flex-col overflow-hidden"
+      style={{
+        backgroundColor: "white",
+        borderRadius: "12px",
+        border: "1px solid rgba(0,0,0,0.08)",
+        boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
+      }}
+    >
+      <div className="flex items-start justify-between px-5 pt-5 pb-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-[#C8DED5]">
+            <ExpertAvatar src={expert.profile_image_url} alt={expert.name} iconSize={28} lazy />
+          </div>
+          <div className="min-w-0">
+            <h3
+              className="truncate font-['Montserrat'] text-base leading-tight font-bold"
+              style={{ color: "#1B2E22" }}
+            >
+              {expert.name}
+            </h3>
+            <p
+              className="mt-0.5 font-['Nunito'] text-[10px] font-medium tracking-[0.12em] uppercase"
+              style={{ color: "#9AA59D" }}
+            >
+              {primaryRole}
+            </p>
+          </div>
         </div>
-
-        <div className="min-w-0 flex-1 pt-0.5 sm:pt-1">
-          <h3 className="font-['Nunito'] text-[15px] font-extrabold leading-snug tracking-[-0.02em] text-[#3B372F] sm:text-[17px]">
-            {expert.name}
-          </h3>
-          <p className="mt-1 text-[10px] font-semibold uppercase tracking-[.14em] text-[#9A9691]">
-            {primaryRole}
-          </p>
-        </div>
-
-        <div className="flex shrink-0 items-center gap-1 pt-0.5">
+        <div className="mt-0.5 flex shrink-0 items-center gap-1">
           <button
             type="button"
             onClick={onToggleBookmark}
             disabled={isBookmarkPending}
-            title={isBookmarked ? "Remove bookmark" : "Save expert"}
             aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
-            className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors disabled:opacity-50 ${
-              isBookmarked
-                ? "text-[#0B6E66]"
-                : "text-[#9A9691] hover:bg-[#F6F4F1] hover:text-[#0B6E66]"
-            }`}
+            className="flex h-7 w-7 items-center justify-center rounded-sm transition-colors hover:bg-gray-100 disabled:opacity-50"
+            style={{ color: isBookmarked ? "#0B6E66" : "#9AA59D" }}
           >
-            <BookmarkSimpleIcon size={16} weight={isBookmarked ? "fill" : "regular"} />
+            <BookmarkSimpleIcon size={15} weight={isBookmarked ? "fill" : "regular"} />
           </button>
           <button
             type="button"
             onClick={onShare}
-            title="Share profile"
             aria-label="Share expert"
-            className="flex h-8 w-8 items-center justify-center rounded-full text-[#9A9691] transition-colors hover:bg-[#F6F4F1] hover:text-[#0B6E66]"
+            className="flex h-7 w-7 items-center justify-center rounded-sm transition-colors hover:bg-gray-100"
+            style={{ color: "#9AA59D" }}
           >
-            <ShareNetworkIcon size={16} />
+            <ShareNetworkIcon size={15} />
           </button>
         </div>
       </div>
 
-      {/* Location + languages */}
-      <div className="flex flex-col gap-2 px-5 pb-5 text-[12px] text-[#73706C]">
-        <div className="flex items-center gap-1.5">
-          <MapPinIcon size={13} className="shrink-0 text-[#0B6E66]" />
-          <span className="font-medium text-[#3B372F]">{location}</span>
+      <div style={{ height: 1, backgroundColor: "rgba(0,0,0,0.07)" }} />
+
+      <div className="flex flex-col gap-2 px-5 py-4">
+        <div className="flex items-start gap-2">
+          <MapPinIcon size={12} weight="fill" className="mt-[2px] shrink-0" style={{ color: "#0B6E66" }} />
+          <span className="font-['Nunito'] text-[13px] leading-tight" style={{ color: "#5A6B60" }}>
+            {location}
+          </span>
         </div>
-        <div className="flex items-start gap-1.5">
-          <GlobeIcon size={13} className="mt-0.5 shrink-0 text-[#0B6E66]" />
-          <span>{languages}</span>
+        <div className="flex items-start gap-2">
+          <GlobeIcon size={12} className="mt-[2px] shrink-0" style={{ color: "#0B6E66" }} />
+          <span className="font-['Nunito'] text-[13px] leading-tight" style={{ color: "#5A6B60" }}>
+            {languages}
+          </span>
         </div>
       </div>
 
-      {/* Speciality tags */}
-      {topSpec ? (
-        <div className="flex flex-wrap gap-1.5 px-5 pb-5">
-          {[topSpec, ...visibleTags].map((spec) => (
-            <span
-              key={spec}
-              className="rounded-[6px] bg-[#E8F4F2] px-2.5 py-1 text-[11px] font-semibold text-[#0B6E66]"
-            >
-              {spec}
-            </span>
-          ))}
-          {overflow > 0 && (
-            <span
-              title={rest.slice(MAX_VISIBLE_TAGS).join(", ")}
-              className="cursor-default rounded-[6px] border border-[#D7D2CC] px-2.5 py-1 text-[11px] font-semibold text-[#9A9691]"
-            >
-              +{overflow} more
-            </span>
-          )}
-        </div>
-      ) : null}
+      <div style={{ height: 1, backgroundColor: "rgba(0,0,0,0.07)" }} />
 
-      {/* Footer CTA */}
-      <div className="mt-auto px-5 pt-3 pb-5">
-        <button
-          type="button"
-          onClick={onViewMore}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-[6px] bg-[#0B6E66] py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-[#095B54] active:bg-[#074A46]"
+      <div className="flex-1 px-5 pt-3 pb-5">
+        <p
+          className="mb-2.5 font-['Nunito'] text-[8px] font-medium tracking-[0.12em] uppercase"
+          style={{ color: "#B5BDB8" }}
         >
-          View More <ArrowRightIcon size={13} />
-        </button>
+          Areas of Expertise
+        </p>
+        {visibleTags.length > 0 ? (
+          <div className="flex flex-wrap gap-1.5">
+            {visibleTags.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full px-2.5 py-1 font-['Nunito'] text-[11px] font-semibold"
+                style={{ backgroundColor: "#E8F4F2", color: "#0B6E66" }}
+              >
+                {tag}
+              </span>
+            ))}
+            {overflow > 0 ? (
+              <span
+                title={tagValues.slice(MAX_VISIBLE_TAGS).join(", ")}
+                className="rounded-full border px-2.5 py-1 font-['Nunito'] text-[11px] font-semibold"
+                style={{ borderColor: "#D7D2CC", color: "#9AA59D" }}
+              >
+                +{overflow} more
+              </span>
+            ) : null}
+          </div>
+        ) : (
+          <p className="font-['Nunito'] text-[13px]" style={{ color: "#9AA59D" }}>
+            Expertise coming soon
+          </p>
+        )}
       </div>
-    </article>
+
+      <button
+        type="button"
+        onClick={onViewMore}
+        className="group/btn flex items-center justify-center gap-2 py-3.5 font-['Nunito'] text-sm font-semibold text-white transition-colors"
+        style={{ backgroundColor: "#0B6E66", borderRadius: "0 0 12px 12px" }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = "#095B54";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = "#0B6E66";
+        }}
+      >
+        View Full Profile
+        <ArrowRightIcon
+          size={14}
+          className="transition-transform duration-200 group-hover/btn:translate-x-1"
+        />
+      </button>
+    </motion.article>
   );
 }
 
 export function ExpertCardSkeleton() {
   return (
     <article
-      className="flex flex-col overflow-hidden rounded-xl border border-[#E3DDD8] bg-white shadow-[0_4px_16px_rgba(0,0,0,.05)]"
+      className="flex flex-col overflow-hidden"
+      style={{
+        backgroundColor: "white",
+        borderRadius: "12px",
+        border: "1px solid rgba(0,0,0,0.08)",
+      }}
       aria-hidden="true"
     >
-      <div className="flex items-start gap-3 px-4 pt-5 pb-4 sm:gap-4 sm:px-5 sm:pt-6 sm:pb-5">
-        <div className="aspect-square w-[28%] min-w-14 max-w-24 shrink-0 animate-pulse rounded-full bg-[#E8E2DC] sm:min-w-16" />
-        <div className="min-w-0 flex-1 pt-2">
+      <div className="flex items-start gap-3 px-5 pt-5 pb-4">
+        <div className="h-12 w-12 shrink-0 animate-pulse rounded-full bg-[#E8E2DC]" />
+        <div className="min-w-0 flex-1 pt-1">
           <div className="h-4 w-3/4 animate-pulse rounded bg-[#E8E2DC]" />
-          <div className="mt-3 h-2.5 w-1/3 animate-pulse rounded bg-[#E8E2DC]" />
-        </div>
-        <div className="flex shrink-0 gap-1 pt-0.5">
-          <div className="h-8 w-8 animate-pulse rounded-full bg-[#E8E2DC]" />
-          <div className="h-8 w-8 animate-pulse rounded-full bg-[#E8E2DC]" />
+          <div className="mt-2 h-2.5 w-1/3 animate-pulse rounded bg-[#E8E2DC]" />
         </div>
       </div>
-
-      <div className="flex flex-col gap-2.5 px-5 pb-5">
+      <div style={{ height: 1, backgroundColor: "rgba(0,0,0,0.07)" }} />
+      <div className="flex flex-col gap-2 px-5 py-4">
         <div className="h-3 w-2/3 animate-pulse rounded bg-[#E8E2DC]" />
         <div className="h-3 w-1/2 animate-pulse rounded bg-[#E8E2DC]" />
       </div>
-
-      <div className="flex flex-wrap gap-1.5 px-5 pb-5">
-        <div className="h-6 w-20 animate-pulse rounded-[6px] bg-[#E8E2DC]" />
-        <div className="h-6 w-24 animate-pulse rounded-[6px] bg-[#E8E2DC]" />
-        <div className="h-6 w-16 animate-pulse rounded-[6px] bg-[#E8E2DC]" />
+      <div style={{ height: 1, backgroundColor: "rgba(0,0,0,0.07)" }} />
+      <div className="flex flex-wrap gap-1.5 px-5 pt-3 pb-5">
+        <div className="h-6 w-20 animate-pulse rounded-full bg-[#E8E2DC]" />
+        <div className="h-6 w-24 animate-pulse rounded-full bg-[#E8E2DC]" />
       </div>
-
-      <div className="mt-auto px-5 pt-3 pb-5">
-        <div className="h-10 w-full animate-pulse rounded-[6px] bg-[#E8E2DC]" />
-      </div>
+      <div className="h-12 animate-pulse bg-[#E8E2DC]" />
     </article>
   );
 }
