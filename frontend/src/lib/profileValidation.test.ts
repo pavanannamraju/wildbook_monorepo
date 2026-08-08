@@ -10,7 +10,7 @@ function values(overrides: Partial<ProfileFormValues> = {}): ProfileFormValues {
     bio: "Birder, chasing owls.",
     dateOfBirth: "1995-04-12",
     gender: "Male",
-    locationCity: "Bengaluru",
+    locationCity: "Karnataka",
     locationCountry: "India",
     interests: ["Birding"],
     preferredLanguages: ["English"],

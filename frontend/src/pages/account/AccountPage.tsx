@@ -39,9 +39,9 @@ import {
   parsePhoneParts,
 } from "../../data/phoneDialCodes";
 import {
-  DEFAULT_PROFILE_COUNTRY,
+  normalizeStoredLocation,
   PROFILE_COUNTRIES,
-  PROFILE_LOCATIONS,
+  statesForCountry,
 } from "../../data/profileLocations";
 import { resolveUserAvatarSrc } from "../../data/presetAvatars";
 import { validateNationalPhone, validateProfileForm, type ProfileField } from "../../lib/profileValidation";
@@ -91,17 +91,9 @@ function initialsFromName(name: string | null | undefined, fallback = "WB"): str
   return `${first[0] ?? ""}${second[0] ?? ""}`.toUpperCase();
 }
 
-function cityDisplayValue(city: string, country: string): string {
-  const parts = [city.trim(), country.trim()].filter(Boolean);
+function locationDisplayValue(region: string, country: string): string {
+  const parts = [region.trim(), country.trim()].filter(Boolean);
   return parts.join(", ");
-}
-
-/** Prefer a real country; legacy rows stored Indian states in location_country. */
-function normalizeStoredCountry(value: string): string {
-  const trimmed = value.trim();
-  if (!trimmed) return "";
-  if ((PROFILE_COUNTRIES as readonly string[]).includes(trimmed)) return trimmed;
-  return DEFAULT_PROFILE_COUNTRY;
 }
 
 const inputClassName =
@@ -173,8 +165,12 @@ export function AccountPage() {
     setPhoneNational(phoneParts.national);
     setDateOfBirth(current.date_of_birth ?? "");
     setGender(current.gender ?? "");
-    setLocationCity(current.location_city ?? "");
-    setLocationCountry(normalizeStoredCountry(current.location_country ?? ""));
+    const location = normalizeStoredLocation(
+      current.location_city ?? "",
+      current.location_country ?? "",
+    );
+    setLocationCity(location.region);
+    setLocationCountry(location.country);
     setInterests(current.interests);
     setPreferredLanguages(current.preferred_languages);
     interestsRef.current = current.interests;
@@ -204,7 +200,8 @@ export function AccountPage() {
     avatarKey,
     avatarUrl,
   });
-  const cityValue = cityDisplayValue(locationCity, locationCountry);
+  const locationValue = locationDisplayValue(locationCity, locationCountry);
+  const regionOptions = statesForCountry(locationCountry);
   const canEditBasicInfo = user?.auth_provider === "EMAIL";
 
   const baseErrors = validateProfileForm(
@@ -404,12 +401,12 @@ export function AccountPage() {
                     </h1>
                   </div>
                   <p className="mt-1 flex flex-wrap items-center gap-1.5 text-[13px] text-[#73706C]">
-                    {cityValue ? (
+                    {locationValue ? (
                       <>
-                        <MapPinIcon size={13} /> {cityValue}
+                        <MapPinIcon size={13} /> {locationValue}
                       </>
                     ) : (
-                      <span>Add your city to help us match local guides</span>
+                      <span>Add your location to help us match local guides</span>
                     )}
                   </p>
                 </>
@@ -543,25 +540,6 @@ export function AccountPage() {
                   <FieldError id="account-gender-error" message={visibleError("gender")} />
                 </div>
                 <div>
-                  <label className={labelClassName} htmlFor="account-location">
-                    Location
-                  </label>
-                  <AccountSelect
-                    value={locationCity}
-                    onChange={(next) => {
-                      setLocationCity(next);
-                      if (!locationCountry) setLocationCountry(DEFAULT_PROFILE_COUNTRY);
-                      markTouched("locationCity");
-                    }}
-                    options={PROFILE_LOCATIONS}
-                    placeholder="Select location…"
-                    disabled={!user}
-                    searchable
-                    invalid={Boolean(visibleError("locationCity"))}
-                  />
-                  <FieldError id="account-location-error" message={visibleError("locationCity")} />
-                </div>
-                <div>
                   <label className={labelClassName} htmlFor="account-country">
                     Country
                   </label>
@@ -569,6 +547,9 @@ export function AccountPage() {
                     value={locationCountry}
                     onChange={(next) => {
                       setLocationCountry(next);
+                      if (!statesForCountry(next).includes(locationCity)) {
+                        setLocationCity("");
+                      }
                       markTouched("locationCountry");
                     }}
                     options={PROFILE_COUNTRIES}
@@ -578,6 +559,26 @@ export function AccountPage() {
                     invalid={Boolean(visibleError("locationCountry"))}
                   />
                   <FieldError id="account-country-error" message={visibleError("locationCountry")} />
+                </div>
+                <div>
+                  <label className={labelClassName} htmlFor="account-location">
+                    State / region
+                  </label>
+                  <AccountSelect
+                    value={locationCity}
+                    onChange={(next) => {
+                      setLocationCity(next);
+                      markTouched("locationCity");
+                    }}
+                    options={regionOptions}
+                    placeholder={
+                      locationCountry ? "Select state / region…" : "Select country first…"
+                    }
+                    disabled={!user || !locationCountry || regionOptions.length === 0}
+                    searchable
+                    invalid={Boolean(visibleError("locationCity"))}
+                  />
+                  <FieldError id="account-location-error" message={visibleError("locationCity")} />
                 </div>
               </div>
 

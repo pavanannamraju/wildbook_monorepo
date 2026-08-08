@@ -161,8 +161,8 @@ export function validateProfileForm(
   const genderError = validateOptionalText(values.gender, "Gender", PROFILE_LIMITS.gender.max);
   if (genderError) errors.gender = genderError;
 
-  const cityError = validateName(values.locationCity, "City", PROFILE_LIMITS.location.max);
-  if (cityError) errors.locationCity = cityError;
+  const regionError = validateName(values.locationCity, "State / region", PROFILE_LIMITS.location.max);
+  if (regionError) errors.locationCity = regionError;
 
   const countryError = validateName(values.locationCountry, "Country", PROFILE_LIMITS.location.max);
   if (countryError) errors.locationCountry = countryError;
