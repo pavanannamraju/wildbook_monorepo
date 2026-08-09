@@ -84,11 +84,12 @@ class GuideSearchService:
         }
 
     def get_guide_detail(self, guide_id: str) -> dict[str, Any]:
-        doc = self._store.get_guide(guide_id)
+        doc = self._store.get_guide_by_slug_or_id(guide_id)
         if doc is None or doc.get("status") != "PUBLISHED" or not doc.get("is_active"):
             raise AppError(status.HTTP_404_NOT_FOUND, "GUIDE_NOT_FOUND", f"Guide {guide_id} not found")
+        resolved_id = doc["_id"]
         card = self._to_card(doc, experience_type=None, max_highlights=100)
-        offerings = published_offerings(self._store.list_offerings(guide_id))
+        offerings = published_offerings(self._store.list_offerings(resolved_id))
         card["offerings"] = [offering_summary({**o, "offering_id": o["_id"]}) for o in offerings]
         card["naturalist_profile"] = self._naturalist_summary(doc)
         return card
@@ -263,6 +264,7 @@ class GuideSearchService:
         bio = doc.get("bio") if isinstance(doc.get("bio"), dict) else {}
         return {
             "guide_id": guide_id,
+            "slug": doc.get("slug") or guide_id,
             "full_name": doc.get("full_name"),
             "profile_image_url": doc.get("profile_image_url"),
             "has_profile_photo": bool(doc.get("has_profile_photo")),

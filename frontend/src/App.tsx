@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { RootLayout } from "./layouts/RootLayout.tsx";
 import { RequireAdmin, RequireAuthenticated } from "./auth/RequireAdmin.tsx";
 import { AccountPage } from "./pages/account/AccountPage.tsx";
+import { AdminAnalyticsPage } from "./pages/admin/AdminAnalyticsPage.tsx";
 import { AdminComingSoonPage } from "./pages/admin/AdminComingSoonPage.tsx";
 import { AdminInquiriesPage } from "./pages/admin/AdminInquiriesPage.tsx";
 import { AdminLayout } from "./pages/admin/AdminLayout.tsx";
@@ -63,6 +64,7 @@ export default function App() {
           <Route index element={<Navigate to="inquiries" replace />} />
           <Route path="inquiries" element={<AdminInquiriesPage />} />
           <Route path="coming-soon" element={<AdminComingSoonPage />} />
+          <Route path="analytics" element={<AdminAnalyticsPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Route>

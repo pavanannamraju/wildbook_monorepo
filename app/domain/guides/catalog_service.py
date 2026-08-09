@@ -50,6 +50,20 @@ def _slugify_reference_name(name: str) -> str:
     return "-".join(re.findall(r"[a-z0-9]+", name.casefold()))
 
 
+def allocate_unique_slug(base_name: str, *, is_taken) -> str:
+    """Pick base, then base-2, base-3… until is_taken(candidate) is False."""
+    base = _slugify_reference_name(base_name) or "guide"
+    candidate = base
+    n = 2
+    while is_taken(candidate):
+        candidate = f"{base}-{n}"
+        n += 1
+        # ponytail: linear scan fine for low duplicate counts; switch to random suffix if collisions spike
+        if n > 10_000:
+            return f"{base}-{uuid4().hex[:8]}"
+    return candidate
+
+
 # Reference kinds the BFF may resolve from free-text on guide creation. Each entry
 # maps to its collection, the id prefix for new docs, and a builder for the
 # kind-specific required fields (e.g. languages need a code, expertise a slug).
@@ -88,11 +102,19 @@ class CatalogService:
         fields = compute_search_fields(guide, offerings, hydrated_guide=hydrated)
         self._store.guides.update_one({"_id": guide_id}, {"$set": fields})
 
-    def _require_guide(self, guide_id: str) -> dict[str, Any]:
-        guide = self._store.get_guide(guide_id)
+    def _require_guide(self, slug_or_id: str) -> dict[str, Any]:
+        guide = self._store.get_guide_by_slug_or_id(slug_or_id)
         if not guide:
             raise AppError(status.HTTP_404_NOT_FOUND, "GUIDE_NOT_FOUND", "Guide not found")
         return guide
+
+    def _allocate_guide_slug(self, full_name: str, *, exclude_guide_id: str | None = None) -> str:
+        return allocate_unique_slug(
+            full_name,
+            is_taken=lambda candidate: self._store.slug_taken(
+                candidate, exclude_guide_id=exclude_guide_id
+            ),
+        )
 
     def _validate_reference_ids(
         self,
@@ -153,6 +175,7 @@ class CatalogService:
         payload.update(
             {
                 "_id": guide_id,
+                "slug": self._allocate_guide_slug(guide.full_name),
                 "is_naturalist": guide.role == "NATURALIST",
                 "created_at": now,
                 "updated_at": now,
@@ -206,6 +229,7 @@ class CatalogService:
 
         return GuideResponse(
             guide_id=doc["_id"],
+            slug=str(doc.get("slug") or doc["_id"]),
             full_name=doc["full_name"],
             email=doc.get("email"),
             phone_number=doc.get("phone_number"),
@@ -328,9 +352,9 @@ class CatalogService:
     def get_guide_by_id(self, guide_id: str) -> GuideResponse:
         return self._to_guide_response(self._require_guide(guide_id))
 
-    def get_guide_photo(self, guide_id: str) -> tuple[str, bytes]:
-        self._require_guide(guide_id)
-        photo = self._store.get_guide_photo(guide_id)
+    def get_guide_photo(self, slug_or_id: str) -> tuple[str, bytes]:
+        guide = self._require_guide(slug_or_id)
+        photo = self._store.get_guide_photo(guide["_id"])
         if photo is None:
             raise AppError(
                 status.HTTP_404_NOT_FOUND,
@@ -339,10 +363,10 @@ class CatalogService:
             )
         return photo
 
-    def set_guide_photo(self, guide_id: str, *, photo_bytes: bytes, content_type: str) -> None:
-        self._require_guide(guide_id)
+    def set_guide_photo(self, slug_or_id: str, *, photo_bytes: bytes, content_type: str) -> None:
+        guide = self._require_guide(slug_or_id)
         updated = self._store.set_guide_photo(
-            guide_id,
+            guide["_id"],
             photo_bytes=photo_bytes,
             content_type=content_type,
             updated_at=_now(),

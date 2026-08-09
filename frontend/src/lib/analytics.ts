@@ -2,6 +2,8 @@ import { apiFetch } from "../api/client";
 
 const ANON_KEY = "wildbook_anonymous_id";
 const SESSION_KEY = "wildbook_analytics_session_id";
+const SOURCE_DAY_KEY = "wildbook_analytics_source_day";
+const HOME_SECTIONS_SEEN_KEY = "wildbook_home_sections_seen";
 
 export type AnalyticsEventName =
   | "page_view"
@@ -67,6 +69,35 @@ export function getSessionId(): string {
   }
 }
 
+function readHomeSectionsSeen(): Set<string> {
+  try {
+    const raw = sessionStorage.getItem(HOME_SECTIONS_SEEN_KEY);
+    if (!raw) return new Set();
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return new Set();
+    return new Set(parsed.filter((v): v is string => typeof v === "string"));
+  } catch {
+    return new Set();
+  }
+}
+
+function writeHomeSectionsSeen(seen: Set<string>): void {
+  try {
+    sessionStorage.setItem(HOME_SECTIONS_SEEN_KEY, JSON.stringify([...seen]));
+  } catch {
+    // ignore
+  }
+}
+
+/** True if this home section was not yet recorded in the current tab session. */
+export function claimHomeSectionView(section: string): boolean {
+  const seen = readHomeSectionsSeen();
+  if (seen.has(section)) return false;
+  seen.add(section);
+  writeHomeSectionsSeen(seen);
+  return true;
+}
+
 function isAnalyticsEnabled(): boolean {
   const raw = window.__WILDBOOK_CONFIG__?.publicEnv?.BUN_PUBLIC_ANALYTICS_ENABLED?.trim().toLowerCase();
   if (raw === undefined || raw === "") return true;
@@ -83,11 +114,52 @@ function cleanProps(props?: AnalyticsProps): Record<string, string | number | bo
   return out;
 }
 
+/** utm_source > fbclid/gclid > referrer host > direct */
+export function resolveTrafficSource(search: string, referrer: string): string {
+  const params = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
+  const utm = params.get("utm_source")?.trim();
+  if (utm) return utm.slice(0, 80);
+  if (params.has("fbclid")) return "facebook";
+  if (params.has("gclid") || params.has("gbraid") || params.has("wbraid")) return "google";
+  if (referrer) {
+    try {
+      const host = new URL(referrer).hostname.replace(/^www\./, "");
+      if (host) return host.slice(0, 80);
+    } catch {
+      // ignore bad referrer
+    }
+  }
+  return "direct";
+}
+
+/** First page_view of the local calendar day only; later events omit source. */
+function takeDailySource(): string | undefined {
+  if (typeof window === "undefined") return undefined;
+  const source = resolveTrafficSource(window.location.search, document.referrer);
+  // en-CA → YYYY-MM-DD in the visitor's local timezone
+  const day = new Date().toLocaleDateString("en-CA");
+  try {
+    if (localStorage.getItem(SOURCE_DAY_KEY) === day) return undefined;
+    localStorage.setItem(SOURCE_DAY_KEY, day);
+    return source;
+  } catch {
+    // ponytail: no localStorage → once per tab session instead of per day
+    try {
+      if (sessionStorage.getItem(SOURCE_DAY_KEY) === day) return undefined;
+      sessionStorage.setItem(SOURCE_DAY_KEY, day);
+      return source;
+    } catch {
+      return source;
+    }
+  }
+}
+
 /** Fire-and-forget; never throws into product UI. */
 export function track(event: AnalyticsEventName, props?: AnalyticsProps): void {
   if (!isAnalyticsEnabled()) return;
 
   const path = typeof window !== "undefined" ? window.location.pathname : undefined;
+  const source = event === "page_view" ? takeDailySource() : undefined;
   void apiFetch("/api/v1/analytics/events", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -97,6 +169,7 @@ export function track(event: AnalyticsEventName, props?: AnalyticsProps): void {
       session_id: getSessionId(),
       path,
       props: cleanProps(props),
+      ...(source !== undefined ? { source } : {}),
     }),
   }).catch(() => {
     // Analytics must never break the product.

@@ -3,10 +3,15 @@ import {
   CaretDownIcon,
   ChatCircleTextIcon,
 } from "@phosphor-icons/react";
-import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { createInquiry, type InquiryDatesPreference } from "../../api/inquiries";
+import { useAuth } from "../../auth/AuthProvider";
+import { firebaseAuth } from "../../lib/firebase";
 import { track } from "../../lib/analytics";
+import { LoginModalContent } from "../auth/LoginModalContent";
 
 function dayAfterIso(isoDate: string): string {
   const parts = isoDate.split("-").map(Number);
@@ -41,6 +46,7 @@ export function ExpertInquiryForm({
   defaultEmail?: string;
   cardClassName: string;
 }) {
+  const { user } = useAuth();
   const [customerName, setCustomerName] = useState(defaultName);
   const [customerEmail, setCustomerEmail] = useState(defaultEmail);
   const [datesPreference, setDatesPreference] = useState<InquiryDatesPreference>("flexible");
@@ -52,6 +58,8 @@ export function ExpertInquiryForm({
   const [submitStatus, setSubmitStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const submitAfterLoginRef = useRef(false);
 
   useEffect(() => {
     if (defaultName) setCustomerName((current) => current || defaultName);
@@ -99,6 +107,13 @@ export function ExpertInquiryForm({
         ok: false,
         reason: "validation",
       });
+      return;
+    }
+    // Backend requires auth; gate here so guests get a login modal instead of a hard redirect.
+    if (!user && !firebaseAuth.currentUser) {
+      submitAfterLoginRef.current = true;
+      track("auth_modal_open", { source: "enquiry" });
+      setShowLoginModal(true);
       return;
     }
     setSubmitStatus("submitting");
@@ -336,6 +351,53 @@ export function ExpertInquiryForm({
           <p className="text-center text-sm text-red-600">{submitError}</p>
         ) : null}
       </div>
+
+      {createPortal(
+        <AnimatePresence>
+          {showLoginModal ? (
+            <>
+              <motion.div
+                key="enquiry-login-backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.22 }}
+                className="fixed inset-0 z-1200 bg-black/80"
+                onClick={() => {
+                  submitAfterLoginRef.current = false;
+                  setShowLoginModal(false);
+                }}
+              />
+              <motion.div
+                key="enquiry-login-modal"
+                initial={{ opacity: 0, scale: 0.95, y: 16 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96, y: 8 }}
+                transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                className="pointer-events-none fixed inset-0 z-1201 flex items-center justify-center p-4"
+              >
+                <div className="pointer-events-auto w-full max-w-[1120px]">
+                  <LoginModalContent
+                    analyticsSource="enquiry"
+                    onClose={() => {
+                      submitAfterLoginRef.current = false;
+                      setShowLoginModal(false);
+                    }}
+                    onSuccess={() => {
+                      setShowLoginModal(false);
+                      if (submitAfterLoginRef.current) {
+                        submitAfterLoginRef.current = false;
+                        void handleSubmitInquiry();
+                      }
+                    }}
+                  />
+                </div>
+              </motion.div>
+            </>
+          ) : null}
+        </AnimatePresence>,
+        document.body,
+      )}
     </section>
   );
 }

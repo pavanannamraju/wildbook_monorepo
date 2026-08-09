@@ -1,4 +1,4 @@
-import { BellSimpleIcon, EnvelopeSimpleIcon } from "@phosphor-icons/react";
+import { BellSimpleIcon, ChartLineIcon, EnvelopeSimpleIcon } from "@phosphor-icons/react";
 import { NavLink, Outlet } from "react-router-dom";
 import { StickyTopNavbar } from "../../components/common/StickyTopNavbar";
 
@@ -14,6 +14,12 @@ const ADMIN_SECTIONS = [
     label: "Coming soon",
     description: "Notify-me email signups",
     icon: BellSimpleIcon,
+  },
+  {
+    to: "/admin/analytics",
+    label: "Analytics",
+    description: "Funnel drop rates",
+    icon: ChartLineIcon,
   },
 ] as const;
 

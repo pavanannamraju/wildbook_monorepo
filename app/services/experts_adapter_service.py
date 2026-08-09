@@ -137,7 +137,7 @@ class ExpertsAdapterService:
 
         return ExpertListItem(
             id=guide_id,
-            slug=guide_id,
+            slug=str(guide.get("slug") or guide_id),
             name=str(guide.get("full_name", "")),
             bio_summary=_guide_bio_summary(guide),
             location_primary_location_id=str(location.get("id", "")) if location else None,
@@ -248,7 +248,7 @@ class ExpertsAdapterService:
 
         return ExpertPublicDetail(
             id=guide_id,
-            slug=guide_id,
+            slug=str(guide.get("slug") or guide_id),
             name=str(guide.get("full_name", "")),
             roles=[_role_to_frontend(str(guide.get("role", "GUIDE")))],
             profile_image_url=_expert_photo_url(

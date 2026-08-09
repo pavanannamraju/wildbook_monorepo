@@ -11,7 +11,7 @@ import {
 
 import bannerImage from "../assets/Banner_Image_V2.png";
 import expertConnectImg from "../assets/Expert_Connect.png";
-import { track } from "../lib/analytics";
+import { claimHomeSectionView, track } from "../lib/analytics";
 
 const words = ["Connect", "Conserve", "Coexist"] as const;
 
@@ -52,18 +52,21 @@ const comingSoonOfferings = [
     body: "Some sightings are better witnessed together. Join travellers heading to the same park on the same dates, share the cost, and experience the forest alongside people who share your curiosity.",
     accent: "#0B6E66",
     accentBg: "rgba(11,110,102,0.07)",
+    to: "/safaris",
   },
   {
     title: "Homestays",
     body: "Stay with people whose lives are deeply rooted in the landscapes around them — expert-run homestays near the forest shaped by local knowledge and a genuine connection to nature.",
     accent: "#AB863F",
     accentBg: "rgba(171,134,63,0.07)",
+    to: "/homestays",
   },
   {
     title: "More to Come",
     body: "We're building more ways to make every wildlife journey more meaningful. Stay tuned.",
     accent: "#3B372F",
     accentBg: "rgba(59,55,47,0.05)",
+    to: null,
   },
 ] as const;
 
@@ -110,9 +113,8 @@ export function HomePage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Fire once per section when it enters the viewport (not continuous scroll spam).
+  // Once per section per tab session (sessionStorage) — revisiting / later won't re-fire.
   useEffect(() => {
-    const seen = new Set<string>();
     const nodes = Array.from(
       document.querySelectorAll<HTMLElement>("[data-home-section]"),
     );
@@ -123,8 +125,11 @@ export function HomePage() {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
           const section = entry.target.getAttribute("data-home-section");
-          if (!section || seen.has(section)) continue;
-          seen.add(section);
+          if (!section) continue;
+          if (!claimHomeSectionView(section)) {
+            observer.unobserve(entry.target);
+            continue;
+          }
           track("home_section_view", { section });
           observer.unobserve(entry.target);
         }
@@ -337,13 +342,17 @@ export function HomePage() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: false }}
               transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{ y: -3, transition: { duration: 0.2 } }}
               className="group relative"
             >
-              <div
-                className="relative overflow-hidden rounded-xl"
+              <Link
+                to="/experts"
+                onClick={() => track("home_cta_click", { cta: "find_expert" })}
+                className="relative block overflow-hidden rounded-xl"
                 style={{
                   backgroundColor: "#ffffff",
-                  boxShadow: "0 2px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.06)",
+                  border: "1px solid rgba(0,0,0,0.08)",
+                  boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
                 }}
               >
                 <div className="relative overflow-hidden" style={{ aspectRatio: "16/10" }}>
@@ -382,26 +391,18 @@ export function HomePage() {
                     wild — now discoverable by specialty, destination, and the experiences they
                     curate.
                   </p>
-                  <Link
-                    to="/experts"
-                    onClick={() => track("home_cta_click", { cta: "find_expert" })}
+                  <span
                     className="group/btn inline-flex items-center gap-2 rounded-sm px-5 py-2.5 font-['Nunito'] text-sm font-semibold text-white transition-colors"
                     style={{ backgroundColor: "#0B6E66" }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "#095B54";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "#0B6E66";
-                    }}
                   >
                     Find your Expert
                     <ArrowRightIcon
                       size={15}
                       className="transition-transform duration-200 group-hover/btn:translate-x-1"
                     />
-                  </Link>
+                  </span>
                 </div>
-              </div>
+              </Link>
             </motion.div>
 
             <motion.div
@@ -411,45 +412,62 @@ export function HomePage() {
               viewport={{ once: false }}
               className="flex flex-col gap-4"
             >
-              {comingSoonOfferings.map(({ title, body, accent, accentBg }) => (
-                <motion.div
-                  key={title}
-                  variants={slideFromRight}
-                  className="relative flex gap-0 overflow-hidden rounded-xl"
-                  style={{
-                    backgroundColor: "#ffffff",
-                    border: "1px solid rgba(0,0,0,0.07)",
-                    boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-                  }}
-                >
-                  <div
-                    className="w-1 shrink-0 rounded-l-xl"
-                    style={{ backgroundColor: accent, opacity: 0.55 }}
-                  />
-                  <div className="flex-1 px-5 py-5">
-                    <div className="mb-2 flex items-start justify-between gap-3">
-                      <h3
-                        className="font-['Montserrat'] text-base font-bold"
-                        style={{ color: "#1B3D2C" }}
+              {comingSoonOfferings.map(({ title, body, accent, accentBg, to }) => {
+                const cardClass =
+                  "relative flex gap-0 overflow-hidden rounded-xl";
+                const cardStyle = {
+                  backgroundColor: "#ffffff",
+                  border: "1px solid rgba(0,0,0,0.08)",
+                  boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
+                } as const;
+                const inner = (
+                  <>
+                    <div
+                      className="w-1 shrink-0 rounded-l-xl"
+                      style={{ backgroundColor: accent, opacity: 0.55 }}
+                    />
+                    <div className="flex-1 px-5 py-5">
+                      <div className="mb-2 flex items-start justify-between gap-3">
+                        <h3
+                          className="font-['Montserrat'] text-base font-bold"
+                          style={{ color: "#1B3D2C" }}
+                        >
+                          {title}
+                        </h3>
+                        <span
+                          className="mt-0.5 shrink-0 rounded-sm px-2.5 py-1 font-['Nunito'] text-[10px] font-semibold tracking-[0.16em] uppercase"
+                          style={{ backgroundColor: accentBg, color: accent }}
+                        >
+                          Coming Soon
+                        </span>
+                      </div>
+                      <p
+                        className="font-['Nunito'] text-sm leading-relaxed"
+                        style={{ color: "rgba(59,55,47,0.6)" }}
                       >
-                        {title}
-                      </h3>
-                      <span
-                        className="mt-0.5 shrink-0 rounded-sm px-2.5 py-1 font-['Nunito'] text-[10px] font-semibold tracking-[0.16em] uppercase"
-                        style={{ backgroundColor: accentBg, color: accent }}
-                      >
-                        Coming Soon
-                      </span>
+                        {body}
+                      </p>
                     </div>
-                    <p
-                      className="font-['Nunito'] text-sm leading-relaxed"
-                      style={{ color: "rgba(59,55,47,0.6)" }}
-                    >
-                      {body}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
+                  </>
+                );
+                return (
+                  <motion.div
+                    key={title}
+                    variants={slideFromRight}
+                    whileHover={{ y: -3, transition: { duration: 0.2 } }}
+                  >
+                    {to ? (
+                      <Link to={to} className={cardClass} style={cardStyle}>
+                        {inner}
+                      </Link>
+                    ) : (
+                      <div className={cardClass} style={cardStyle}>
+                        {inner}
+                      </div>
+                    )}
+                  </motion.div>
+                );
+              })}
             </motion.div>
           </div>
         </div>

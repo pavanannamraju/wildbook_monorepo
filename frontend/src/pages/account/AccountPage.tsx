@@ -434,7 +434,7 @@ export function AccountPage() {
             <SectionTitle icon={UserIcon} eyebrow="Your details" title="Basic details" />
             <div className="flex flex-col gap-4">
               <div className="grid gap-4 sm:grid-cols-2">
-                <div>
+                <div className="sm:col-span-2">
                   <label className={labelClassName} htmlFor="account-full-name">
                     Full name
                   </label>

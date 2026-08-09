@@ -177,6 +177,7 @@ class GuideResponse(BaseModel):
     model_config = ConfigDict(use_enum_values=True)
 
     guide_id: str
+    slug: str
     full_name: str
     email: EmailStr | None = None
     phone_number: str | None = None

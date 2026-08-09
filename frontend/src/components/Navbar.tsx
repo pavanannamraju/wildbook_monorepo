@@ -104,6 +104,20 @@ export default function Navbar(_props: { variant?: NavbarVariant } = {}) {
     }
   });
 
+  // Sticky page chrome (e.g. explore filters) sits under the nav; collapse offset when nav hides.
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--site-header-offset",
+      navHidden ? "0px" : "4rem",
+    );
+  }, [navHidden]);
+
+  useEffect(() => {
+    return () => {
+      document.documentElement.style.removeProperty("--site-header-offset");
+    };
+  }, []);
+
   useEffect(() => {
     if (!isOpen) return;
     const previousOverflow = document.body.style.overflow;

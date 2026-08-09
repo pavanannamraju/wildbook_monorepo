@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { XIcon } from "@phosphor-icons/react";
+import { AnimatePresence, motion } from "motion/react";
+import { MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react";
 
 import {
   fetchExpertFilterOptions,
@@ -32,44 +33,70 @@ function toggleId(ids: string[], id: string): string[] {
   return ids.includes(id) ? ids.filter((value) => value !== id) : [...ids, id];
 }
 
-function CheckboxList({
+function PillToggle({
   label,
+  selected,
+  onToggle,
+}: {
+  label: string;
+  selected: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className="px-3 py-1.5 font-['Nunito'] text-xs font-semibold transition-all duration-150"
+      style={{
+        borderRadius: "4px",
+        ...(selected
+          ? { backgroundColor: "#0B6E66", color: "white" }
+          : {
+              backgroundColor: "white",
+              color: "#3B372F",
+              border: "1px solid rgba(0,0,0,0.15)",
+            }),
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+function SectionLabel({ children }: { children: string }) {
+  return (
+    <p
+      className="mb-3.5 font-['Montserrat'] text-[10px] font-bold tracking-[0.16em] uppercase"
+      style={{ color: "#1B3D2C" }}
+    >
+      {children}
+    </p>
+  );
+}
+
+function PillGroup({
   options,
   selected,
   onChange,
 }: {
-  label: string;
   options: ExpertFilterOption[];
   selected: string[];
   onChange: (next: string[]) => void;
 }) {
+  if (options.length === 0) {
+    return <p className="font-['Nunito'] text-xs text-[#73706C]">No options available</p>;
+  }
   return (
-    <fieldset className="min-w-0">
-      <legend className="font-['Nunito'] font-bold text-[15px] text-[#2F2B28]">{label}</legend>
-      <div className="mt-3 space-y-2">
-        {options.length === 0 ? (
-          <p className="font-['Nunito'] text-[14px] text-[#73706C]">No options available</p>
-        ) : (
-          options.map((option) => {
-            const checked = selected.includes(option.id);
-            return (
-              <label
-                key={option.id}
-                className="flex cursor-pointer items-start gap-3 font-['Nunito'] text-[14px] text-[#2F2B28]"
-              >
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={() => onChange(toggleId(selected, option.id))}
-                  className="mt-1 size-4 accent-[#0B6E66]"
-                />
-                <span>{option.name}</span>
-              </label>
-            );
-          })
-        )}
-      </div>
-    </fieldset>
+    <div className="flex flex-wrap gap-2">
+      {options.map((option) => (
+        <PillToggle
+          key={option.id}
+          label={option.name}
+          selected={selected.includes(option.id)}
+          onToggle={() => onChange(toggleId(selected, option.id))}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -78,10 +105,21 @@ export function ExpertsFilterPanel({ open, value, onClose, onApply }: ExpertsFil
   const [options, setOptions] = useState<ExpertFilterOptions>(EMPTY_OPTIONS);
   const [optionsError, setOptionsError] = useState<string | null>(null);
   const [isLoadingOptions, setIsLoadingOptions] = useState(false);
+  const [locationSearch, setLocationSearch] = useState("");
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== "undefined" && window.innerWidth < 768,
+  );
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
     setDraft(value);
+    setLocationSearch("");
   }, [open, value]);
 
   useEffect(() => {
@@ -122,124 +160,272 @@ export function ExpertsFilterPanel({ open, value, onClose, onApply }: ExpertsFil
     };
   }, [open]);
 
-  if (!open) return null;
-
   const activeCount =
     (draft.primaryLocationId ? 1 : 0) +
     draft.languageIds.length +
     draft.expertiseIds.length;
 
+  const filteredLocations = options.locations.filter((loc) =>
+    loc.name.toLowerCase().includes(locationSearch.trim().toLowerCase()),
+  );
+
+  const clearDraft = (): ExpertsPanelFilters => ({
+    primaryLocationId: null,
+    languageIds: [],
+    expertiseIds: [],
+    minRating: null,
+  });
+
   return createPortal(
-    <div className="fixed inset-0 z-1200 flex justify-end">
-      <button
-        type="button"
-        className="absolute inset-0 bg-black/40"
-        aria-label="Close filters"
-        onClick={onClose}
-      />
-      <aside
-        className="relative flex h-full w-full max-w-[420px] flex-col bg-[#F6F4F0] shadow-[-8px_0_32px_rgba(47,43,40,0.18)]"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="experts-filter-title"
-      >
-        <div className="flex items-center justify-between border-b border-[#2F2B28]/10 px-6 py-5">
-          <div>
-            <h2
-              id="experts-filter-title"
-              className="font-['Nunito'] font-bold text-[16px] sm:text-[18px] md:text-[20px] text-[#2F2B28]"
-            >
-              Filters
-            </h2>
-            <p className="mt-1 font-['Nunito'] text-[13px] text-[#73706C]">
-              {activeCount > 0 ? `${activeCount} selected` : "Refine the experts list"}
-            </p>
-          </div>
-          <button
-            type="button"
+    <AnimatePresence>
+      {open ? (
+        <>
+          <motion.div
+            key="experts-filter-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-1200"
+            style={{ backgroundColor: "rgba(0,0,0,0.4)" }}
             onClick={onClose}
-            className="inline-flex size-10 items-center justify-center rounded-full text-[#2F2B28] hover:bg-black/5"
-            aria-label="Close filters"
+            aria-hidden
+          />
+          <motion.aside
+            key="experts-filter-panel"
+            initial={isMobile ? { y: "100%" } : { x: "100%" }}
+            animate={isMobile ? { y: 0 } : { x: 0 }}
+            exit={isMobile ? { y: "100%" } : { x: "100%" }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className={
+              isMobile
+                ? "fixed right-0 bottom-0 left-0 z-1200 flex max-h-[82vh] flex-col overflow-hidden rounded-t-2xl"
+                : "fixed top-0 right-0 z-1200 flex h-full flex-col overflow-hidden"
+            }
+            style={
+              isMobile
+                ? {
+                    backgroundColor: "#F6F4F1",
+                    boxShadow: "0 -8px 40px rgba(0,0,0,0.18)",
+                  }
+                : {
+                    width: "min(400px, 92vw)",
+                    backgroundColor: "#F6F4F1",
+                    boxShadow: "-8px 0 40px rgba(0,0,0,0.18)",
+                  }
+            }
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="experts-filter-title"
           >
-            <XIcon size={22} />
-          </button>
-        </div>
-
-        <div className="min-h-0 flex-1 space-y-8 overflow-y-auto overscroll-contain px-6 py-6">
-          {optionsError ? (
-            <div className="rounded-[4px] border border-red-200 bg-red-50 px-3 py-2 text-[14px] text-red-700">
-              {optionsError}
-            </div>
-          ) : null}
-
-          <fieldset>
-            <legend className="font-['Nunito'] font-bold text-[15px] text-[#2F2B28]">Location</legend>
-            <select
-              value={draft.primaryLocationId ?? ""}
-              onChange={(event) =>
-                setDraft((prev) => ({
-                  ...prev,
-                  primaryLocationId: event.target.value || null,
-                }))
-              }
-              disabled={isLoadingOptions}
-              className="mt-3 h-12 w-full rounded-[4px] border border-[#73706C]/40 bg-white px-4 font-['Nunito'] text-[15px] text-[#2F2B28] outline-none focus:border-[#0B6E66]"
+            <div
+              className="flex items-center justify-between border-b px-6 py-5"
+              style={{ borderColor: "rgba(0,0,0,0.08)" }}
             >
-              <option value="">All locations</option>
-              {options.locations.map((location) => (
-                <option key={location.id} value={location.id}>
-                  {location.name}
-                </option>
-              ))}
-            </select>
-          </fieldset>
+              <div>
+                <h2
+                  id="experts-filter-title"
+                  className="font-['Montserrat'] text-lg font-bold"
+                  style={{ color: "#1B3D2C" }}
+                >
+                  Filters
+                </h2>
+                {activeCount > 0 ? (
+                  <p className="mt-0.5 font-['Nunito'] text-xs" style={{ color: "#7A8C82" }}>
+                    {activeCount} active
+                  </p>
+                ) : null}
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-black/8"
+                style={{ color: "#7A8C82" }}
+                aria-label="Close filters"
+              >
+                <XIcon size={18} />
+              </button>
+            </div>
 
-          <CheckboxList
-            label="Languages"
-            options={options.languages}
-            selected={draft.languageIds}
-            onChange={(languageIds) => setDraft((prev) => ({ ...prev, languageIds }))}
-          />
+            <div className="flex min-h-0 flex-1 flex-col gap-7 overflow-y-auto overscroll-contain px-6 py-6">
+              {optionsError ? (
+                <div className="rounded-[4px] border border-red-200 bg-red-50 px-3 py-2 font-['Nunito'] text-sm text-red-700">
+                  {optionsError}
+                </div>
+              ) : null}
 
-          <CheckboxList
-            label="Expertise"
-            options={options.expertise}
-            selected={draft.expertiseIds}
-            onChange={(expertiseIds) => setDraft((prev) => ({ ...prev, expertiseIds }))}
-          />
-        </div>
+              <div>
+                <SectionLabel>Skills</SectionLabel>
+                {isLoadingOptions ? (
+                  <p className="font-['Nunito'] text-xs text-[#73706C]">Loading…</p>
+                ) : (
+                  <PillGroup
+                    options={options.expertise}
+                    selected={draft.expertiseIds}
+                    onChange={(expertiseIds) => setDraft((prev) => ({ ...prev, expertiseIds }))}
+                  />
+                )}
+              </div>
 
-        <div className="flex gap-3 border-t border-[#2F2B28]/10 px-6 py-5">
-          <button
-            type="button"
-            onClick={() => {
-              const cleared = {
-                primaryLocationId: null,
-                languageIds: [],
-                expertiseIds: [],
-                minRating: null,
-              };
-              setDraft(cleared);
-              onApply(cleared);
-              onClose();
-            }}
-            className="h-12 flex-1 rounded-[4px] border border-[#73706C] font-['Nunito'] font-medium text-[15px] text-[#2F2B28] hover:bg-black/5"
-          >
-            Clear
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              onApply(draft);
-              onClose();
-            }}
-            className="h-12 flex-1 rounded-[4px] bg-[#0B6E66] font-['Nunito'] font-medium text-[15px] text-[#FAFAFA] hover:bg-[#074A46]"
-          >
-            Apply filters
-          </button>
-        </div>
-      </aside>
-    </div>,
+              <div>
+                <p
+                  className="mb-3 font-['Montserrat'] text-[10px] font-bold tracking-[0.16em] uppercase"
+                  style={{ color: "#1B3D2C" }}
+                >
+                  Location
+                </p>
+                <div className="relative mb-2">
+                  <MagnifyingGlassIcon
+                    size={12}
+                    className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2"
+                    style={{ color: "#9AA59D" }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Search locations…"
+                    value={locationSearch}
+                    onChange={(event) => setLocationSearch(event.target.value)}
+                    disabled={isLoadingOptions}
+                    className="w-full border py-2 pr-3 pl-7 font-['Nunito'] text-xs outline-none"
+                    style={{
+                      borderRadius: "4px",
+                      borderColor: "rgba(0,0,0,0.12)",
+                      backgroundColor: "white",
+                      color: "#3B372F",
+                    }}
+                  />
+                </div>
+                <div className="flex max-h-[200px] flex-col overflow-y-auto">
+                  {isLoadingOptions ? (
+                    <p className="px-1 py-2 font-['Nunito'] text-xs text-[#73706C]">Loading…</p>
+                  ) : filteredLocations.length === 0 ? (
+                    <p className="px-1 py-2 font-['Nunito'] text-xs text-[#73706C]">
+                      No locations found
+                    </p>
+                  ) : (
+                    filteredLocations.map((loc) => {
+                      const checked = draft.primaryLocationId === loc.id;
+                      return (
+                        <label
+                          key={loc.id}
+                          className="flex cursor-pointer items-center gap-2.5 rounded px-1 py-2 select-none transition-colors"
+                          style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}
+                          onMouseEnter={(event) => {
+                            event.currentTarget.style.backgroundColor = "rgba(11,110,102,0.04)";
+                          }}
+                          onMouseLeave={(event) => {
+                            event.currentTarget.style.backgroundColor = "transparent";
+                          }}
+                        >
+                          <span
+                            className="flex shrink-0 items-center justify-center transition-all"
+                            style={{
+                              width: 16,
+                              height: 16,
+                              borderRadius: "3px",
+                              border: checked ? "none" : "1.5px solid rgba(0,0,0,0.2)",
+                              backgroundColor: checked ? "#0B6E66" : "white",
+                            }}
+                            aria-hidden
+                          >
+                            {checked ? (
+                              <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
+                                <path
+                                  d="M1 3.5L3.5 6L8 1"
+                                  stroke="white"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            ) : null}
+                          </span>
+                          <input
+                            type="checkbox"
+                            className="sr-only"
+                            checked={checked}
+                            onChange={() =>
+                              setDraft((prev) => ({
+                                ...prev,
+                                // API supports one location; toggle acts as single-select.
+                                primaryLocationId: checked ? null : loc.id,
+                              }))
+                            }
+                          />
+                          <span
+                            className="font-['Nunito'] text-xs"
+                            style={{
+                              color: checked ? "#0B6E66" : "#3B372F",
+                              fontWeight: checked ? 600 : 400,
+                            }}
+                          >
+                            {loc.name}
+                          </span>
+                        </label>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <SectionLabel>Language</SectionLabel>
+                {isLoadingOptions ? (
+                  <p className="font-['Nunito'] text-xs text-[#73706C]">Loading…</p>
+                ) : (
+                  <PillGroup
+                    options={options.languages}
+                    selected={draft.languageIds}
+                    onChange={(languageIds) => setDraft((prev) => ({ ...prev, languageIds }))}
+                  />
+                )}
+              </div>
+            </div>
+
+            <div
+              className="flex gap-3 border-t px-6 py-5"
+              style={{ borderColor: "rgba(0,0,0,0.08)" }}
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  const cleared = clearDraft();
+                  setDraft(cleared);
+                  onApply(cleared);
+                  onClose();
+                }}
+                className="h-10 flex-1 font-['Nunito'] text-sm font-semibold transition-colors"
+                style={{
+                  borderRadius: "4px",
+                  border: "1px solid rgba(0,0,0,0.18)",
+                  color: "#3B372F",
+                  backgroundColor: "white",
+                }}
+              >
+                Clear All
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onApply(draft);
+                  onClose();
+                }}
+                className="h-10 flex-1 font-['Nunito'] text-sm font-semibold text-white transition-colors"
+                style={{ borderRadius: "4px", backgroundColor: "#0B6E66" }}
+                onMouseEnter={(event) => {
+                  event.currentTarget.style.backgroundColor = "#095B54";
+                }}
+                onMouseLeave={(event) => {
+                  event.currentTarget.style.backgroundColor = "#0B6E66";
+                }}
+              >
+                Apply Filters
+              </button>
+            </div>
+          </motion.aside>
+        </>
+      ) : null}
+    </AnimatePresence>,
     document.body,
   );
 }

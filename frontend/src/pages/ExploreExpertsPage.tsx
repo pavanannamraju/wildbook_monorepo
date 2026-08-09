@@ -3,12 +3,9 @@ import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
 import {
-  ArrowRightIcon,
   CircleNotchIcon,
   MagnifyingGlassIcon,
-  SignInIcon,
   SlidersHorizontalIcon,
-  XIcon,
 } from "@phosphor-icons/react";
 
 import bannerImg from "../assets/Explore_Experts_V4.png";
@@ -31,7 +28,6 @@ import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import { useExperts } from "../hooks/useExperts";
 import { track } from "../lib/analytics";
 
-const FIRST_FREE_EXPERT_KEY = "wildbook_guest_first_expert_detail";
 const SEARCH_DEBOUNCE_MS = 300;
 const SKELETON_CARD_COUNT = 8;
 
@@ -64,9 +60,7 @@ export function ExploreExpertsPage() {
   const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
   const [panelFilters, setPanelFilters] = useState<ExpertsPanelFilters>(EMPTY_PANEL_FILTERS);
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
-  const [showExploreLoginGate, setShowExploreLoginGate] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [pendingExpertPath, setPendingExpertPath] = useState<string | null>(null);
   const [bookmarkedExpertIds, setBookmarkedExpertIds] = useState<Set<string>>(new Set());
   const [bookmarkingExpertIds, setBookmarkingExpertIds] = useState<Set<string>>(new Set());
   const [sharePath, setSharePath] = useState<string | null>(null);
@@ -151,27 +145,7 @@ export function ExploreExpertsPage() {
   const handleViewDetails = (expertPath: string) => {
     const expertId = expertPath.replace("/experts/", "");
     track("expert_card_click", { expert_id: expertId });
-
-    if (user) {
-      navigate(expertPath);
-      return;
-    }
-
-    const nextExpertId = expertId;
-    const firstViewedExpert = window.localStorage.getItem(FIRST_FREE_EXPERT_KEY);
-    if (!firstViewedExpert) {
-      window.localStorage.setItem(FIRST_FREE_EXPERT_KEY, nextExpertId);
-      navigate(expertPath);
-      return;
-    }
-
-    if (firstViewedExpert === nextExpertId) {
-      navigate(expertPath);
-      return;
-    }
-
-    setPendingExpertPath(expertPath);
-    setShowExploreLoginGate(true);
+    navigate(expertPath);
   };
 
   useEffect(() => {
@@ -186,15 +160,6 @@ export function ExploreExpertsPage() {
       areSetsEqual(prev, nextBookmarkedExpertIds) ? prev : nextBookmarkedExpertIds,
     );
   }, [data]);
-
-  useEffect(() => {
-    if (!isFilterPanelOpen) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previous;
-    };
-  }, [isFilterPanelOpen]);
 
   const toggleBookmark = async (expertId: string) => {
     if (!user) {
@@ -309,10 +274,11 @@ export function ExploreExpertsPage() {
         </div>
       </div>
 
-      {/* Sticky filter bar */}
+      {/* Sticky filter bar — top tracks Navbar hide-on-scroll via --site-header-offset */}
       <div
-        className="sticky top-16 z-40"
+        className="sticky z-40 transition-[top] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
         style={{
+          top: "var(--site-header-offset, 4rem)",
           backgroundColor: "#F6F4F1",
           borderBottom: "1px solid rgba(0,0,0,0.07)",
           boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
@@ -530,70 +496,6 @@ export function ExploreExpertsPage() {
         )}
       </div>
 
-      {showExploreLoginGate
-        ? createPortal(
-            <div className="fixed inset-0 z-1200 flex items-center justify-center bg-black/55 p-4">
-              <div className="w-full max-w-[760px] rounded-[16px] border border-white/20 bg-[#2f2d2a] px-8 py-9 text-white shadow-2xl">
-                <div className="flex items-start justify-between gap-6">
-                  <div className="max-w-[620px]">
-                    <h2
-                      className="text-[24px] leading-none tracking-[-0.02em]"
-                      style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300 }}
-                    >
-                      <span aria-hidden="true" className="mr-3 inline-block align-middle">
-                        <SignInIcon />
-                      </span>
-                      Discover more about our experts
-                    </h2>
-                    <p className="mt-5 text-[20px] leading-[1.55] text-white/90 md:text-[22px]">
-                      Log in or create an account to explore detailed profiles, experience offerings, and
-                      availability of wildlife guides and naturalists.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    className="mt-1 inline-flex h-10 w-10 items-center justify-center rounded-full text-white hover:bg-white/10"
-                    onClick={() => {
-                      setShowExploreLoginGate(false);
-                      setPendingExpertPath(null);
-                    }}
-                    aria-label="Close access prompt"
-                  >
-                    <XIcon size={22} />
-                  </button>
-                </div>
-                <div className="mt-8 flex flex-wrap gap-4">
-                  <button
-                    type="button"
-                    className="rounded-md border border-white/45 px-4 py-2 text-[12px] leading-none"
-                    style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300 }}
-                    onClick={() => {
-                      setShowExploreLoginGate(false);
-                      setPendingExpertPath(null);
-                    }}
-                  >
-                    Go Back
-                  </button>
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-3 rounded-md bg-[#0B6E66] px-4 py-2 text-[12px] leading-none"
-                    style={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300 }}
-                    onClick={() => {
-                      track("auth_modal_open", { source: "explore_gate" });
-                      setShowExploreLoginGate(false);
-                      setShowLoginModal(true);
-                    }}
-                  >
-                    Login / Sign Up
-                    <ArrowRightIcon size={24} />
-                  </button>
-                </div>
-              </div>
-            </div>,
-            document.body,
-          )
-        : null}
-
       {createPortal(
         <AnimatePresence>
           {showLoginModal ? (
@@ -619,13 +521,7 @@ export function ExploreExpertsPage() {
                   <LoginModalContent
                     analyticsSource="explore"
                     onClose={() => setShowLoginModal(false)}
-                    onSuccess={() => {
-                      setShowLoginModal(false);
-                      if (pendingExpertPath) {
-                        navigate(pendingExpertPath);
-                        setPendingExpertPath(null);
-                      }
-                    }}
+                    onSuccess={() => setShowLoginModal(false)}
                   />
                 </div>
               </motion.div>

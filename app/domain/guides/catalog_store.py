@@ -72,6 +72,21 @@ class CatalogStore:
     def get_guide(self, guide_id: str) -> dict[str, Any] | None:
         return self.guides.find_one({"_id": guide_id, "is_deleted": False})
 
+    def get_guide_by_slug(self, slug: str) -> dict[str, Any] | None:
+        return self.guides.find_one({"slug": slug, "is_deleted": False})
+
+    def get_guide_by_slug_or_id(self, slug_or_id: str) -> dict[str, Any] | None:
+        by_id = self.get_guide(slug_or_id)
+        if by_id is not None:
+            return by_id
+        return self.get_guide_by_slug(slug_or_id)
+
+    def slug_taken(self, slug: str, *, exclude_guide_id: str | None = None) -> bool:
+        query: dict[str, Any] = {"slug": slug, "is_deleted": False}
+        if exclude_guide_id is not None:
+            query["_id"] = {"$ne": exclude_guide_id}
+        return self.guides.count_documents(query, limit=1) > 0
+
     def _guide_list_query(
         self,
         *,

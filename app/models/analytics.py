@@ -68,14 +68,20 @@ class AnalyticsEventCreate(BaseModel):
     anonymous_id: str = Field(min_length=8, max_length=80)
     session_id: str | None = Field(default=None, max_length=80)
     path: str | None = Field(default=None, max_length=500)
+    source: str | None = Field(default=None, max_length=80)
     props: dict[str, Any] = Field(default_factory=dict)
 
-    @field_validator("anonymous_id", "session_id", "path", mode="before")
+    @field_validator("anonymous_id", "session_id", "path", "source", mode="before")
     @classmethod
     def _strip(cls, value: object) -> object:
         if isinstance(value, str):
             return value.strip()
         return value
+
+    @field_validator("source")
+    @classmethod
+    def _empty_source_none(cls, value: str | None) -> str | None:
+        return value or None
 
     @field_validator("props")
     @classmethod
@@ -103,3 +109,17 @@ class AnalyticsEventResponse(BaseModel):
     id: str
     accepted: bool = True
     ts: datetime
+
+
+class AnalyticsFunnelStep(BaseModel):
+    step: str
+    uniques: int
+    drop_from_prev: float | None = None  # 0–1; None for first step or when prev==0
+
+
+class AnalyticsFunnelResponse(BaseModel):
+    lookback_hours: float
+    step_window_hours: float
+    events: int
+    visitors: int
+    steps: list[AnalyticsFunnelStep]

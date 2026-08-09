@@ -51,6 +51,13 @@ def _ensure_guide_indexes(store: CatalogStore) -> None:
         ),
         label="uniq_guide_email",
     )
+    # Sparse until backfill fills every guide; null/missing slugs stay out of the index.
+    _try_create_index(
+        lambda: store.guides.create_index(
+            [("slug", 1)], unique=True, sparse=True, name="uniq_guide_slug"
+        ),
+        label="uniq_guide_slug",
+    )
     _try_create_index(
         lambda: store.guides.create_index(
             [("status", 1), ("is_active", 1), ("is_deleted", 1), ("max_rating", -1)],
