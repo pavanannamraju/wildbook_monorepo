@@ -9,8 +9,8 @@ import {
   UsersThreeIcon,
 } from "@phosphor-icons/react";
 
-import bannerImage from "../assets/Banner_Image_V2.png";
-import expertConnectImg from "../assets/Expert_Connect.png";
+import bannerImage from "../assets/Banner_Image_V2.jpg";
+import expertConnectImg from "../assets/Expert_Connect.jpg";
 import { claimHomeSectionView, track } from "../lib/analytics";
 
 const words = ["Connect", "Conserve", "Coexist"] as const;

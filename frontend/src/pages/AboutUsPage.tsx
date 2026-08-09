@@ -4,10 +4,10 @@ import { Link } from "react-router-dom";
 import { ArrowRightIcon } from "@phosphor-icons/react";
 
 import LeopardImg from "../assets/AboutLeopard.jpg";
-import AnuragImg from "../assets/team_photos/Anurag.png";
-import NishadImg from "../assets/team_photos/Nishad.png";
-import SangeethaImg from "../assets/team_photos/Sangeetha.png";
-import PavanImg from "../assets/team_photos/Pavan.png";
+import AnuragImg from "../assets/team_photos/Anurag.jpg";
+import NishadImg from "../assets/team_photos/Nishad.jpg";
+import SangeethaImg from "../assets/team_photos/Sangeetha.jpg";
+import PavanImg from "../assets/team_photos/Pavan.jpg";
 import { WildlifeGallery } from "../components/about/WildlifeGallery";
 import { track } from "../lib/analytics";
 

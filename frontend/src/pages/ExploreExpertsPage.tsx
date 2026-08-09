@@ -8,7 +8,7 @@ import {
   SlidersHorizontalIcon,
 } from "@phosphor-icons/react";
 
-import bannerImg from "../assets/Explore_Experts_V4.png";
+import bannerImg from "../assets/Explore_Experts_V4.jpg";
 import { addBookmark, removeBookmark } from "../api/bookmarks";
 import {
   fetchExpertFilterOptions,

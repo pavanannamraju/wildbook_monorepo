@@ -5,7 +5,7 @@ import {
   InstagramLogoIcon,
 } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
-import footerTop from "../assets/Mask group (1).svg";
+import footerTop from "../assets/footer-grass.png";
 import { track } from "../lib/analytics";
 
 const CONTACT_EMAIL = "hello@wildbook.in";
